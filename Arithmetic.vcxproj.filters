@@ -21,7 +21,7 @@
     <ClCompile Include="ArchiveHeader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Coder.cpp">
+    <ClCompile Include="RangeCoder.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Context.cpp">
@@ -75,6 +75,15 @@
     <ClCompile Include="..\libsais\src\libsais.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="fpaq0.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="BitCoder.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ModelBitOrder1.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ArchiveHeader.h">
@@ -104,7 +113,7 @@
     <ClInclude Include="ModelOrder3.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ModelsFactory.h">
+    <ClInclude Include="ModelFactory.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="MTF.h">
@@ -119,8 +128,37 @@
     <ClInclude Include="Ticks.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Coder.h">
+    <ClInclude Include="RangeCoder.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="fpaq0.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ICoder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CoderFactory.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BitCoder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ModelOO1.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ModelBitOrder1.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Arithmetic.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="log4cpp.properties" />
   </ItemGroup>
 </Project>

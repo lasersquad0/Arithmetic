@@ -1,9 +1,6 @@
 #include "Functions.h"
 #include "ArchiveHeader.h"
 
-std::string CompAlgSymbols[] = { "NONE", "HUF", "AHUF", "RLE", "ARI", "ARI32", "ARI64", "AARI", "AARI32", "AARI64", "BITARI" };
-
-
 void ArchiveHeader::listContent(std::string arcFilename)
 {
 	std::ifstream fin(arcFilename, std::ios::in | std::ios::binary);
@@ -13,7 +10,7 @@ void ArchiveHeader::listContent(std::string arcFilename)
 	loadHeader(&fin);
 
 	printf("%-46s %18s %15s %7s %10s %6s %7s %7s %-18s %13s\n", "File name", "File size", "Compressed", "Blocks", "Block size", "Alg", 
-		"M Order", "Ratio", "Modified", "CRC32");
+		"Model", "Ratio", "Modified", "CRC32");
 
 	for (int i = 0; i < files.size(); i++)
 	{
@@ -24,12 +21,13 @@ void ArchiveHeader::listContent(std::string arcFilename)
 		time_t tt = std::chrono::system_clock::to_time_t(sctp);
 		std::string fileModified = DateTimeToStr(tt);
 
-		std::string algName = CompAlgSymbols[fr.alg]; // fr.alg здесь уже очищен от model order
+		std::string algName = Parameters::CoderNames[fr.alg]; // fr.alg здесь уже очищен от model order
+		std::string modelName = Parameters::ModelTypeCode[fr.modelOrder];
 
 		float ratio = (float)fr.fileSize / (float)fr.compressedSize;
-		printf("%-46s %18s %15s %7s %10s %6s %6u %7.2f %18s %13llu\n", 
+		printf("%-46s %18s %15s %7s %10s %6s %6s %7.2f %18s %13llu\n", 
 			truncate(fr.fileName, 46).c_str(), toStringSep(fr.fileSize).c_str(), toStringSep(fr.compressedSize).c_str(), toStringSep(fr.blockCount).c_str(),
-			toStringSep(fr.blockSize).c_str(), algName.c_str(), fr.modelOrder, ratio, fileModified.c_str(), fr.CRC32Value);
+			toStringSep(fr.blockSize).c_str(), algName.c_str(), modelName.c_str(), ratio, fileModified.c_str(), fr.CRC32Value);
 	}
 
 	if (Parameters::VERBOSE)

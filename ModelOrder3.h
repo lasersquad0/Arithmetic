@@ -9,15 +9,14 @@
 class ModelOrder3: public BasicModel
 {
 private:
+	static const uint32or64 UCHAR_CNT = 256;
 	ModelOrder2* models[UCHAR_CNT];
-	//RangeCoder& coder;
 public:
-	ModelOrder3()//: coder(RangeCoder::GetCoder())
+	ModelOrder3(IBlockCoder& cr): BasicModel(cr)
 	{
-		//coder = RangeCoder::GetCoder();
 		for (size_t i = 0; i < UCHAR_CNT; i++)
 		{
-			models[i] = new ModelOrder2();
+			models[i] = new ModelOrder2(cr);
 		}
 	}
 
@@ -26,13 +25,9 @@ public:
 		for (size_t i = 0; i < UCHAR_CNT; i++)
 		{
 			delete models[i];
+			models[i] = nullptr;
 		}
 	}
-
-	//void updateStatistics(uchar* ctx)
-	//{
-	//	models[ctx[1]]->updateStatistics(ctx);
-	//}
 
 	void EncodeSymbol(uchar* ctx) override
 	{
@@ -43,26 +38,6 @@ public:
 	{
 		return models[ctx[1]]->DecodeSymbol(ctx);
 	}
-	/*
-	void StartEncode(std::ostream* f) override
-	{
-		coder.StartEncode(f);
-	}
-
-	void StopEncode() override
-	{
-		coder.FinishEncode();
-	}
-
-	void StartDecode(std::istream* f) override
-	{
-		coder.StartDecode(f);
-	}
-
-	void StopDecode() override 
-	{
-		coder.FinishDecode();
-	}*/
 
 };
 
@@ -70,14 +45,14 @@ public:
 class ModelOrder4: public BasicModel
 {
 private:
+	static const uint32or64 UCHAR_CNT = 256;
 	ModelOrder3* models[UCHAR_CNT];
-//	RangeCoder& coder;
 public:
-	ModelOrder4()//: coder(RangeCoder::GetCoder())
+	ModelOrder4(IBlockCoder& cr): BasicModel(cr)
 	{
 		for (size_t i = 0; i < UCHAR_CNT; i++)
 		{
-			models[i] = new ModelOrder3();
+			models[i] = new ModelOrder3(cr);
 		}
 	}
 
@@ -86,13 +61,9 @@ public:
 		for (size_t i = 0; i < UCHAR_CNT; i++)
 		{
 			delete models[i];
+			models[i] = nullptr;
 		}
 	}
-
-	//void updateStatistics(uchar* ctx)
-	//{
-	//	models[ctx[2]]->updateStatistics(ctx); // или может с0 и с1 поменять местами?
-	//}
 
 	void EncodeSymbol(uchar* ctx) override
 	{
@@ -103,25 +74,5 @@ public:
 	{
 		return models[ctx[2]]->DecodeSymbol(ctx);
 	}
-	/*
-	void StartEncode(std::ostream* f) override
-	{
-		coder.StartEncode(f);
-	}
 
-	void StopEncode() override
-	{
-		coder.FinishEncode();
-	}
-
-	void StartDecode(std::istream* f) override
-	{
-		coder.StartDecode(f);
-	}
-
-	void StopDecode() override 
-	{
-		coder.FinishDecode();
-	}
-	*/
 };

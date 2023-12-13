@@ -4,8 +4,9 @@
 #include <log4cpp/Category.hh>
 
 
-enum class ComprAlgs { NONE, HUFFMAN, AHUFFMAN, RLE, ARITHMETIC, ARITHMETIC32, ARITHMETIC64, AARITHMETIC, AARITHMETIC32, AARITHMETIC64, ABITARITHMETIC };
+enum class CoderType { NONE, HUFFMAN, AHUFFMAN, RLE, ARITHMETIC, ARITHMETIC32, ARITHMETIC64, AARITHMETIC, AARITHMETIC32, AARITHMETIC64, ABITARITHMETIC };
 
+enum class ModelType { UNKNOWN, O1, O2, O3, O4, FO1, BITO1 };
 
 class Parameters
 {
@@ -18,11 +19,9 @@ public:
 	static inline std::string APP_NAME = "ttttt"; // initialized by argv[0] in function main
 	static log4cpp::Category& logger;
 	static inline bool VERBOSE = false;
-	static inline uint8_t MODEL_ORDER = 3;
-	static inline uint8_t COMPRESSION_ALG = (uint8_t)ComprAlgs::AARITHMETIC;
-
-	static uint32_t parseNumber(std::string s);
-	static uint8_t parseModelOrder(std::string s);
-
+	static inline ModelType MODEL_TYPE = ModelType::O3;
+	static inline CoderType CODER_TYPE = CoderType::AARITHMETIC;
+	static const inline std::string CoderNames[] = { "NONE", "HUF", "AHUF", "RLE", "ARI", "ARI32", "ARI64", "AARI", "AARI32", "AARI64", "BITARI" };
+	static const inline std::string ModelTypeCode[] = { "UNKNOWN", "O1", "O2", "O3", "O4", "FO1", "BITO1" };
 };
 

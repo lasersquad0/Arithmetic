@@ -2,15 +2,10 @@
 
 #include <fstream>
 //#include <stdint.h>
-//#include <log4cpp/Category.hh>
+#include "ICoder.h"
 
-//using namespace std;
 
-typedef unsigned char uchar;
-
-typedef uint64_t uint32or64; // переводит coder и model либо в uint32_t режим либо uint64_t. все int переменные становятся либо 32bit либо 64bit
-
-#define  DEFAULT_CODEBITS  (24)
+#define  DEF_RANGECODER_CODEBITS  (24)
 //#define  DEFAULT_BOTTOM    (16)
 
 //#define  TOP       (1<<CODEBITS)
@@ -18,29 +13,9 @@ typedef uint64_t uint32or64; // переводит coder и model либо в uint32_t режим ли
 
 #define SHOW_PROGRESS_AFTER 1000
 
-class ICoder
-{
-public:
-    virtual uint32or64 GetBytesPassed() = 0;
-    virtual void StartEncode(std::ostream* f) = 0;
-    virtual void FinishEncode() = 0;
-    virtual void StartDecode(std::istream* f) = 0;
-    virtual void FinishDecode() = 0;
-    virtual void EncodeByte(uint32or64 cumFreq, uint32or64 freq, uint32or64 totalFreq) = 0;
-    virtual uint32or64 GetCumFreq(uint32or64 totalFreq) = 0;
-    virtual void DecodeByte(uint32or64 cumFreq, uint32or64 freq, uint32or64 totalFreq) = 0;
-};
 
-class IBlockCoder: public ICoder
-{
-public:
-    virtual void StartBlockEncode()  = 0;
-    virtual void FinishBlockEncode() = 0;
-    virtual void StartBlockDecode()  = 0;
-    virtual void FinishBlockDecode() = 0;
-};
 
-class RangeCoder: IBlockCoder
+class RangeCoder: public IBlockCoder
 {
 public:
     const uint32or64 CODEBITS;
@@ -49,7 +24,6 @@ public:
     const uint64_t TOPTOP; // эта поле всегда должно быть 64bit
     const uint32or64 BOTTOM;
 private:
-    inline static RangeCoder* instance = nullptr;
     uint32or64 low = 0;
     uint32or64 code = 0;
     uint32or64 range;
@@ -62,17 +36,20 @@ private:
 
     void SaveState();
     void ResetLowRange();
-    RangeCoder(uint32or64 codebits = DEFAULT_CODEBITS); // disable direct creating of RC instance
+    RangeCoder(uint32or64 codebits = DEF_RANGECODER_CODEBITS); // disable direct creating of RC instance
+    
+    friend class CoderFactory;
 
 public:
-    static RangeCoder& GetCoder() 
-    { 
-        if (instance == nullptr) instance = new RangeCoder();
-        return *instance;
-    };
+    //static RangeCoder& GetCoder() 
+    //{ 
+    //    if (instance == nullptr) instance = new RangeCoder();
+    //    return *instance;
+    //};
 
     uint32or64 GetBytesPassed() override { return bytesPassed; }
-    
+    uint32or64 GetIntParam(const std::string& paramName);
+
     void StartEncode(std::ostream* f) override;
     void FinishEncode() override;
     void StartDecode(std::istream* f) override;

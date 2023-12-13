@@ -7,7 +7,7 @@
 
 #define ALFABET_CNT 256
 
-class ModelOrder1 : public BasicModel
+class ModelOrder1Fixed : public BasicModel
 {
 protected:
 	uint32or64 cumFreqs[ALFABET_CNT + 1];
@@ -15,7 +15,7 @@ protected:
 	uint32or64 summFreq{ 0 };
 
 public:
-	ModelOrder1(std::string fileName)
+	ModelOrder1Fixed(IBlockCoder&cr, std::string fileName): BasicModel(cr)
 	{
 		std::ifstream fin(fileName, std::ios::in | std::ios::binary);
 		if (fin.fail())
@@ -42,7 +42,7 @@ public:
 
 		fin.close();
 
-		RescaleTo(coder.BOTTOM);
+		RescaleTo(coder.GetIntParam("MAX_FREQ"));
 	}
 
 	void EncodeSymbol(uchar* sym) override
@@ -62,7 +62,7 @@ public:
 
 	uchar DecodeSymbol(uchar*) override
 	{
-		uchar sym;
+		uchar sym = 1; 
 		//uint32or64 HiCount = 0;
 		uint32or64 count = coder.GetCumFreq(summFreq); // меняет coder.range
 

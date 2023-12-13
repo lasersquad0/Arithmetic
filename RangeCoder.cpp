@@ -1,6 +1,8 @@
 #include <assert.h>
-#include "coder.h"
+#include "RangeCoder.h"
 #include "Exceptions.h"
+
+using namespace std;
 
 #define DO(n) for (uint32or64 _=0; _<n; _++)
 
@@ -87,7 +89,13 @@ void RangeCoder::ResetLowRange()
 
 }
 
-void RangeCoder::StartEncode(std::ostream* f) 
+uint32or64 RangeCoder::GetIntParam(const string& paramName)
+{
+    if (paramName == "MAX_FREQ") return BOTTOM;
+    throw invalid_argument("[RangeCoder.GetIntParam] Invalid parameters has been requested.");
+}
+
+void RangeCoder::StartEncode(ostream* f)
 { 
     fout = f; 
     bytesPassed = 0;
@@ -103,7 +111,7 @@ void RangeCoder::FinishEncode()
     //DO(HIGHBYTE) OutByte((uchar)(low >> CODEBITS)), low <<= 8; 
 }
 
-void RangeCoder::StartDecode(std::istream* f)
+void RangeCoder::StartDecode(istream* f)
 {
     fin = f; 
     bytesPassed = 0;

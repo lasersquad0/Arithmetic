@@ -183,8 +183,8 @@ public:
 				fr.fileName = ph.filename().string(); //fl.getName();//filenames[i]; // store name of the file without path
 				fr.fileSize = std::filesystem::file_size(filenames[i]);
 				fr.modifiedDate = std::filesystem::last_write_time(ph).time_since_epoch().count(); // TODO fl.lastModified(); //another way to do the same is Files.getLastModifiedTime()
-				fr.alg = Parameters::COMPRESSION_ALG; 
-				fr.modelOrder = Parameters::MODEL_ORDER;
+				fr.alg = (uint8_t)Parameters::CODER_TYPE; 
+				fr.modelOrder = (uint8_t)Parameters::MODEL_TYPE;
 				fr.blockCount = 0;
 				fr.blockSize = Parameters::BLOCK_SIZE;
 				fr.compressedSize = 0;

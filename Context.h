@@ -1,5 +1,6 @@
 #pragma once
-#include "coder.h"
+
+#include "Functions.h" // need for uchar
 
 class Context
 {

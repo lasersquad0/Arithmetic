@@ -5,36 +5,29 @@
 #include "BasicModel.h"
 #include "Parameters.h"
 
-#define UCHAR_CNT 256
-
 class ModelOrder1: public BasicModel
 {
 protected:
+	static const uint32or64 UCHAR_CNT = 256;
 	uint32or64 weights[UCHAR_CNT];
 	uint32or64 summFreq{ 0 };
-
 public:
-	ModelOrder1()//:coder(RangeCoder::GetCoder())
+	ModelOrder1(IBlockCoder& cr):BasicModel(cr)
 	{
 		for (int i = 0; i < UCHAR_CNT; i++)
 			summFreq += (weights[i] = static_cast<uint32or64>(1)); // by default all weights are set to 1
 	}
 
-	//RangeCoder& GetCoder() override { return coder; }
-
 	void EncodeSymbol(uchar* sym) override
 	{
 		uint32or64 i = 0;
-		uint32or64 LowCount = 0;
+		uint32or64 LowFreq = 0;
 		uint32or64 symbol = *sym;
 
 		while(i < symbol) 
-			LowCount += weights[i++];
+			LowFreq += weights[i++];
 
-		//for (i = 0; i < *sym; i++)
-		//	LowCount += weights[i];
-
-		coder.EncodeByte(LowCount, weights[i], summFreq);
+		coder.EncodeByte(LowFreq, weights[i], summFreq);
 
 		updateStatistics(*sym);
 	}
@@ -61,7 +54,7 @@ public:
 	{
 		weights[c]++;
 		summFreq++;
-		if (summFreq > coder.BOTTOM) Rescale();
+		if (summFreq > coder.GetIntParam("MAX_FREQ")) Rescale();
 	}
 
 	void Rescale()
@@ -74,25 +67,6 @@ public:
 		for (int i = 0; i < UCHAR_CNT; i++)
 			summFreq += (weights[i] -= (weights[i] >> 1));
 	}
-/*
-	uint32or64 getCount()
-	{
-		uint32or64 cnt = 0;
-		for (int i = 0; i < UCHAR_CNT; i++)
-		{
-			if (weights[i] > 1) cnt++;
-		}
-		return cnt;
-	}
 
-	void Print(const uchar c)
-	{
-		for (int i = 0; i < UCHAR_CNT; i++)
-		{
-			if (weights[i] > 1) std::cout << " " << (uchar)i << c << "=" << weights[i] << ",";
-		}
-		std::cout << std::endl;
-	}
-	*/
 };
 

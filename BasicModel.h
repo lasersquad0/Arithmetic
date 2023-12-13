@@ -1,33 +1,29 @@
 #pragma once
 
-#include "coder.h"
-
+#include "Functions.h"
+#include "ICoder.h"
 
 class IModel
 {
 public:
 	virtual void EncodeSymbol(uchar* sym) = 0;
-	virtual void StartEncode(std::ostream* f) = 0;
+	virtual void BeginEncode(std::ostream* f) = 0;
 	virtual void StopEncode() = 0;
 	virtual uchar DecodeSymbol(uchar* ctx) = 0;
-	virtual void StartDecode(std::istream* f) = 0;
+	virtual void BeginDecode(std::istream* f) = 0;
 	virtual void StopDecode() = 0;
-	virtual RangeCoder& GetCoder() = 0;
+	virtual IBlockCoder& GetCoder() = 0;
 };
 
 class BasicModel : public IModel
 {
 protected:
-	RangeCoder& coder;
+	IBlockCoder& coder;
+	BasicModel(IBlockCoder& cr) :coder(cr) { }
 public:
-	BasicModel() :coder(RangeCoder::GetCoder())
-	{
+	IBlockCoder& GetCoder() override { return coder; }
 
-	}
-
-	RangeCoder& GetCoder() override { return coder; }
-
-	void StartEncode(std::ostream* f) override
+	void BeginEncode(std::ostream* f) override
 	{
 		coder.StartEncode(f);
 	}
@@ -37,7 +33,7 @@ public:
 		coder.FinishEncode();
 	}
 
-	void StartDecode(std::istream* f) override
+	void BeginDecode(std::istream* f) override
 	{
 		coder.StartDecode(f);
 	}

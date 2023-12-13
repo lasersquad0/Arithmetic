@@ -1,6 +1,7 @@
 
 #include <filesystem>
-#include "coder.h"
+#include "fpaq0.h"
+#include "RangeCoder.h"
 #include "Exceptions.h"
 #include "ModelOrder1.h"
 #include "ModelOrder2.h"
@@ -11,7 +12,8 @@
 #include "RangeCompressor.h"
 #include "libsais64.h"
 #include "MTF.h"
-#include "ModelsFactory.h"
+#include "ModelFactory.h"
+
 
 using namespace std;
 
@@ -77,7 +79,7 @@ void RangeCompressor::CompressFile(ofstream* fout, FileRecord& fr)
 
     if (SHOWP) cb.start();
 
-    model->StartEncode(fout);
+    model->BeginEncode(fout);
 
     Context ctx;
     uchar sm;
@@ -99,8 +101,8 @@ void RangeCompressor::CompressFile(ofstream* fout, FileRecord& fr)
         model->EncodeSymbol(ctx.getCtx());
     }
 
-    if(SHOWP) cb.finish();
     model->StopEncode();
+    if (SHOWP) cb.finish();
 
     fr.compressedSize = model->GetCoder().GetBytesPassed(); // TODO некрасиво надо бы переделать
 
@@ -133,7 +135,7 @@ void RangeCompressor::CompressFileBlock(ofstream* fout, FileRecord& fr)
     if (SHOWP) cb.start();
 
     ostringstream fblock;
-    model->StartEncode(&fblock);
+    model->BeginEncode(&fblock);
 
     Context ctx;
     bool showprogress = SHOWP;
@@ -244,7 +246,7 @@ void RangeCompressor::UncompressFile(ifstream* fin, FileRecord& fr)
     log4cpp::Category& logger = Parameters::logger;
     Ticks::Start(fr.fileName);
 
-    IModel* model = ModelsFactory::GetModel(fr.modelOrder);
+    IModel* model = ModelsFactory::GetModel((ModelType)fr.modelOrder, (CoderType)fr.alg);
     CallBack cb;
     
     uint64_t delta = fr.fileSize / 100;
@@ -256,7 +258,7 @@ void RangeCompressor::UncompressFile(ifstream* fin, FileRecord& fr)
         throw file_error("Cannot open file '" + realFileName + "' for writing.");
 
     if (SHOWP) cb.start();
-    model->StartDecode(fin);
+    model->BeginDecode(fin);
 
     uchar symbol;
     Context ctx;
@@ -314,7 +316,7 @@ void RangeCompressor::UncompressFileBlock(ifstream* fin, FileRecord& fr)
     log4cpp::Category& logger = Parameters::logger;
     Ticks::Start(fr.fileName);
 
-    IModel* model = ModelsFactory::GetModel(fr.modelOrder);
+    IModel* model = ModelsFactory::GetModel((ModelType)fr.modelOrder, (CoderType)fr.alg);
     CallBack cb;
 
     uint32_t numBlocks = 1 + (uint32_t)(fr.fileSize / fr.blockSize);
@@ -341,7 +343,7 @@ void RangeCompressor::UncompressFileBlock(ifstream* fin, FileRecord& fr)
     uint32_t cntBlocks = 0;
 
     LoadBlock(fblock, fin, uBlockSize, cBlockSize, lineNum);
-    model->StartDecode(&fblock);
+    model->BeginDecode(&fblock);
     
     uchar symbol;
     Context ctx;
@@ -409,17 +411,16 @@ void RangeCompressor::UncompressFileBlock(ifstream* fin, FileRecord& fr)
     logger.info("Spent time: %s", millisecToStr(tick).c_str());
 }
 
-extern string CompAlgSymbols[];
-
 void RangeCompressor::PrintCompressionStart()
 {
     log4cpp::Category& logger = Parameters::logger;
 
     logger.info("Using Arithmetic Range compressor.");
-    logger.info("%-19s %s.", "Compression method", CompAlgSymbols[Parameters::COMPRESSION_ALG].c_str());
-    logger.info("%-19s %u", "Use model order", Parameters::MODEL_ORDER);
+    logger.info("%-19s %s.", "Compression method", Parameters::CoderNames[(uint8_t)Parameters::CODER_TYPE].c_str());
+    logger.info("%-19s %s", "Use model type", Parameters::ModelTypeCode[(uint8_t)Parameters::MODEL_TYPE].c_str());
     logger.info("%-19s %s", "Block mode", Parameters::BLOCK_MODE? "YES": "NO");
-    logger.info("%-19s %s bytes", "Block size", toStringSep(Parameters::BLOCK_SIZE).c_str());
+    if(Parameters::BLOCK_MODE)
+        logger.info("%-19s %s bytes", "Block size", toStringSep(Parameters::BLOCK_SIZE).c_str());
     logger.info("%-19s %u", "Threads count", Parameters::THREADS);
     logger.info("%-19s %s", "Verbose", Parameters::VERBOSE? "true": "false");
     logger.info("------------------------------");
@@ -432,8 +433,8 @@ void RangeCompressor::PrintUncompressionStart(FileRecord& fr)
     //logger.info("Using Arithmetic Range compressor.");
     logger.info("%-21s %s", "Extracting file", fr.fileName.c_str());
     logger.info("%-21s %s", "Extracting to folder", Parameters::OUTPUT_DIR.c_str());
-    logger.info("%-21s %s", "Compression method", CompAlgSymbols[fr.alg].c_str());
-    logger.info("%-21s %u", "Model order", fr.modelOrder);
+    logger.info("%-21s %s", "Compression method", Parameters::CoderNames[fr.alg].c_str());
+    logger.info("%-21s %s", "Model type", Parameters::ModelTypeCode[fr.modelOrder].c_str());
     logger.info("%-21s %s", "Block mode", fr.blockCount > 0 ? "YES" : "NO");
     logger.info("%-21s %s bytes", "Block size", toStringSep(fr.blockSize).c_str());
     logger.info("%-21s %u", "Threads count", Parameters::THREADS);
