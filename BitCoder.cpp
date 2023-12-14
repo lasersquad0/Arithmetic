@@ -16,7 +16,6 @@ BitCoder::BitCoder(uint32or64 )
 
 }
 
-
 uint32or64 BitCoder::GetIntParam(const string& paramName)
 {
 	if (paramName == "MAX_FREQ") return MAX_FREQ;
@@ -30,6 +29,7 @@ void BitCoder::ResetLowRange()
 
     bitsToFollow = 0;
     buffer = 0;
+	garbage_bits = 0;
 }
 
 void BitCoder::StartEncode(ostream* f)
@@ -40,9 +40,9 @@ void BitCoder::StartEncode(ostream* f)
     ResetLowRange();
 }
 
-void BitCoder::FinishEncode()
+void BitCoder::SaveState()
 {
-	bitsToFollow++;       // вывод двух битов опpедел€ющих чеpвеpть, лежащую в текущем интеpвале
+	bitsToFollow++;     // вывод двух битов опpедел€ющих чеpвеpть, лежащую в текущем интеpвале
 	if (low < FIRST_QTR)
 		outputBitPlusFollow(0);
 	else
@@ -50,22 +50,32 @@ void BitCoder::FinishEncode()
 
 	//  putc(buffer >> bits_to_go, stdout);
 	OutByte((uchar)(buffer >> bitsToGo));
+}
+
+void BitCoder::FinishEncode()
+{
+	SaveState();
 
 	ResetLowRange();
 }
    
-void BitCoder::StartDecode(istream* f)
+void BitCoder::LoadInitialBits()
 {
-    fin = f;
-    bytesPassed = 0;
-    bitsToGo = 0; // Note that this value differs from startCompression()
-    ResetLowRange();
-
 	nextCh = 0;  // ¬вод битов дл€ заполнени€ значени€ кода 
 	for (int i = 0; i < CODEBITS; i++)
 	{
 		nextCh = (nextCh << 1) + inputBit();
 	}
+}
+
+void BitCoder::StartDecode(istream* f)
+{
+    fin = f;
+    bytesPassed = 0;
+    bitsToGo = 0; // Note that this value differs from startEncode()
+    ResetLowRange();
+
+	LoadInitialBits();
 }
 
 void BitCoder::FinishDecode()
@@ -75,18 +85,26 @@ void BitCoder::FinishDecode()
 
 void BitCoder::StartBlockEncode()
 {
+	bitsToGo = 8; // Note that this value differs from startDecode()
+	ResetLowRange();
 }
 
 void BitCoder::FinishBlockEncode()
 {
+	SaveState();
 }
 
 void BitCoder::StartBlockDecode()
 {
+	bitsToGo = 0; // Note that this value differs from startEncode()
+	ResetLowRange();
+
+	LoadInitialBits();
 }
 
 void BitCoder::FinishBlockDecode()
 {
+	// nothing
 }
 
 void BitCoder::EncodeByte(uint32or64 cumFreq, uint32or64 freq, uint32or64 totalFreq)

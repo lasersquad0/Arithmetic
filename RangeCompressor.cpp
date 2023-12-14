@@ -154,7 +154,7 @@ void RangeCompressor::CompressFileBlock(ofstream* fout, FileRecord& fr)
         fin.read((char*)buf, fr.blockSize);
         streamsize cntRead = fin.gcount();
 
-        if (cntRead == 0) break; // for the case when (filesize % fr.blockSize) ==0
+        if (cntRead == 0) break; // for the case when (filesize % fr.blockSize)==0
 
         //string fn = "bufencode";
         //SaveToFile(fn + to_string(cntBlocks), (char*)buf, cntRead);
@@ -304,6 +304,7 @@ void RangeCompressor::LoadBlock(std::istringstream& fb, std::ifstream* fin, uint
     fin->read(s.data(), cBlockSize);
 
     fb.str(s);
+    fb.clear();
 
     //string fn = "compressedblockloaded" + to_string(lineNum);
     //SaveToFile(fn, s.data(), cBlockSize);
@@ -331,9 +332,9 @@ void RangeCompressor::UncompressFileBlock(ifstream* fin, FileRecord& fr)
     bool showprogress = SHOWP;
     if (SHOWP) cb.start();
 
-    uint8_t* buf = new uint8_t[fr.blockSize];
+    uint8_t* buf    = new uint8_t[fr.blockSize];
     uint8_t* bwtbuf = new uint8_t[fr.blockSize];
-    int64_t* temp = new int64_t[fr.blockSize + 1];
+    int64_t* temp   = new int64_t[fr.blockSize + 1];
     //int64_t freq[256];
 
     istringstream fblock;

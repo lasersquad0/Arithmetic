@@ -55,7 +55,9 @@ public:
     uint32or64 GetIntParam(const std::string& paramName);
 
     void StartEncode(std::ostream* f) override;
+    void SaveState();
     void FinishEncode() override;
+    void LoadInitialBits();
     void StartDecode(std::istream* f) override;
     void FinishDecode() override;
 

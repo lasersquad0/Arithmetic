@@ -102,9 +102,9 @@
     <ClCompile>
       <WarningLevel>Level4</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\command-line-argument-parser\cli;$(ProjectDir)..\libsais\include;$(ProjectDir)log4cpp\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\command-line-argument-parser\cli;$(ProjectDir)..\libsais\include;$(ProjectDir)log4cpp\;$(ProjectDir)..\LogEngine\logengine\include\logengine;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
@@ -119,10 +119,10 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\command-line-argument-parser\cli;$(ProjectDir)..\libsais\include;$(ProjectDir)log4cpp\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\command-line-argument-parser\cli;$(ProjectDir)..\libsais\include;$(ProjectDir)log4cpp\;$(ProjectDir)..\LogEngine\logengine\include\logengine;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -140,6 +140,7 @@
     <ClCompile Include="..\command-line-argument-parser\cli\OptionsList.cpp" />
     <ClCompile Include="..\libsais\src\libsais.c" />
     <ClCompile Include="..\libsais\src\libsais64.c" />
+    <ClCompile Include="..\LogEngine\logengine\src\DynamicArrays.cpp" />
     <ClCompile Include="ArchiveHeader.cpp" />
     <ClCompile Include="BitCoder.cpp" />
     <ClCompile Include="ModelBitOrder1.cpp" />
@@ -157,6 +158,7 @@
     <ClCompile Include="Ticks.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\LogEngine\logengine\include\logengine\DynamicArrays.h" />
     <ClInclude Include="ArchiveHeader.h" />
     <ClInclude Include="BasicModel.h" />
     <ClInclude Include="BitCoder.h" />

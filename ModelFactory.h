@@ -28,9 +28,9 @@ public:
 		case ModelType::O1:    return new ModelOrder1(CoderFactory::GetCoder(ct)); break;
 		case ModelType::O2:    return new ModelOrder2(CoderFactory::GetCoder(ct)); break;
 		case ModelType::O3:    return new ModelOrder3(CoderFactory::GetCoder(ct)); break;
-		case ModelType::O4:    return new ModelOO1(CoderFactory::GetCoder(ct)); break;
+		case ModelType::O4:    return new ModelOrder4(CoderFactory::GetCoder(ct)); break;
 		case ModelType::FO1:   return new ModelOrder1Fixed(CoderFactory::GetCoder(ct), fileName); break;
-		case ModelType::BITO1: return new ModelBitOrder1(CoderFactory::GetCoder(CoderType::ABITARITHMETIC)); break; // fpaqBitCoder model always works with ABITARI coder
+		case ModelType::BITO1: return new ModelBitOrder1(CoderFactory::GetCoder(ct)); break; // fpaqBitCoder model always works with ABITARI coder
 		}
 		throw std::invalid_argument("Invalid model type.");
 
