@@ -7,7 +7,7 @@
 #include "ModelOrder3.h"
 #include "ModelOO1.h"
 #include "fpaq0.h"
-#include "ModelBitOrder1.h"
+#include "ModelSortOrder1.h"
 #include "Parameters.h"
 #include "CoderFactory.h"
 

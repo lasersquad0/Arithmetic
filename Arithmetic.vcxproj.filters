@@ -81,7 +81,7 @@
     <ClCompile Include="BitCoder.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ModelBitOrder1.cpp">
+    <ClCompile Include="ModelSortOrder1.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\LogEngine\logengine\src\DynamicArrays.cpp">
@@ -152,7 +152,7 @@
     <ClInclude Include="ModelOO1.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ModelBitOrder1.h">
+    <ClInclude Include="ModelSortOrder1.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\LogEngine\logengine\include\logengine\DynamicArrays.h">
