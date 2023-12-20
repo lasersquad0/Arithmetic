@@ -1,7 +1,7 @@
 #include "Functions.h"
 #include "ArchiveHeader.h"
 
-void ArchiveHeader::listContent(std::string arcFilename)
+void ArchiveHeader::listContent(std::string arcFilename, bool verbose)
 {
 	std::ifstream fin(arcFilename, std::ios::in | std::ios::binary);
 	if (!fin)
@@ -9,28 +9,25 @@ void ArchiveHeader::listContent(std::string arcFilename)
 
 	loadHeader(&fin);
 
-	printf("%-46s %18s %15s %7s %10s %6s %7s %7s %-18s %13s\n", "File name", "File size", "Compressed", "Blocks", "Block size", "Alg", 
-		"Model", "Ratio", "Modified", "CRC32");
+	printf("%-46s %18s %15s %6s %10s %6s %7s %7s %-19s %13s\n", "File name", "File size", "Compressed", 
+		"Blocks", "Block size", "Alg", "Model", "Ratio", "Modified", "CRC32");
 
 	for (int i = 0; i < files.size(); i++)
 	{
 		FileRecord fr = files[i];
 		
-		std::chrono::file_clock::time_point dt{ std::chrono::file_clock::duration{ fr.modifiedDate } };
-		auto sctp = std::chrono::time_point_cast<std::chrono::system_clock::duration>(dt -std::filesystem::file_time_type::clock::now() + std::chrono::system_clock::now());
-		time_t tt = std::chrono::system_clock::to_time_t(sctp);
-		std::string fileModified = DateTimeToStr(tt);
+		std::string fileModified = DateTimeToStr(fr.GetModifiedDateAsTimeT());
 
 		std::string algName = Parameters::CoderNames[fr.alg]; // fr.alg здесь уже очищен от model order
 		std::string modelName = Parameters::ModelTypeCode[fr.modelOrder];
 
 		float ratio = (float)fr.fileSize / (float)fr.compressedSize;
-		printf("%-46s %18s %15s %7s %10s %6s %6s %7.2f %18s %13llu\n", 
+		printf("%-46s %18s %15s %6s %10s %6s %6s %7.2f  %19s %13llu\n", 
 			truncate(fr.fileName, 46).c_str(), toStringSep(fr.fileSize).c_str(), toStringSep(fr.compressedSize).c_str(), toStringSep(fr.blockCount).c_str(),
 			toStringSep(fr.blockSize).c_str(), algName.c_str(), modelName.c_str(), ratio, fileModified.c_str(), fr.CRC32Value);
 	}
 
-	if (Parameters::VERBOSE)
+	if (verbose)
 	{
 		for (int i = 0; i < files.size(); i++)
 		{

@@ -6,6 +6,7 @@
 
 
 typedef unsigned char uchar;
+typedef unsigned int uint;
 
 struct MyGroupSeparator : std::numpunct<char>
 {
@@ -20,7 +21,7 @@ ModelType ParseModelType(std::string s);
 CoderType ParseCoderType(std::string ct);
 
 // converts native datetime value into AString
-std::string DateTimeToStr(time_t& t);
+std::string DateTimeToStr(time_t t);
 
 void SaveToFile(std::string fileName, char* buf, unsigned int len);
 void LoadFromFile(std::string fileName, char* buf, unsigned int len);
@@ -30,7 +31,7 @@ bool SaveLog4cppConfigurationFile();
 void PrintWindowsErrorMessage(const TCHAR* lpszFunction);
 
 template<typename IntType>
-std::string toStringSep(IntType v) // assumes that cout.imbue already called with all required settings
+std::string toStringSep(IntType v) 
 {
 	std::stringstream ss;
 	ss.imbue(std::locale(ss.getloc(), new MyGroupSeparator()));

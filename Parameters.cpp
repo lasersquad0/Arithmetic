@@ -3,8 +3,8 @@
 
 using namespace std;
 
-string Parameters::OUTPUT_DIR = ".\\";
-log4cpp::Category& Parameters::logger = log4cpp::Category::getInstance(Parameters::LOGGER_NAME);
+//string ParametersG::OUTPUT_DIR = ".\\";
+//log4cpp::Category& ParametersG::logger = log4cpp::Category::getInstance(ParametersG::LOGGER_NAME);
 
 
 

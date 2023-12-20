@@ -12,9 +12,9 @@ class ModelOO1 : public BasicModel
 protected:
 	static const uint32or64 UCHAR_CNT = 256;
 	uint32or64 weights[UCHAR_CNT];
-	uint32or64 summFreq{ 0 };
-	uchar symbol1 = 0; // make it uchar?
-	bool haveSymbol = false;
+	uint32or64 summFreq;
+	uchar symbol1;
+	bool haveSymbol;
 
 	void EncodeSymbol(uchar sym)
 	{ 
@@ -33,8 +33,10 @@ protected:
 public:
 	ModelOO1(IBlockCoder& cr) :BasicModel(cr)
 	{
-		for (int i = 0; i < UCHAR_CNT; i++)
-			summFreq += (weights[i] = static_cast<uint32or64>(1)); // by default all weights are set to 1
+		haveSymbol = false;
+		symbol1 = 0;
+		summFreq = 256;
+		for (int i = 0; i < UCHAR_CNT; i++) weights[i] = static_cast<uint32or64>(1); // by default all weights are set to 1
 	}
 
 	void StopEncode() override

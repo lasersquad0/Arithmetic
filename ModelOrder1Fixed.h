@@ -12,11 +12,13 @@ class ModelOrder1Fixed : public BasicModel
 protected:
 	uint32or64 cumFreqs[ALFABET_CNT + 1];
 	uchar weights[ALFABET_CNT];
-	uint32or64 summFreq{ 0 };
+	uint32or64 summFreq;
 
 public:
 	ModelOrder1Fixed(IBlockCoder&cr, std::string fileName): BasicModel(cr)
 	{
+		summFreq = 0;
+
 		std::ifstream fin(fileName, std::ios::in | std::ios::binary);
 		if (fin.fail())
 		{

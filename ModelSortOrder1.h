@@ -6,7 +6,7 @@
 //#define EOF_SYMBOL    (NO_OF_CHARS + 1)
 
 
-class ModelBitOrder1 : public BasicModel
+class ModelSortOrder1 : public BasicModel
 {
 protected:
 	// Количество символов алфавита
@@ -23,7 +23,15 @@ protected:
 	uint32or64     freq[NO_OF_SYMBOLS + 1]; // 258 ???? why
 
 public:
-	ModelBitOrder1(IBlockCoder& cr) :BasicModel(cr)
+	ModelSortOrder1(IBlockCoder& cr) :BasicModel(cr)
+	{
+		ResetModel();
+
+		//for (int i = 0; i < UCHAR_CNT; i++)
+		//	summFreq += (weights[i] = static_cast<uint32or64>(1)); // by default all weights are set to 1
+	}
+
+	void ResetModel()
 	{
 		int i;
 		for (i = 0; i < NO_OF_CHARS; i++)
@@ -37,10 +45,6 @@ public:
 			cum_freq[i] = NO_OF_SYMBOLS - i; // c_f[0]=257, c_f[1]=256 ... c_f[256]=1, c_f[257]=0
 		}
 		freq[0] = 0;
-
-
-		//for (int i = 0; i < UCHAR_CNT; i++)
-		//	summFreq += (weights[i] = static_cast<uint32or64>(1)); // by default all weights are set to 1
 	}
 
 	void EncodeSymbol(uchar* sym) override
@@ -121,12 +125,18 @@ public:
 		}
 	}
 
-	//void Rescale()
-	//{
-	//	summFreq = 0;
-	//	for (int i = 0; i < UCHAR_CNT; i++)
-	//		summFreq += (weights[i] -= (weights[i] >> 1));
-	//}
+	void BeginEncode(std::ostream* f) override
+	{
+		//ResetModel(); // the same model can be used for encoding-decoding different files sduring one session. it need to be reset to original state each time.
+		BasicModel::BeginEncode(f);
+	}
+
+
+	void BeginDecode(std::istream* f) override
+	{
+		//ResetModel();
+		BasicModel::BeginDecode(f);
+	}
 
 };
 

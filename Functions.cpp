@@ -89,7 +89,7 @@ CoderType ParseCoderType(string ct)
 }
 
 // converts native datetime value into AString
-string DateTimeToStr(time_t& t)
+string DateTimeToStr(time_t t)
 {
 	struct tm ttm;
 	localtime_s(&ttm, &t);

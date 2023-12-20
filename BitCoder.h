@@ -48,7 +48,7 @@ private:
     BitCoder(uint32or64 codebits = DEF_BITCODER_CODEBITS); // disable direct creating of RC instance
 
     friend class CoderFactory;
-
+    friend class ModelCoderFactory;
 
 public:
     uint32or64 GetBytesPassed() override { return bytesPassed; }

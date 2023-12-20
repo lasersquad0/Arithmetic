@@ -36,16 +36,10 @@
     <ClCompile Include="ModelOrder1.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ModelOrder2.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ModelOrder3.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Parameters.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="RangeCompressor.cpp">
+    <ClCompile Include="Archiver.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Ticks.cpp">
@@ -110,22 +104,13 @@
     <ClInclude Include="ModelOrder1Fixed.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ModelOrder2.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ModelOrder3.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ModelFactory.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="MTF.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Parameters.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="RangeCompressor.h">
+    <ClInclude Include="Archiver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Ticks.h">
@@ -138,9 +123,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ICoder.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="CoderFactory.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="resource.h">
@@ -156,6 +138,18 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\LogEngine\logengine\include\logengine\DynamicArrays.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ModelOrderN.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Factories.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FileRecord.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Callback.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

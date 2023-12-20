@@ -39,6 +39,7 @@ private:
     RangeCoder(uint32or64 codebits = DEF_RANGECODER_CODEBITS); // disable direct creating of RC instance
     
     friend class CoderFactory;
+    friend class ModelCoderFactory;
 
 public:
     //static RangeCoder& GetCoder() 
@@ -90,14 +91,4 @@ public:
 };
 */
 
-class CallBack
-{
-public:
-    void start() {}
-    void finish() { printf("\n"); }
-    void progress(uint64_t progress)
-    {
-        printf("\rProgress %llu%%...", progress);
-    }
 
-};

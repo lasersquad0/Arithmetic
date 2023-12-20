@@ -65,16 +65,13 @@ uchar RangeCoder::InByte()
         throw bad_file_format("EOF got unexpectedly.");
     
     bytesPassed++; 
-    return (uchar)ch; /* fgetc(f);*/
+    return (uchar)ch;
 }
 
 void RangeCoder::OutByte(uchar c)
 {
     bytesPassed++; 
     fout->put(c);
-
-    //fputc(c, f);
-    //logger.debug("Output byte: 0x%X count:%d", c, bytesPassed);
 }
 
 void RangeCoder::SaveState()
@@ -101,14 +98,11 @@ void RangeCoder::StartEncode(ostream* f)
     bytesPassed = 0;
 
     ResetLowRange();
-    //low = 0;  
-    //range = (uint32or64)(TOPTOP - 1);//(uint32_t)-1; 
 }
 
 void RangeCoder::FinishEncode() 
 {
     SaveState();
-    //DO(HIGHBYTE) OutByte((uchar)(low >> CODEBITS)), low <<= 8; 
 }
 
 void RangeCoder::StartDecode(istream* f)
@@ -117,8 +111,6 @@ void RangeCoder::StartDecode(istream* f)
     bytesPassed = 0;
 
     ResetLowRange();
-    //low = code = 0;
-    //range = (uint32or64)(TOPTOP - 1); //(uint32_t)-1;
 
     DO(HIGHBYTE) code = code << 8 | InByte();
 };

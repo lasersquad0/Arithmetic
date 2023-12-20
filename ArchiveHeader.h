@@ -7,78 +7,8 @@
 #include <vector>
 #include "Parameters.h"
 #include "Exceptions.h"
+#include "FileRecord.h"
 
-//using namespace std;
-
-#define ALG_MASK     (0x0F)
-#define MORDER_MASK  (0xF0)
-#define MORDER_SHIFT (4)
-
-/*
-Структура записи о файле в архиве
-1. Размер ориг файла — 8 байт (long)
-2. CRC32 ориг файла для проверки правильности разархивации и общей целостности — 8 байт
-3. Modified date ориг файла
-4. Размер сжатого файла — 8 байт (long) - задает размер данных для разархивации
-5. Код алгоритма которым был сжат файл
-6. Количество блоков сжатого файла (для неблочных алгоритмов записывается ноль)
-7. Размер строки имени файла
-8. Строка имени файла который находится в архиве. На каждый символ используется 2 байта при записи.
-*/
-class FileRecord
-{
-public:
-	// **** Нужно внести изменения в HashMap когда добавляются новые поля сюда!! *********
-	std::string fileName;
-	std::string origFilename;
-	std::string dirName; // for future extensions, not used now
-	uint64_t fileSize = 0L;
-	uint64_t CRC32Value = 0L;
-	uint64_t modifiedDate = 0L;
-	uint64_t compressedSize = 0L;
-	uint8_t  alg = 0;    // when saving it contains both alg and model order number used to compress this file
-	uint32_t blockCount = 0;
-	uint32_t blockSize = 0;
-	uint8_t modelOrder = 0;
-
-	void save(std::ofstream* sout)
-	{
-		uint8_t alg_mo = alg | (modelOrder << MORDER_SHIFT); // Старшие 4 бита отведены под номер model order. младшие 4 бита это номер алгоритма.
-		
-		sout->write((char*)&fileSize,       sizeof(uint64_t));
-		sout->write((char*)&CRC32Value,     sizeof(uint64_t));
-		sout->write((char*)&modifiedDate,   sizeof(uint64_t));
-		sout->write((char*)&compressedSize, sizeof(uint64_t));
-		sout->write((char*)&alg_mo,         sizeof(uint8_t));
-		sout->write((char*)&blockCount,     sizeof(uint32_t));
-		sout->write((char*)&blockSize,      sizeof(uint32_t));
-
-		uint64_t len = fileName.length();
-		sout->write((char*)&len, sizeof(uint16_t));
-		sout->write(fileName.c_str(), fileName.length());  // NOTE! writes 2 bytes for each char
-	}
-
-	void load(std::ifstream* sin)
-	{	
-		sin->read((char*)&fileSize,       sizeof(uint64_t));
-		sin->read((char*)&CRC32Value,     sizeof(uint64_t));
-		sin->read((char*)&modifiedDate,   sizeof(uint64_t));
-		sin->read((char*)&compressedSize, sizeof(uint64_t));
-		sin->read((char*)&alg,            sizeof(uint8_t));
-		sin->read((char*)&blockCount,     sizeof(uint32_t));
-		sin->read((char*)&blockSize,      sizeof(uint32_t));
-
-		modelOrder = alg >> MORDER_SHIFT; // выделяем из байта model order
-		alg = alg & ALG_MASK; // чистим номер алгоритма от битов model order
-
-		uint16_t filenameSize;
-		sin->read((char*)&filenameSize, sizeof(uint16_t));
-
-		char buf[MAX_PATH];
-		sin->read((char*)buf, filenameSize);
-		fileName.append(buf, filenameSize);
-	}
-};
 
 #define myassert(_) if(!(_)) throw bad_file_format("Format of archive is incorrect.");
 
@@ -99,7 +29,7 @@ class ArchiveHeader
 пункты 6 и 7 повторяются для всех файлов.
 */
 private:
-	inline static log4cpp::Category& logger = log4cpp::Category::getInstance(Parameters::LOGGER_NAME);
+	//inline static log4cpp::Category& logger = log4cpp::Category::getInstance(ParametersG::LOGGER_NAME);
 	
 	const uint32_t FILE_SIGNATURE_LEN = 4;
 	const uint32_t FILE_VERSION_LEN = 2;
@@ -118,10 +48,65 @@ private:
 		myassert((fileVersion[0] >= '0') && (fileVersion[0] <= '9'));
 		myassert((fileVersion[1] >= '0') && (fileVersion[1] <= '9'));
 
-		myassert(files.size() > 0);
+		//myassert(files.size() > 0);
 	}
 
 public:
+	void listContent(std::string arcFilename, bool verbose);
+
+	bool CheckSignature(std::string ArchiveName)
+	{
+		std::ifstream fin(ArchiveName, std::ios::in | std::ios::binary);
+		if (!fin) return false; // return false even in case we cannot open file, either file does not exist or we do not have permissions
+
+		char signature[4];
+		char version[2];
+
+		fin.read(signature, 4);
+		fin.read(version, 2);
+
+		fin.close();
+
+		return signature[0] == 'R' && signature[1] == 'O' &&
+	    	   signature[2] == 'M' && signature[3] == 'A' &&
+			   version[0] >= '0'   && version[0] <= '9'   &&
+			   version[1] >= '0'   && version[1] <= '9';
+
+	}
+
+	bool FileInList(std::string FileName)
+	{
+		for (auto item: files)
+			if (item.fileName == FileName)
+				return true;
+		return false;
+	}
+
+	void RemoveFileFromList(std::string FileName)
+	{
+		for (vector_fr_t::iterator iter = files.begin(); iter != files.end(); iter++)
+		{
+			if (iter->fileName == FileName)
+			{
+				files.erase(iter);
+				break;
+			}
+		}
+	}
+
+	void RemoveFilesFromList(vector_string_t& FileList)
+	{
+		for (vector_fr_t::iterator iter = files.begin(); iter != files.end(); )
+		{
+			auto result = std::find(FileList.begin(), FileList.end(), iter->fileName);
+
+			if (result != FileList.end())
+				iter = files.erase(iter);
+			else 
+				iter++;
+		}
+	}
+
 	vector_fr_t& loadHeader(std::ifstream* sin)
 	{
 		sin->read(fileSignature, 4);
@@ -164,14 +149,14 @@ public:
 	}
 
 	/**
-	 * Adds filenames into ArrayList of HFFileRec together with file lengths and modified attributes
-	 * @param filenames list of files to compress. Note, that zero index in this array contains archive name, so first filename is filenames[1]
+	 * Adds filenames into vector of FileRecord together with file lengths and modified attributes
+	 * @param filenames list of files (as strings) to compress.
 	 */
-	vector_fr_t& fillFileRecs(const vector_string_t& filenames /*, Utils.CompTypes alg*/)
+	vector_fr_t& fillFileRecs(const vector_string_t& filenames, Parameters params)
 	{
-		files.clear();  // just in case
+		files.clear(); 
 
-		for (int i = 1; i < filenames.size(); i++) // first item in a list is archive file name, bypass it.
+		for (int i = 0; i < filenames.size(); i++) // first item in a list is archive file name, bypass it.
 		{		
 			if (std::filesystem::exists(filenames[i]))
 			{
@@ -182,18 +167,22 @@ public:
 				fr.origFilename = filenames[i];
 				fr.fileName = ph.filename().string(); //fl.getName();//filenames[i]; // store name of the file without path
 				fr.fileSize = std::filesystem::file_size(filenames[i]);
-				fr.modifiedDate = std::filesystem::last_write_time(ph).time_since_epoch().count(); // TODO fl.lastModified(); //another way to do the same is Files.getLastModifiedTime()
-				fr.alg = (uint8_t)Parameters::CODER_TYPE; 
-				fr.modelOrder = (uint8_t)Parameters::MODEL_TYPE;
+				fr.modifiedDate = std::filesystem::last_write_time(ph).time_since_epoch().count(); 
+				fr.alg = (uint8_t)params.CODER_TYPE; 
+				fr.modelOrder = (uint8_t)params.MODEL_TYPE;
 				fr.blockCount = 0;
-				fr.blockSize = Parameters::BLOCK_SIZE;
+				fr.blockSize = params.BLOCK_SIZE;
 				fr.compressedSize = 0;
-				//fr.CRC32Value
+				fr.CRC32Value = 0xFFFFF; // TODO change it
 
 				files.push_back(fr);
 			}
 			else
-				logger.warn("File '%s' cannot be found, pass on it.", filenames[i].c_str());
+			{
+				std::string mess = std::format("Cannot read file '%s'.", filenames[i]);
+				throw std::invalid_argument(mess);
+			//	logger.warn("File '%s' cannot be found, pass on it.", filenames[i].c_str());
+			}
 		}
 		if (files.size() == 0)
 			throw std::invalid_argument("There are no files to compress. Exiting...");
@@ -225,7 +214,7 @@ public:
 		for (FileRecord fr : files)
 		{
 			raf.seekp(pos + CRC32ValueOffset);
-			fr.CRC32Value = 0xFFFFFF; // TODO remove it later
+			//fr.CRC32Value = 0xFFFFF; // TODO remove it later
 			raf.write((char*)&fr.CRC32Value, sizeof(uint64_t));
 
 			raf.seekp(pos + CompressedSizeOffset, std::ios::beg);
@@ -239,8 +228,6 @@ public:
 
 		raf.close();
 	}
-
-	void listContent(std::string arcFilename);
 
 	std::string truncate(std::string str, int len)
 	{

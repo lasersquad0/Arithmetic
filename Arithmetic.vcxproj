@@ -44,6 +44,7 @@
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
+    <EnableASAN>false</EnableASAN>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -150,11 +151,9 @@
     <ClCompile Include="Functions.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="ModelOrder1.cpp" />
-    <ClCompile Include="ModelOrder2.cpp" />
-    <ClCompile Include="ModelOrder3.cpp" />
     <ClCompile Include="MTF.cpp" />
     <ClCompile Include="Parameters.cpp" />
-    <ClCompile Include="RangeCompressor.cpp" />
+    <ClCompile Include="Archiver.cpp" />
     <ClCompile Include="Ticks.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -162,7 +161,10 @@
     <ClInclude Include="ArchiveHeader.h" />
     <ClInclude Include="BasicModel.h" />
     <ClInclude Include="BitCoder.h" />
-    <ClInclude Include="CoderFactory.h" />
+    <ClInclude Include="Callback.h" />
+    <ClInclude Include="Factories.h" />
+    <ClInclude Include="FileRecord.h" />
+    <ClInclude Include="ModelOrderN.h" />
     <ClInclude Include="ModelSortOrder1.h" />
     <ClInclude Include="ModelOO1.h" />
     <ClInclude Include="RangeCoder.h" />
@@ -173,12 +175,9 @@
     <ClInclude Include="ICoder.h" />
     <ClInclude Include="ModelOrder1.h" />
     <ClInclude Include="ModelOrder1Fixed.h" />
-    <ClInclude Include="ModelOrder2.h" />
-    <ClInclude Include="ModelOrder3.h" />
-    <ClInclude Include="ModelFactory.h" />
     <ClInclude Include="MTF.h" />
     <ClInclude Include="Parameters.h" />
-    <ClInclude Include="RangeCompressor.h" />
+    <ClInclude Include="Archiver.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="Ticks.h" />
   </ItemGroup>
