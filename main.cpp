@@ -1,33 +1,112 @@
 
-#include <stdio.h>
 #include <iostream>
 #include <filesystem>
 #include <direct.h>
+#ifdef LOG4CPP
 #include <log4cpp/Category.hh>
 #include <log4cpp/PropertyConfigurator.hh>
+#include "resource.h"
+#else
+#include "LogEngine.h"
+#endif
+#include <strsafe.h>
 #include "Archiver.h"
 #include "OptionsList.h"
 #include "DefaultParser.h"
 #include "CommandLine.h"
 #include "HelpFormatter.h"
 #include "Parameters.h"
-#include "libsais64.h"
-#include "Functions.h"
+
 
 
 using namespace std;
-using namespace log4cpp;
 
 // *************** TODO *********************
-// сделать что бы model order 4 не ела столько памяти
-// разобраться с буферами при Loadblock, SaveBlock что бы не выделялось лишнего
-// написать TMemoryStream.
-// многопоточность
+// ??????? ??? ?? model order 4 ?? ??? ??????? ??????
+// ??????????? ? ???????? ??? Loadblock, SaveBlock ??? ?? ?? ?????????? ???????
+// ???????? TMemoryStream.
+// ???????????????
 // 
+
+
+void PrintWindowsErrorMessage(const TCHAR* lpszFunction)
+{
+    LPVOID lpMsgBuf;
+    DWORD err = GetLastError();
+    FormatMessage(
+        FORMAT_MESSAGE_ALLOCATE_BUFFER |
+        FORMAT_MESSAGE_FROM_SYSTEM |
+        FORMAT_MESSAGE_IGNORE_INSERTS,
+        NULL,
+        err,
+        MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+        (LPTSTR)&lpMsgBuf,
+        0, NULL);
+
+    wcout << (TCHAR*)lpMsgBuf << endl;
+
+    //const TCHAR* lpszFunction = TEXT("FindResource");
+
+    LPVOID lpDisplayBuf = (LPVOID)LocalAlloc(LMEM_ZEROINIT, (lstrlen((LPCTSTR)lpMsgBuf) + lstrlen((LPCTSTR)lpszFunction) + 40) * sizeof(TCHAR));
+
+    StringCchPrintf((LPTSTR)lpDisplayBuf, LocalSize(lpDisplayBuf) / sizeof(TCHAR),
+        TEXT("%s failed with error %d: %s"), lpszFunction, err, lpMsgBuf);
+
+
+    wcout << (TCHAR*)lpDisplayBuf << endl;
+
+    LocalFree(lpDisplayBuf);
+
+    cout << "Error opening 'log4cpp.properties' resource! Error code:" << err << endl;
+
+}
+
+#ifdef LOG4CPP
+bool SaveLog4cppConfigurationFile()
+{
+    HRSRC resInfo = FindResource(nullptr, MAKEINTRESOURCE(IDR_RT_RCDATA1), L"RT_RCDATA");
+
+    if (resInfo == nullptr)
+    {
+        PrintWindowsErrorMessage(TEXT("FindResource"));
+        return false;
+    }
+
+    HGLOBAL resBytes = LoadResource(nullptr, resInfo);
+
+    if (resBytes == nullptr)
+    {
+        PrintWindowsErrorMessage(TEXT("LoadResource"));
+        return false;
+    }
+
+    LPVOID lockBytes = LockResource(resBytes);
+
+    if (lockBytes == nullptr)
+    {
+        PrintWindowsErrorMessage(TEXT("LockResource"));
+        return false;
+    }
+
+    DWORD size = SizeofResource(nullptr, resInfo);
+
+    ofstream out;
+    out.open("log4cpp.prop", ios::binary);
+    out.write((char*)lockBytes, size);
+    out.close();
+
+    return true;
+}
+#endif
+
 
 static void PrintUsage(COptionsList& options)
 {
+#ifdef LOG4CPP
     Global::GetLogger().info(CHelpFormatter::Format(Global::APP_NAME, &options));
+#else
+    Global::GetLogger().Info(CHelpFormatter::Format(Global::APP_NAME, &options));
+#endif
 }
 
 
@@ -45,8 +124,7 @@ static void DefineOptions(COptionsList& options)
     dd.ShortName("d").LongName("delete").Descr("Delete files from archive").Required(false).NumArgs(55).RequiredArgs(2);
     options.AddOption(dd);
 
-    options.AddOption("b", "blocksize", "Set the block size for BWT transformation", 1);
-    //options.AddOption("x", "extract", "Extract files from archive", 1);
+    options.AddOption("b", "blocksize", "Set the block size for BWT transformation", 1); // all numArgs here are marked as required
     options.AddOption("l", "list", "List content of archive", 1);
     options.AddOption("t", "threads", "Use specified number of threads during operation", 1);
     options.AddOption("h", "help", "Show help", 0);
@@ -57,18 +135,21 @@ static void DefineOptions(COptionsList& options)
     options.AddOption("o", "output-dir", "Specifies directory where uncompressed files will be placed. Valid with -x option only.", 1);
 }
 
-
+#ifdef LOG4CPP
 #define TRYCATCH(_,__) try {(_);}catch(...){logger.warn(__);}
-
+#else
+#define TRYCATCH(_,__) try {(_);}catch(...){logger.Warn(__);}
+#endif
 
 int main(int argc,char* argv[])
 {
+#ifdef LOG4CPP   
     if (!SaveLog4cppConfigurationFile()) 
         return 1; // were not able to load log4cpp.properties from resources - exiting with error message
 
     try
     {
-        PropertyConfigurator::configure("log4cpp.properties");
+        log2cpp::PropertyConfigurator::configure("log4cpp.properties");
     }
     catch (exception& e)
     {
@@ -77,11 +158,18 @@ int main(int argc,char* argv[])
         return 1;
     }
 
-    Category& logger = Global::GetLogger(); //Category::getInstance("sub1"); // getRoot();
+    log2cpp::Category& logger = Global::GetLogger(); //Category::getInstance("sub1"); // getRoot();
     //ParametersG::logger = Category::getInstance("sub1");
 
     logger.info("Arithmetic coder start");
-    
+#else
+    LogEngine::InitFromFile("ArithmeticLog.lfg");
+
+    LogEngine::Logger& logger = Global::GetLogger(); 
+    logger.Info("Arithmetic coder start");
+#endif
+
+
     SetImbue(cout);
 
     Global::APP_NAME = argv[0]; // this statement needs to be before first possible call of PrintUsage().
@@ -94,7 +182,11 @@ int main(int argc,char* argv[])
 
     if (argc < 2)
     {
+#ifdef LOG4CPP
         logger.error("Error: No command line arguments found.");
+#else
+        logger.Error("Error: No command line arguments found.");
+#endif
         PrintUsage(options);
 
         return 1;
@@ -102,7 +194,11 @@ int main(int argc,char* argv[])
 
     if (!defaultParser.Parse(&options, &cmd, argv, argc))
     {
+#ifdef LOG4CPP
         logger.error(defaultParser.GetLastError());
+#else
+        logger.Error(defaultParser.GetLastError());
+#endif
         PrintUsage(options);
 
         return 1;
@@ -126,7 +222,7 @@ int main(int argc,char* argv[])
     }
     if (cmd.HasOption("m"))
     {
-        TRYCATCH(params.MODEL_TYPE = ParseModelType(cmd.GetOptionValue("m", 0)), "Cannot parse Model type option value (-m). Default value 'O3' will be used.");
+        TRYCATCH(params.MODEL_TYPE = ParseModelType(cmd.GetOptionValue("m", 0)), "Cannot parse Model type option value (-m). Default value 'O2' will be used.");
     }
 
     if (cmd.HasOption("c"))
@@ -147,7 +243,14 @@ int main(int argc,char* argv[])
     if (params.VERBOSE)
     {
         for (size_t i = 0; i < argc; i++) // for debugging purposes
+#ifdef LOG4CPP
             logger.info("CLI param: %s", argv[i]);
+#elif defined (__BORLANDC__)
+            logger.LogFmt(LogEngine::Levels::llInfo, "CLI param: %s", argv[i]);
+#else
+            logger.LogFmt(LogEngine::Levels::llInfo, "CLI param: {}", argv[i]);
+#endif
+
     }
 
  
@@ -165,10 +268,9 @@ int main(int argc,char* argv[])
         else if (cmd.HasOption("a"))
         {
             vector_string_t files1 = cmd.GetOptionValues("a");
-            vector_string_t files2(files1.begin() + 1, files1.end());
+            vector_string_t files2(files1.begin() + 1, files1.end()); // copy to file2 everything but files[0]
 
-            //copy(files1.begin()++, files1.end(), files2.begin()); // copy to file2 everything but files[0];
-
+            //copy(files1.begin()++, files1.end(), files2.begin()); 
             Archiver comp;
             comp.CompressFiles(files2, files1[0], params);
         }
@@ -180,7 +282,11 @@ int main(int argc,char* argv[])
                 if (err != 0)
                     if (errno != EEXIST) // EEXIST is a valid error here
                     {
+#ifdef LOG4CPP
                         logger.error("Output directory is not valid. Cannot move on to uncompress file(s). Exiting.");
+#else
+                        logger.Error("Output directory is not valid. Cannot move on to uncompress file(s). Exiting.");
+#endif
                         return 1;
                     }
             }
@@ -190,19 +296,25 @@ int main(int argc,char* argv[])
 
             if (values.size() > 1)
             {
-                Archiver comp;
+                Archiver comp;  // extract certain files from archive
 
                 for (size_t i = 1; i < values.size(); i++) // first item is archive name
                 {
                     comp.ExtractFile(arcFile, values[i], params.OUTPUT_DIR);
                 }
             }
-            else
+            else // uncompress ALL files from archive
             {
                 ifstream fin(arcFile, ios::in | ios::binary);
                 if (!fin)
                 {
+#ifdef LOG4CPP
                     logger.warn("Cannot open archive file '%s' for reading. Exiting.", arcFile.c_str());
+#elif defined (__BORLANDC__)
+                    logger.LogFmt(LogEngine::Levels::llInfo, "Cannot open archive file '%s' for reading. Exiting.", arcFile.c_str());
+#else
+                    logger.LogFmt(LogEngine::Levels::llInfo, "Cannot open archive file '{}' for reading. Exiting.", arcFile.c_str());
+#endif
                     return 1;
                 }
 
@@ -224,28 +336,48 @@ int main(int argc,char* argv[])
         }
         else
         {
-            logger.warn("Incorrect command line parameters.");
+#ifdef LOG4CPP
+            logger.warn("Incorrect command line parameters."); 
+#else
+            logger.Warn("Incorrect command line parameters."); 
+#endif
             PrintUsage(options);
             return 1;
         }
     }
     catch (runtime_error& e)
     {
+#ifdef LOG4CPP
         logger.error(e.what());
+#else
+        logger.Error(e.what());
+#endif
         return 1;
     }
     catch (exception& e)
     {
+#ifdef LOG4CPP
         logger.error(e.what());
+#else
+        logger.Error(e.what());
+#endif
         return 1;
     }
     catch (...)
     {
+#ifdef LOG4CPP
         logger.error("Unknown error has been caught.");
+#else
+        logger.Error("Unknown error has been caught.");
+#endif
         return 1;
     }
 
-
+#ifdef LOG4CPP
     logger.info("Arithmetic coder finished.");
+#else
+    logger.Info("Arithmetic coder finished."); 
+#endif
+    
     return 0;
 }
