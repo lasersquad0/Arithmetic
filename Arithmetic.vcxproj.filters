@@ -18,31 +18,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="ArchiveHeader.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="RangeCoder.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Context.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Functions.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ModelOrder1.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Parameters.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Archiver.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Ticks.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\command-line-argument-parser\cli\CommandLine.cpp">
@@ -63,93 +39,108 @@
     <ClCompile Include="..\libsais\src\libsais64.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="MTF.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\libsais\src\libsais.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="fpaq0.cpp">
+    <ClCompile Include="src\ArchiveHeader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="BitCoder.cpp">
+    <ClCompile Include="src\Archiver.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ModelSortOrder1.cpp">
+    <ClCompile Include="src\BitCoder.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\LogEngine\logengine\src\DynamicArrays.cpp">
+    <ClCompile Include="src\Context.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\fpaq0.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ModelOrder0.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ModelSortOrder1.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\MTF.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Parameters.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RangeCoder.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Ticks.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\CommonFunctions.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ArchiveHeader.h">
+    <ClInclude Include="include\ArchiveHeader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="BasicModel.h">
+    <ClInclude Include="include\Archiver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Context.h">
+    <ClInclude Include="include\BasicModel.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Exceptions.h">
+    <ClInclude Include="include\BitCoder.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Functions.h">
+    <ClInclude Include="include\Callback.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ModelOrder1.h">
+    <ClInclude Include="include\Context.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ModelOrder1Fixed.h">
+    <ClInclude Include="include\Factories.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="MTF.h">
+    <ClInclude Include="include\FileRecord.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Parameters.h">
+    <ClInclude Include="include\fpaq0.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Archiver.h">
+    <ClInclude Include="include\ICoder.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Ticks.h">
+    <ClInclude Include="include\ModelOO1.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="RangeCoder.h">
+    <ClInclude Include="include\ModelOrder0.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="fpaq0.h">
+    <ClInclude Include="include\ModelOrder1Fixed.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ICoder.h">
+    <ClInclude Include="include\ModelOrderMixed.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="resource.h">
+    <ClInclude Include="include\ModelOrderN.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="BitCoder.h">
+    <ClInclude Include="include\ModelSortOrder1.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ModelOO1.h">
+    <ClInclude Include="include\MTF.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ModelSortOrder1.h">
+    <ClInclude Include="include\Parameters.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\LogEngine\logengine\include\logengine\DynamicArrays.h">
+    <ClInclude Include="include\RangeCoder.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ModelOrderN.h">
+    <ClInclude Include="include\Ticks.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Factories.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="FileRecord.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Callback.h">
+    <ClInclude Include="include\CommonFunctions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
