@@ -82,24 +82,24 @@ public:
     uchar DecodeSymbol(uchar* ctx) override;
     void BeginDecode(std::istream* f) override;
     void StopDecode() override;
-    IBlockCoder& GetCoder() { return *this; }
+    IBlockCoder& GetCoder() override { return *this; }
 
     // ICoder overrides
-    uint32or64 GetBytesPassed() { return bytesPassed; }
-    void StartEncode(std::ostream*) override {};
-    void FinishEncode() override {};
-    void StartDecode(std::istream*) override {};
-    void FinishDecode() override {};
-    void EncodeByte(uint32or64, uint32or64, uint32or64 ) override {};
-    uint32or64 GetCumFreq(uint32or64) override { return 0; };
-    void DecodeByte(uint32or64, uint32or64, uint32or64) override {};
-    uint32or64 GetIntParam(const std::string& ) override { return 0; };
+    uint32or64 GetBytesPassed() override { return bytesPassed; }
+    void StartEncode(std::ostream*) override {}
+    void FinishEncode() override {}
+    void StartDecode(std::istream*) override {}
+    void FinishDecode() override {}
+    void EncodeByte(uint32or64, uint32or64, uint32or64 ) override {}
+    uint32or64 GetCumFreq(uint32or64) override { return 0; }
+    void DecodeByte(uint32or64, uint32or64, uint32or64) override {}
+    uint32or64 GetIntParam(const std::string& ) override { return 0; }
 
     // IBlockCoder overrides
-    void StartBlockEncode() override {};
-    void FinishBlockEncode() override {};
-    void StartBlockDecode() override {};
-    void FinishBlockDecode() override {};
+    void StartBlockEncode() override {}
+    void FinishBlockEncode() override {}
+    void StartBlockDecode() override {}
+    void FinishBlockDecode() override {}
     
 };
 

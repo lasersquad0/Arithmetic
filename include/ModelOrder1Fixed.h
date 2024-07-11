@@ -66,7 +66,7 @@ public:
 	{
 		uchar sym = 1; 
 		//uint32or64 HiCount = 0;
-		uint32or64 count = coder.GetCumFreq(summFreq); // меняет coder.range
+		uint32or64 count = coder.GetCumFreq(summFreq); // changes coder.range
 
 		while (cumFreqs[sym] <= count) sym++;
 
@@ -76,7 +76,7 @@ public:
 			if (HiCount > count) break;
 		}
 */
-		coder.DecodeByte(cumFreqs[sym-1], weights[sym-1], summFreq); //меняет low, range and code
+		coder.DecodeByte(cumFreqs[sym-1], weights[sym-1], summFreq); //changes low, range and code
 
 		//UpdateStatistics(sym);
 

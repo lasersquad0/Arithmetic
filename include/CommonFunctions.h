@@ -10,8 +10,8 @@ typedef unsigned int uint;
 
 struct MyGroupSeparator : std::numpunct<char>
 {
-	char do_thousands_sep() const override { return ' '; } // разделитель тыс€ч
-	std::string do_grouping() const override { return "\3"; } // группировка по 3
+	char do_thousands_sep() const override { return ' '; } // thousands separator
+	std::string do_grouping() const override { return "\3"; } // groupping by 3
 };
 
 void SetImbue(std::ostream& stream);

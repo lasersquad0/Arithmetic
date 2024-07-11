@@ -3,7 +3,7 @@
 #include <iostream>
 #include "CommonFunctions.h"
 
-typedef uint64_t uint32or64; // переводит coder и model либо в uint32_t режим либо uint64_t. все int переменные становятся либо 32bit либо 64bit
+typedef uint64_t uint32or64; // switches coder and model into either uint32_t or uint64_t mode. all integer variables become either 32bit or 64bit 
 typedef int64_t int32or64;
 
 class ICoder
@@ -18,7 +18,7 @@ public:
     virtual uint32or64 GetCumFreq(uint32or64 totalFreq) = 0;
     virtual void DecodeByte(uint32or64 cumFreq, uint32or64 freq, uint32or64 totalFreq) = 0;
     virtual uint32or64 GetIntParam(const std::string& paramName) = 0;
-    virtual ~ICoder() {};
+    virtual ~ICoder() {}
 };
 
 class IBlockCoder : public ICoder
@@ -28,5 +28,5 @@ public:
     virtual void FinishBlockEncode() = 0;
     virtual void StartBlockDecode() = 0;
     virtual void FinishBlockDecode() = 0;
-    virtual ~IBlockCoder() {};
+    virtual ~IBlockCoder() {}
 };

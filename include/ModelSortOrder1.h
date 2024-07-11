@@ -2,23 +2,23 @@
 
 #include "BasicModel.h"
 
-// Специальный символ КонецФайла
+// special End-Of-File symbol
 //#define EOF_SYMBOL    (NO_OF_CHARS + 1)
 
 
 class ModelSortOrder1 : public BasicModel
 {
 protected:
-	// Количество символов алфавита
+	// number of alphabet symbols
 	static const uint32or64 NO_OF_CHARS = 256;
-	// Всего символов в модели
+	// total number of symbols in model
 	static const uint32or64 NO_OF_SYMBOLS = NO_OF_CHARS + 1; // 257
 	
-	// Таблицы перекодировки
+	// transcoding tables
 	uchar index_to_char[NO_OF_SYMBOLS]; //257
 	uint32or64 char_to_index[NO_OF_CHARS]; //256
 
-	// Таблицы частот
+	// frequancies tables
 	uint32or64 cum_freq[NO_OF_SYMBOLS + 1]; // 258 ??? why
 	uint32or64     freq[NO_OF_SYMBOLS + 1]; // 258 ???? why
 
@@ -62,7 +62,7 @@ public:
 		//uint32or64 HiCount = 0;
 		uint32or64 cum = coder.GetCumFreq(cum_freq[0]); // меняет coder.range
 
-		// поиск соответствующего символа в таблице частот
+		// look for needed symbol in frequencies table 
 		for (ind = 1; cum_freq[ind] > cum; ind++);
 
 	/*	for (sym = 0; ; sym++)
@@ -73,7 +73,7 @@ public:
 
 		uchar sym = index_to_char[ind];
 
-		coder.DecodeByte(cum_freq[ind], freq[ind], cum_freq[0]); //пересчитывает low, range and code
+		coder.DecodeByte(cum_freq[ind], freq[ind], cum_freq[0]); //recalculates low, range and code
 
 		updateStatistics(ind);
 
@@ -96,11 +96,11 @@ public:
 		uchar ch_i, ch_symbol;
 		uint32or64 cum;
 
-		// проверка на переполнение счетчика частоты
+		// check if freq counter needs scaling 
 		if (cum_freq[0] == coder.GetIntParam("MAX_FREQ")) //MAX_FREQUENCY)
 		{
 			cum = 0;
-			// масштабирование частот при переполнении
+			// scale frequencies 
 			for (i = NO_OF_SYMBOLS; i >= 0; i--)
 			{
 				freq[i] = (freq[i] + 1) / 2;
@@ -109,7 +109,7 @@ public:
 			}
 		}
 
-		for (i = index; freq[i] == freq[i - 1]; i--); // ищем назад номер где два рядом стояших freq не равны друг другу
+		for (i = index; freq[i] == freq[i - 1]; i--); // look back for index where two successive freqs differ from each other 
 
 		if (i < index)
 		{
@@ -121,7 +121,7 @@ public:
 			char_to_index[ch_symbol] = i;
 		}
 
-		// обновление значений в таблицах частот
+		// refresh values in freq tables
 		freq[i]++;
 		while (i > 0)
 		{

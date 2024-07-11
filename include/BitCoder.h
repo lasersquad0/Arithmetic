@@ -52,7 +52,7 @@ private:
 
 public:
     uint32or64 GetBytesPassed() override { return bytesPassed; }
-    uint32or64 GetIntParam(const std::string& paramName);
+    uint32or64 GetIntParam(const std::string& paramName) override;
 
     void StartEncode(std::ostream* f) override;
     void SaveState();

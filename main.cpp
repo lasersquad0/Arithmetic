@@ -306,7 +306,7 @@ int main(int argc,char* argv[])
             else // uncompress ALL files from archive
             {
                 ifstream fin(arcFile, ios::in | ios::binary);
-                if (!fin)
+                if (fin.fail())
                 {
 #ifdef LOG4CPP
                     logger.warn("Cannot open archive file '%s' for reading. Exiting.", arcFile.c_str());

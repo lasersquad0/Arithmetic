@@ -42,7 +42,7 @@ void BitCoder::StartEncode(ostream* f)
 
 void BitCoder::SaveState()
 {
-	bitsToFollow++;     // вывод двух битов опpеделяющих чеpвеpть, лежащую в текущем интеpвале
+	bitsToFollow++;     // output of two bits which define a quater inside currect interval 
 	if (low < FIRST_QTR)
 		outputBitPlusFollow(0);
 	else
@@ -61,7 +61,7 @@ void BitCoder::FinishEncode()
    
 void BitCoder::LoadInitialBits()
 {
-	nextCh = 0;  // Ввод битов для заполнения значения кода 
+	nextCh = 0;  // input bits to fill in code value  
 	for (int i = 0; i < CODEBITS; i++)
 	{
 		nextCh = (nextCh << 1) + inputBit();
@@ -165,19 +165,19 @@ void BitCoder::DecodeByte(uint32or64 cumFreq, uint32or64 freq, uint32or64 totalF
 
 	//logger.finer(()->String.format("low=%X high=%X nextCh=%X left=%X freq=%X", low, high, nextCh, left, freq));
 
-	for (;;)                      //Цикл отбpасывания битов
+	for (;;)                      //loop to throw away bits
 	{
-		if (high < HALF)         // Расшиpение нижней  половины
+		if (high < HALF)         // expanding lower range
 		{
-			/* ничего */
+			/* nothing */
 		}
-		else if (low >= HALF)   // Расшиpение веpхней половины после вычитание смещения Half
+		else if (low >= HALF)   // expanding upper half after deducting Half shift
 		{
 			nextCh -= HALF;
 			low    -= HALF;
 			high   -= HALF;
 		}
-		else if ((low >= FIRST_QTR) && (high < THIRD_QTR)) /* Расшиpение сpедней половины   */
+		else if ((low >= FIRST_QTR) && (high < THIRD_QTR)) // expanding middle half 
 		{
 			nextCh -= FIRST_QTR;
 			low    -= FIRST_QTR;
@@ -185,9 +185,9 @@ void BitCoder::DecodeByte(uint32or64 cumFreq, uint32or64 freq, uint32or64 totalF
 		}
 		else break;
 
-		low <<= 1;               /* Увеличить масштаб интеpвала    */
+		low <<= 1;               // scaling interval 
 		high = (high << 1) + 1;
-		nextCh = (nextCh << 1) + inputBit();  /* Добавить новый бит */
+		nextCh = (nextCh << 1) + inputBit();  // add new bit
 
 		assert(low < TOP);
 		assert(high < TOP);
@@ -216,7 +216,7 @@ void BitCoder::outputBitPlusFollow(int bit)
 }
 
 // Called during Compression only.
-void BitCoder::outputBit(int bit) // вводим биты со старшего и они постепенно перемещаются к младшему.
+void BitCoder::outputBit(int bit) // inputting bits starting from major bits and they are moving towards to minor bits.
 {
 	buffer >>= 1;   // free space for a new bit
 	if (bit > 0) buffer |= 0x80;
@@ -240,14 +240,14 @@ int BitCoder::inputBit()
 
 		if (buffer == EOF)
 		{
-			garbage_bits++;     // Помещение любых битов после конца файла с пpовеpкой на слишком большое их количество
+			garbage_bits++;     // extra bits after EOF to proper finish algorythm + check on number of such bits (should not be too many of them)
 			assert(garbage_bits <= CODEBITS - 2); //, "Incorrect archive file.");
 		}
 		bitsToGo = 8;
 	}
 
-	int t = buffer & 1;  // Выдача очеpедного бита с пpавого конца (дна) буфеpа
-	buffer >>= 1;        // TODO переделать как в AdaptHuffman
+	int t = buffer & 1;  // output bits from minor bits (right part of the byte)
+	buffer >>= 1;        // TODO redo as implemented in AdaptHuffman
 	bitsToGo--;
 	return t;
 }

@@ -39,8 +39,8 @@ void RangeCoder::EncodeByte(uint32or64 cumFreq, uint32or64 freq, uint32or64 tota
         range <<= 8,
         low <<= 8;
 
-    // (low ^ (low + range)) < TOP - дает true когда 4й байт одинаковый у low и high - значит он кандидат на запись в выход.
-    // ((range = BOTTOM - (low & (BOTTOM - 1))), 1) - Срабатывает только если range<BOTTOM переопределяет range странным способом.
+    // (low ^ (low + range)) < TOP - returns true when 4th byte is the same in low and high - candidate to write to the output.
+    // ((range = BOTTOM - (low & (BOTTOM - 1))), 1) - triggers only when range<BOTTOM, weird modification of range.
 }
 
 void RangeCoder::DecodeByte(uint32or64 cumFreq, uint32or64 freq, uint32or64 totalFreq)

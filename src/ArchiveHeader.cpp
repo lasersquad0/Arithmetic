@@ -18,7 +18,7 @@ void ArchiveHeader::listContent(std::string arcFilename, bool verbose)
 		
 		std::string fileModified = DateTimeToString(fr.GetModifiedDateAsTimeT());
 
-		std::string algName = Parameters::CoderNames[fr.alg]; // fr.alg здесь уже очищен от model order
+		std::string algName = Parameters::CoderNames[fr.alg]; // fr.alg here does not contain model order already 
 		std::string modelName = Parameters::ModelTypeCode[fr.modelOrder];
 
 		float ratio = (float)fr.fileSize / (float)fr.compressedSize;

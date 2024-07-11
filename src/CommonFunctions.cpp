@@ -115,7 +115,7 @@ void SaveToFile(string fileName, char* buf, unsigned int len)
 		return;
 	}
 
-	setmode(_fileno(f), _O_BINARY);
+	_setmode(_fileno(f), _O_BINARY);
 	size_t wrtn = fwrite(buf, sizeof(char), len, f);
 	assert(wrtn == len);
 
@@ -146,7 +146,7 @@ void LoadFromFile(string fileName, char* buf, unsigned int len)
 	FILE* f;
 	errno_t err = fopen_s(&f, fileName.c_str(), "r");
 
-	setmode(_fileno(f), _O_BINARY);
+	_setmode(_fileno(f), _O_BINARY);
 	if (err != 0)
 		cout << " ***** cannot open file for writing *****" << endl;
 	size_t wrtn = fread(buf, sizeof(char), len, f);
