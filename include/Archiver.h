@@ -23,27 +23,27 @@ private:
 	int UncompressFile(std::ifstream* fin, std::ofstream* fout, FileRecord& fr, IModel* model);
 	int UncompressFileBlock(std::ifstream* fin, std::ofstream* fout, FileRecord& fr, IModel* model);
 
-	void PrintCompressionStart(Parameters params);
-	void PrintUncompressionStart(FileRecord& fr, Parameters params);
-	void PrintFileCompressionDone(FileRecord& fr);
+	void PrintCompressionStart(const Parameters& params);
+	void PrintUncompressionStart(const FileRecord& fr, const Parameters& params);
+	void PrintFileCompressionDone(const FileRecord& fr);
 
-	bool BypassFile(std::ifstream* fin, FileRecord& fr);
-	bool CopyFileData(std::ifstream* fin, std::ofstream* fout, FileRecord& fr);
+	bool BypassFile(std::ifstream* fin, const FileRecord& fr);
+	bool CopyFileData(std::ifstream* fin, std::ofstream* fout, const FileRecord& fr);
 
 public:
 	void AddCallback(ICallback* cb);
 	void RemoveCallback(ICallback* cb);
 
-	void CompressFiles(const vector_string_t& files, std::string ArchiveFileName, Parameters params);
-	void CompressFile(std::string FileName, std::string ArchiveFileName, Parameters params);
+	void CompressFiles(const vector_string_t& files, std::string ArchiveFileName, const Parameters& params); // ArchiveFileName intentionally passed "by value" here
+	void CompressFile(const std::string& FileName, std::string ArchiveFileName, const Parameters& params); // ArchiveFileName intentionally passed "by value" here
 	
-	void UncompressFiles(std::ifstream* fin, Parameters params);
+	void UncompressFiles(std::ifstream* fin, const Parameters& params);
 	
-	void ExtractFiles(std::string ArchiveFile, vector_string_t FilesToExtract, std::string ExtractDir, Parameters params = Parameters());
-	void ExtractFile(std::string ArchiveFile, std::string FileToExtract, std::string ExtractDir, Parameters params = Parameters());
+	void ExtractFiles(const std::string& ArchiveFile, const vector_string_t& FilesToExtract, const std::string& ExtractDir, const Parameters& params = Parameters());
+	void ExtractFile(const std::string& ArchiveFile, const std::string& FileToExtract, const std::string& ExtractDir, const Parameters& params = Parameters());
 
-	void RemoveFile(std::string ArchiveFile, std::string FileToDelete);
-	void RemoveFiles(std::string ArchiveFile, vector_string_t& flist);
+	void RemoveFile(const std::string& ArchiveFile, const std::string& FileToDelete);
+	void RemoveFiles(const std::string& ArchiveFile, const vector_string_t& flist);
 
 	
 	//void EncodeFile(FILE* DecodedFile, FILE* EncodedFile, uint64_t fSize);

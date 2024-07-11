@@ -53,9 +53,9 @@ private:
 	}
 
 public:
-	void listContent(std::string arcFilename, bool verbose);
+	void listContent(const std::string& arcFilename, bool verbose);
 
-	bool CheckSignature(std::string ArchiveName)
+	bool CheckSignature(const std::string& ArchiveName)
 	{
 		std::ifstream fin(ArchiveName, std::ios::in | std::ios::binary);
 		if (fin.fail()) return false; // return false even in case we cannot open file, either file does not exist or we do not have permissions
@@ -75,7 +75,7 @@ public:
 
 	}
 
-	bool FileInList(std::string FileName)
+	bool FileInList(const std::string& FileName)
 	{
 		for (auto item: files)
 			if (item.fileName == FileName)
@@ -83,7 +83,7 @@ public:
 		return false;
 	}
 
-	void RemoveFileFromList(std::string FileName)
+	void RemoveFileFromList(const std::string& FileName)
 	{
 		for (vector_fr_t::iterator iter = files.begin(); iter != files.end(); iter++)
 		{
@@ -95,7 +95,7 @@ public:
 		}
 	}
 
-	void RemoveFilesFromList(vector_string_t& FileList)
+	void RemoveFilesFromList(const vector_string_t& FileList)
 	{
 		for (vector_fr_t::iterator iter = files.begin(); iter != files.end(); )
 		{
@@ -153,89 +153,16 @@ public:
 	 * Adds filenames into vector of FileRecord together with file lengths and modified attributes
 	 * @param filenames list of files (as strings) to compress.
 	 */
-	vector_fr_t& fillFileRecs(const vector_string_t& filenames, Parameters params)
-	{
-		files.clear(); 
-
-		for (int i = 0; i < filenames.size(); i++) // first item in a list is archive file name, bypass it.
-		{		
-			if (std::filesystem::exists(filenames[i]))
-			{
-				auto ph = std::filesystem::path(filenames[i]);
-				
-				FileRecord fr;
-				fr.dirName = ph.string(); //fl.getAbsolutePath(); // TODO find a way how to return a directory only. Now it returns full path with filename
-
-				fr.origFilename = filenames[i];
-				fr.fileName = ph.filename().string(); //fl.getName();//filenames[i]; // store name of the file without path
-				fr.fileSize = std::filesystem::file_size(filenames[i]);
-				fr.modifiedDate = std::filesystem::last_write_time(ph).time_since_epoch().count(); 
-				fr.alg = (uint8_t)params.CODER_TYPE; 
-				fr.modelOrder = (uint8_t)params.MODEL_TYPE;
-				fr.blockCount = 0;
-				fr.blockSize = params.BLOCK_SIZE;
-				fr.compressedSize = 0;
-				fr.CRC32Value = 0xFFFFF; // TODO change it
-
-				files.push_back(fr);
-			}
-			else
-			{
-#if defined (__BORLANDC__)
-				std::string mess = "Cannot read file '%s'."; // TODO need to finish this
-#else
-				std::string mess = std::format("Cannot read file '{}'.", filenames[i]);
-#endif
-				throw std::invalid_argument(mess);
-			//	logger.warn("File '%s' cannot be found, pass on it.", filenames[i].c_str());
-			}
-		}
-		if (files.size() == 0)
-			throw std::invalid_argument("There are no files to compress. Exiting...");
-		
-		return files;
-	}
+	vector_fr_t& fillFileRecs(const vector_string_t& filenames, const Parameters& params);
 
 	/**
 	 * Update existing archive with information about sizes of compressed files in it (in bytes)
 	 * @param arcFilename Name of the archive
 	 * @throws IOException if something goes wrong
 	 */
-	void updateHeaders(std::string arcFilename)
-	{
-		std::fstream raf;
-		//raf.exceptions(ios_base::failbit | ios_base::badbit);
-		raf.open(arcFilename, std::ios::in | std::ios::out | std::ios::binary);
-		if(raf.fail())
-			throw file_error("Cannot open file '" + arcFilename + "' for writing.");
-		
-		uint32_t InitialOffset = FILE_SIGNATURE_LEN + FILE_VERSION_LEN + sizeof(uint16_t); // start of files table in an archive
-		constexpr uint32_t CRC32ValueOffset = sizeof(uint64_t);
-		constexpr uint32_t CompressedSizeOffset = 3 * sizeof(uint64_t);
-		constexpr uint32_t BlockCountOffset = 4 * sizeof(uint64_t) + sizeof(uint8_t);
-		constexpr uint32_t FileRecSize = 4 * sizeof(uint64_t) + 2 * sizeof(uint32_t) + sizeof(uint8_t) + sizeof(uint16_t);  // Short.BYTES - this is for saving filename length
+	void updateHeaders(const std::string& arcFilename);
 
-		uint32_t pos = InitialOffset;
-
-		for (FileRecord fr : files)
-		{
-			raf.seekp(pos + CRC32ValueOffset);
-			//fr.CRC32Value = 0xFFFFF; // TODO remove it later
-			raf.write((char*)&fr.CRC32Value, sizeof(uint64_t));
-
-			raf.seekp(pos + CompressedSizeOffset, std::ios::beg);
-			raf.write((char*)&fr.compressedSize, sizeof(uint64_t));
-
-			raf.seekp(pos + BlockCountOffset , std::ios_base::beg);
-			raf.write((char*)&fr.blockCount, sizeof(uint32_t));
-
-			pos = pos + FileRecSize + (uint32_t)fr.fileName.length(); // length()*2 because writeChars() saves each char as 2 bytes
-		}
-
-		raf.close();
-	}
-
-	std::string truncate(std::string str, int len)
+	std::string truncate(const std::string& str, int len)
 	{
 		return (str.length() > len) ? str.substr(0, len - 3) + "..." : str;
 	}

@@ -38,7 +38,7 @@ void Archiver::RemoveCallback(ICallback* cb)
     cbmanager.RemoveCallback(cb);
 }
 
-void Archiver::CompressFile(string FileName, string ArchiveFileName, Parameters params)
+void Archiver::CompressFile(const string& FileName, string ArchiveFileName, const Parameters& params)
 {
     vector_string_t files;
 
@@ -46,7 +46,7 @@ void Archiver::CompressFile(string FileName, string ArchiveFileName, Parameters 
     CompressFiles(files, ArchiveFileName, params);
 }
 
-void Archiver::CompressFiles(const vector_string_t& files, string ArchiveFileName, Parameters params)
+void Archiver::CompressFiles(const vector_string_t& files, string ArchiveFileName, const Parameters& params)
 {
     ConsoleCallback ccb;
     cbmanager.AddCallback(&ccb);
@@ -346,7 +346,7 @@ void Archiver::SaveBlock(ostringstream& fb, ofstream* fout, uint32_t uBlockSize,
     //SaveToFile(fn, s.data(), len);
 }
 
-void Archiver::UncompressFiles(ifstream* fin, Parameters params)
+void Archiver::UncompressFiles(ifstream* fin, const Parameters& params)
 {
 #ifdef LOG4CPP
     log4cpp::Category& logger = Global::GetLogger();
@@ -619,7 +619,7 @@ int Archiver::UncompressFileBlock(ifstream* fin, ofstream *fout, FileRecord& fr,
 }
 
 
-void Archiver::ExtractFiles(string ArchiveFile, vector_string_t FilesToExtract, string ExtractDir, Parameters params)
+void Archiver::ExtractFiles(const string& ArchiveFile, const vector_string_t& FilesToExtract, const string& ExtractDir, const Parameters& params)
 {
     for (auto fl: FilesToExtract)
     {
@@ -627,7 +627,7 @@ void Archiver::ExtractFiles(string ArchiveFile, vector_string_t FilesToExtract, 
     }
 }
 
-void Archiver::ExtractFile(string ArchiveFile, string FileToExtract, string ExtractDir, Parameters params)
+void Archiver::ExtractFile(const string& ArchiveFile, const string& FileToExtract, const string& ExtractDir, const Parameters& params)
 {
 #ifdef LOG4CPP
     log4cpp::Category& logger = Global::GetLogger();
@@ -703,7 +703,7 @@ void Archiver::ExtractFile(string ArchiveFile, string FileToExtract, string Extr
     }
 }
 
-bool Archiver::BypassFile(ifstream* fin, FileRecord& fr)
+bool Archiver::BypassFile(ifstream* fin, const FileRecord& fr)
 {
     if (fr.blockCount == 0)
     {
@@ -736,7 +736,7 @@ bool Archiver::BypassFile(ifstream* fin, FileRecord& fr)
     return !fin->fail();
 }
 
-bool Archiver::CopyFileData(ifstream* fin, ofstream* fout, FileRecord& fr)
+bool Archiver::CopyFileData(ifstream* fin, ofstream* fout, const FileRecord& fr)
 {
     if (fr.blockCount == 0)
     {
@@ -795,7 +795,7 @@ bool Archiver::CopyFileData(ifstream* fin, ofstream* fout, FileRecord& fr)
     return !fin->fail() && !fout->fail();
 }
 
-void Archiver::RemoveFile(string ArchiveFile, string FileToDelete)
+void Archiver::RemoveFile(const string& ArchiveFile, const string& FileToDelete)
 {
 #ifdef LOG4CPP
     log4cpp::Category& logger = Global::GetLogger();
@@ -872,7 +872,7 @@ void Archiver::RemoveFile(string ArchiveFile, string FileToDelete)
 #endif
 }
 
-void Archiver::RemoveFiles(string ArchiveFile, vector_string_t& flist)
+void Archiver::RemoveFiles(const string& ArchiveFile, const vector_string_t& flist)
 {
     if (flist.size() == 0) return;
 
@@ -954,7 +954,7 @@ void Archiver::RemoveFiles(string ArchiveFile, vector_string_t& flist)
     
 }
 
-void Archiver::PrintCompressionStart(Parameters params)
+void Archiver::PrintCompressionStart(const Parameters& params)
 {
 #ifdef LOG4CPP
     log4cpp::Category& logger = Global::GetLogger();
@@ -990,7 +990,7 @@ void Archiver::PrintCompressionStart(Parameters params)
 
 }
 
-void Archiver::PrintUncompressionStart(FileRecord& fr, Parameters params)
+void Archiver::PrintUncompressionStart(const FileRecord& fr, const Parameters& params)
 {
 #ifdef LOG4CPP
     log4cpp::Category& logger = Global::GetLogger();
@@ -1034,7 +1034,7 @@ void Archiver::PrintUncompressionStart(FileRecord& fr, Parameters params)
 #endif // LOG4CPP
 }
 
-void Archiver::PrintFileCompressionDone(FileRecord& fr)
+void Archiver::PrintFileCompressionDone(const FileRecord& fr)
 {
 #ifdef LOG4CPP
     log4cpp::Category& logger = Global::GetLogger();
