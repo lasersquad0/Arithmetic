@@ -129,7 +129,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\..\include;$(ProjectDir)..\..\log4cpp;$(ProjectDir)..\..\..\libsais\include;$(ProjectDir)..\..\..\LogEngine2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\..\..\include;$(ProjectDir)..\..\..\log4cpp;$(ProjectDir)..\..\..\..\libsais\include;$(ProjectDir)..\..\..\..\LogEngine2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
@@ -148,7 +148,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\..\include;$(ProjectDir)..\..\log4cpp;$(ProjectDir)..\..\..\libsais\include;$(ProjectDir)..\..\..\LogEngine2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\..\..\include;$(ProjectDir)..\..\..\log4cpp;$(ProjectDir)..\..\..\..\libsais\include;$(ProjectDir)..\..\..\..\LogEngine2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <WholeProgramOptimization>false</WholeProgramOptimization>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
@@ -166,43 +166,42 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\include\ArchiveHeader.h" />
-    <ClInclude Include="..\..\include\Archiver.h" />
-    <ClInclude Include="..\..\include\BasicModel.h" />
-    <ClInclude Include="..\..\include\BitCoder.h" />
-    <ClInclude Include="..\..\include\Callback.h" />
-    <ClInclude Include="..\..\include\CommonFunctions.h" />
-    <ClInclude Include="..\..\include\Context.h" />
-    <ClInclude Include="..\..\include\Factories.h" />
-    <ClInclude Include="..\..\include\FileRecord.h" />
-    <ClInclude Include="..\..\include\fpaq0.h" />
-    <ClInclude Include="..\..\include\ICoder.h" />
-    <ClInclude Include="..\..\include\ModelOO1.h" />
-    <ClInclude Include="..\..\include\ModelOrder0.h" />
-    <ClInclude Include="..\..\include\ModelOrder1Fixed.h" />
-    <ClInclude Include="..\..\include\ModelOrderMixed.h" />
-    <ClInclude Include="..\..\include\ModelOrderN.h" />
-    <ClInclude Include="..\..\include\ModelSortOrder1.h" />
-    <ClInclude Include="..\..\include\MTF.h" />
-    <ClInclude Include="..\..\include\Parameters.h" />
-    <ClInclude Include="..\..\include\RangeCoder.h" />
-    <ClInclude Include="..\..\include\Ticks.h" />
-    <ClInclude Include="framework.h" />
+    <ClCompile Include="..\..\..\src\ArchiveHeader.cpp" />
+    <ClCompile Include="..\..\..\src\Archiver.cpp" />
+    <ClCompile Include="..\..\..\src\BitCoder.cpp" />
+    <ClCompile Include="..\..\..\src\CommonFunctions.cpp" />
+    <ClCompile Include="..\..\..\src\Context.cpp" />
+    <ClCompile Include="..\..\..\src\fpaq0.cpp" />
+    <ClCompile Include="..\..\..\src\ModelOrder0.cpp" />
+    <ClCompile Include="..\..\..\src\ModelSortOrder1.cpp" />
+    <ClCompile Include="..\..\..\src\MTF.cpp" />
+    <ClCompile Include="..\..\..\src\Parameters.cpp" />
+    <ClCompile Include="..\..\..\src\RangeCoder.cpp" />
+    <ClCompile Include="..\..\..\src\Ticks.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\src\ArchiveHeader.cpp" />
-    <ClCompile Include="..\..\src\Archiver.cpp" />
-    <ClCompile Include="..\..\src\BitCoder.cpp" />
-    <ClCompile Include="..\..\src\CommonFunctions.cpp" />
-    <ClCompile Include="..\..\src\Context.cpp" />
-    <ClCompile Include="..\..\src\fpaq0.cpp" />
-    <ClCompile Include="..\..\src\ModelOrder0.cpp" />
-    <ClCompile Include="..\..\src\ModelSortOrder1.cpp" />
-    <ClCompile Include="..\..\src\MTF.cpp" />
-    <ClCompile Include="..\..\src\Parameters.cpp" />
-    <ClCompile Include="..\..\src\RangeCoder.cpp" />
-    <ClCompile Include="..\..\src\Ticks.cpp" />
-    <ClCompile Include="ArithmeticLib.cpp" />
+    <ClInclude Include="..\..\..\include\ArchiveHeader.h" />
+    <ClInclude Include="..\..\..\include\Archiver.h" />
+    <ClInclude Include="..\..\..\include\ARIExceptions.h" />
+    <ClInclude Include="..\..\..\include\BasicModel.h" />
+    <ClInclude Include="..\..\..\include\BitCoder.h" />
+    <ClInclude Include="..\..\..\include\Callback.h" />
+    <ClInclude Include="..\..\..\include\CommonFunctions.h" />
+    <ClInclude Include="..\..\..\include\Context.h" />
+    <ClInclude Include="..\..\..\include\Factories.h" />
+    <ClInclude Include="..\..\..\include\FileRecord.h" />
+    <ClInclude Include="..\..\..\include\fpaq0.h" />
+    <ClInclude Include="..\..\..\include\ICoder.h" />
+    <ClInclude Include="..\..\..\include\ModelOO1.h" />
+    <ClInclude Include="..\..\..\include\ModelOrder0.h" />
+    <ClInclude Include="..\..\..\include\ModelOrder1Fixed.h" />
+    <ClInclude Include="..\..\..\include\ModelOrderMixed.h" />
+    <ClInclude Include="..\..\..\include\ModelOrderN.h" />
+    <ClInclude Include="..\..\..\include\ModelSortOrder1.h" />
+    <ClInclude Include="..\..\..\include\MTF.h" />
+    <ClInclude Include="..\..\..\include\Parameters.h" />
+    <ClInclude Include="..\..\..\include\RangeCoder.h" />
+    <ClInclude Include="..\..\..\include\Ticks.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
