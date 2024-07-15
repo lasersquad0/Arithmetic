@@ -14,7 +14,9 @@
 #include "MTF.h"
 #include "Factories.h"
 #include "Archiver.h"
+#if defined (__BORLANDC__)
 #include "ParametersInterface.hpp"
+#endif
 
 using namespace std;
 
@@ -25,10 +27,8 @@ using namespace std;
 #define _SH_DENYWR SH_DENYWR
 #define _SH_DENYRD SH_DENYRD
 #define _SH_DENYNO SH_DENYNO
-#endif
 
-
- __declspec(dllexport) TArchiverInterface* __stdcall CreateArchiver()
+__declspec(dllexport) TArchiverInterface* __stdcall CreateArchiver()
 {
    return new Archiver();
 }
@@ -37,7 +37,6 @@ __declspec(dllexport) TParametersInterface* __stdcall CreateParams()
 {
    return new Parameters();
 }
-
 
 void Archiver::CompressFiles(const System::UnicodeString Files, const System::UnicodeString ArchiveFileName/*, Parameters params*/)
 {
@@ -56,8 +55,8 @@ void Archiver::RemoveFile(const System::UnicodeString ArchiveFile, const System:
 {
 
 }
+#endif
 
-//////////////////////////////////////////////////////////////////////////////////////
 
 
 void Archiver::AddCallback(ICallback* cb)

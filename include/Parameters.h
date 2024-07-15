@@ -6,12 +6,15 @@
 #else
 #include "LogEngine.h"
 #endif
+#if defined (__BORLANDC__)
 #include "ParametersInterface.hpp"
+#endif
 
 enum class CoderType { NONE, HUFFMAN, AHUFFMAN, RLE, ARITHMETIC, ARITHMETIC32, ARITHMETIC64, AARITHMETIC, AARITHMETIC32, AARITHMETIC64, ABITARITHMETIC };
 
 enum class ModelType { UNKNOWN, O0, O1, O2, O3, MIXO3, FO1, BITO1 };
 
+#if defined (__BORLANDC__)
 class __declspec(delphiclass) Parameters : public TParametersInterface
 {
 public:
@@ -28,6 +31,22 @@ private:
 	uint32_t __fastcall GetThreads() override { return THREADS; }
 	void __fastcall SetThreads(uint32_t thrds) override {THREADS = thrds; }
 };
+#else
+class Parameters
+{
+public:
+	uint32_t THREADS = 1;
+	std::string OUTPUT_DIR = ".\\";
+	uint32_t BLOCK_SIZE = 1 << 16;
+	bool BLOCK_MODE = true;  // using block mode by default, to back to 'stream' mode use -sm cli option
+	bool VERBOSE = false;
+	ModelType MODEL_TYPE = ModelType::O2;
+	CoderType CODER_TYPE = CoderType::AARITHMETIC;
+	static const inline std::string CoderNames[] = { "NONE", "HUF", "AHUF", "RLE", "ARI", "ARI32", "ARI64", "AARI", "AARI32", "AARI64", "BITARI" };
+	static const inline std::string ModelTypeCode[] = { "UNKNOWN", "O0", "O1", "O2", "O3", "MIXO3", "FO1", "BITO1" };
+};
+
+#endif
 
 class Global
 {
