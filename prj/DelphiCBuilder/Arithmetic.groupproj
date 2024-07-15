@@ -1,0 +1,48 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <ProjectGuid>{82C3027D-0F59-4733-B4B0-C21D936DC053}</ProjectGuid>
+    </PropertyGroup>
+    <ItemGroup>
+        <Projects Include="ArithmeticConsole\ArithmeticConsole.cbproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="ArithmeticBPL\ArithmeticBPL.cbproj">
+            <Dependencies/>
+        </Projects>
+    </ItemGroup>
+    <ProjectExtensions>
+        <Borland.Personality>Default.Personality.12</Borland.Personality>
+        <Borland.ProjectType/>
+        <BorlandProject>
+            <Default.Personality/>
+        </BorlandProject>
+    </ProjectExtensions>
+    <Target Name="ArithmeticConsole">
+        <MSBuild Projects="ArithmeticConsole\ArithmeticConsole.cbproj"/>
+    </Target>
+    <Target Name="ArithmeticConsole:Clean">
+        <MSBuild Projects="ArithmeticConsole\ArithmeticConsole.cbproj" Targets="Clean"/>
+    </Target>
+    <Target Name="ArithmeticConsole:Make">
+        <MSBuild Projects="ArithmeticConsole\ArithmeticConsole.cbproj" Targets="Make"/>
+    </Target>
+    <Target Name="ArithmeticBPL">
+        <MSBuild Projects="ArithmeticBPL\ArithmeticBPL.cbproj"/>
+    </Target>
+    <Target Name="ArithmeticBPL:Clean">
+        <MSBuild Projects="ArithmeticBPL\ArithmeticBPL.cbproj" Targets="Clean"/>
+    </Target>
+    <Target Name="ArithmeticBPL:Make">
+        <MSBuild Projects="ArithmeticBPL\ArithmeticBPL.cbproj" Targets="Make"/>
+    </Target>
+    <Target Name="Build">
+        <CallTarget Targets="ArithmeticConsole;ArithmeticBPL"/>
+    </Target>
+    <Target Name="Clean">
+        <CallTarget Targets="ArithmeticConsole:Clean;ArithmeticBPL:Clean"/>
+    </Target>
+    <Target Name="Make">
+        <CallTarget Targets="ArithmeticConsole:Make;ArithmeticBPL:Make"/>
+    </Target>
+    <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
+</Project>
