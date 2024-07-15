@@ -1,7 +1,7 @@
 #pragma once
 
 #include <string>
-#include <minwindef.h>
+//#include <minwindef.h>
 
 #define CODER_MASK  (0x0F)
 #define MODEL_MASK  (0xF0)
@@ -70,7 +70,7 @@ public:
 		uint16_t filenameSize;
 		sin->read((char*)&filenameSize, sizeof(uint16_t));
 
-		char buf[MAX_PATH];
+		char buf[1024]; //MAX_PATH];
 		sin->read((char*)buf, filenameSize);
 		fileName.append(buf, filenameSize);
 	}

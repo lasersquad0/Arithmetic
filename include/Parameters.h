@@ -6,12 +6,13 @@
 #else
 #include "LogEngine.h"
 #endif
+#include "ParametersInterface.hpp"
 
 enum class CoderType { NONE, HUFFMAN, AHUFFMAN, RLE, ARITHMETIC, ARITHMETIC32, ARITHMETIC64, AARITHMETIC, AARITHMETIC32, AARITHMETIC64, ABITARITHMETIC };
 
 enum class ModelType { UNKNOWN, O0, O1, O2, O3, MIXO3, FO1, BITO1 };
 
-class Parameters
+class __declspec(delphiclass) Parameters : public TParametersInterface
 {
 public:
 	uint32_t THREADS = 1;
@@ -23,6 +24,9 @@ public:
 	CoderType CODER_TYPE = CoderType::AARITHMETIC;
 	static const inline std::string CoderNames[] = { "NONE", "HUF", "AHUF", "RLE", "ARI", "ARI32", "ARI64", "AARI", "AARI32", "AARI64", "BITARI" };
 	static const inline std::string ModelTypeCode[] = { "UNKNOWN", "O0", "O1", "O2", "O3", "MIXO3", "FO1", "BITO1" };
+private:
+	uint32_t __fastcall GetThreads() override { return THREADS; }
+	void __fastcall SetThreads(uint32_t thrds) override {THREADS = thrds; }
 };
 
 class Global

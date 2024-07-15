@@ -5,8 +5,10 @@
 #include "BasicModel.h"
 #include "Callback.h"
 #include "ArchiveHeader.h"
+#include "ArchiverInterface.hpp"
 
-class Archiver
+
+class __declspec(delphiclass) Archiver : public TArchiverInterface
 {
 private:
 	CallbackManager cbmanager;
@@ -45,7 +47,13 @@ public:
 	void RemoveFile(const std::string& ArchiveFile, const std::string& FileToDelete);
 	void RemoveFiles(const std::string& ArchiveFile, const vector_string_t& flist);
 
-	
+		// overrided methods
+	void __fastcall CompressFiles(const System::UnicodeString Files, const System::UnicodeString ArchiveFileName/*, Parameters params*/) override;
+	void __fastcall CompressFile(const System::UnicodeString FileName, const System::UnicodeString ArchiveFileName/*, Parameters params*/) override;
+	void __fastcall ExtractFile(const System::UnicodeString ArchiveFile, const System::UnicodeString FileToExtract, const System::UnicodeString ExtractDir/*, Parameters params = Parameters()*/) override;
+	void __fastcall RemoveFile(const System::UnicodeString ArchiveFile, const System::UnicodeString FileToDelete) override;
+
+
 	//void EncodeFile(FILE* DecodedFile, FILE* EncodedFile, uint64_t fSize);
 	//void DecodeFile(FILE* DecodedFile, FILE* EncodedFile, uint64_t fSize);
 };

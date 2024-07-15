@@ -101,6 +101,7 @@ string DateTimeToString(time_t t)
 	return ss;
 }
 
+/*
 void SaveToFile(string fileName, char* buf, unsigned int len)
 {
 	string dir = "ttt\\";
@@ -122,7 +123,7 @@ void SaveToFile(string fileName, char* buf, unsigned int len)
 	fflush(f);
 	fclose(f);
 }
-/*
+
 void SaveTo(string fileName, uint8_t* buf, int len)
 {
 	int hf = 0;
@@ -140,7 +141,7 @@ void SaveTo(string fileName, uint8_t* buf, int len)
 	_close(hf);
 
 }
-  */
+
 void LoadFromFile(string fileName, char* buf, unsigned int len)
 {
 	FILE* f;
@@ -152,6 +153,6 @@ void LoadFromFile(string fileName, char* buf, unsigned int len)
 	size_t wrtn = fread(buf, sizeof(char), len, f);
 	fclose(f);
 }
-
+  */
 
 
