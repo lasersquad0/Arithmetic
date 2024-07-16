@@ -16,9 +16,7 @@
 
 #if defined (EXPORT_FOR_DELPHI)
 #include "ParametersInterface.hpp"
-#endif
 
-#if defined(EXPORT_FOR_DELPHI)
 extern "C" __declspec(dllexport) TArchiverInterface* __stdcall CreateArchiver()
 {
    return new Archiver();
