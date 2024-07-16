@@ -123,8 +123,9 @@
     <PropertyGroup Condition="'$(Cfg_1_Win64)'!=''">
         <ILINK_DisableIncrementalLinking>true</ILINK_DisableIncrementalLinking>
         <ILINK_Verbose>true</ILINK_Verbose>
-        <Debugger_RunParams>-a logfile_archive logfile.log archiver.o</Debugger_RunParams>
-        <Debugger_DebugSourcePath>C:\Users\Andrey\Documents\Embarcadero\Studio\Projects\LogEngine2\include\;$(Debugger_DebugSourcePath)</Debugger_DebugSourcePath>
+        <Debugger_RunParams>-x -x archive.ar archiveheader.o</Debugger_RunParams>
+        <Debugger_DebugSourcePath>C:\Users\Andrey\Documents\Embarcadero\Studio\Projects\Arithmetic\src;$(Debugger_DebugSourcePath)</Debugger_DebugSourcePath>
+        <Debugger_CWD>C:\Users\Andrey\Documents\Embarcadero\Studio\Projects\Arithmetic\prj\DelphiCBuilder\ArithmeticConsole\Win64\Debug</Debugger_CWD>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2)'!=''">
         <Defines>NDEBUG;$(Defines)</Defines>

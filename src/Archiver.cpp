@@ -14,44 +14,10 @@
 #include "Factories.h"
 #include "Archiver.h"
 
-#if defined (EXPORT_FOR_DELPHI)
-#include "ParametersInterface.hpp"
-
-extern "C" __declspec(dllexport) TArchiverInterface* __stdcall CreateArchiver()
-{
-   return new Archiver();
-}
-
-extern "C" __declspec(dllexport) TParametersInterface* __stdcall CreateParames()
-{
-   return new Parameters();
-}
-
-void Archiver::CompressFiles(const System::UnicodeString Files, const System::UnicodeString ArchiveFileName/*, Parameters params*/)
-{
-
-}
-
-void Archiver::CompressFile(const System::UnicodeString FileName, const System::UnicodeString ArchiveFileName/*, Parameters params*/)
-{
-
-}
-
-void Archiver::ExtractFile(const System::UnicodeString ArchiveFile, const System::UnicodeString FileToExtract, const System::UnicodeString ExtractDir)
-{
-	//Parameters* paramsp = new Parameters;
-	//ExtractFile(ArchiveFile, FileToExtract, ExtractDir, (Parameters&)(*paramsp));
-}
-
-void Archiver::RemoveFile(const System::UnicodeString ArchiveFile, const System::UnicodeString FileToDelete)
-{
-
-}
-#endif
-
 using namespace std;
 
 #define ARC_EXT ".ar"
+//#define ARC_EXTW L".ar"
 
 #if defined (__BORLANDC__)
 #define _SH_DENYRW SH_DENYRW
@@ -76,6 +42,15 @@ void Archiver::CompressFile(const string& FileName, string ArchiveFileName, Para
 
 	files.push_back(FileName);
 	CompressFiles(files, ArchiveFileName, params);
+}
+
+void Archiver::CompressFileW(const wstring& FileName, wstring ArchiveFileName, Parameters& params)
+{
+	vector_string_t files;
+	string tmpFileName(FileName.begin(), FileName.end());
+	files.push_back(tmpFileName);
+	string tmpAFileName(ArchiveFileName.begin(), ArchiveFileName.end());
+	CompressFiles(files, tmpAFileName, params);
 }
 
 void Archiver::CompressFiles(const vector_string_t& files, string ArchiveFileName, Parameters& params)
@@ -110,6 +85,97 @@ void Archiver::CompressFiles(const vector_string_t& files, string ArchiveFileNam
 	fout.open(ArchiveFileName, ios::out | ios::binary, _SH_DENYWR);
 	if (fout.fail())
 		throw file_error("Cannot open file '" + ArchiveFileName + "' for writing. Check file permissions.");
+
+	ArchiveHeader hd;
+	vector_fr_t& frs = hd.fillFileRecs(files, params);
+	hd.saveHeader(&fout);
+
+	bool aborted = false;
+	for (size_t i = 0; i < frs.size(); i++)
+	{
+		IModel* model = ModelCoderFactory::GetModelAndCoder(frs[i]);
+
+		FileRecord& fr = frs[i];
+		ifstream fin(fr.origFilename, ios::in | ios::binary);
+		if (fin.fail())
+			throw file_error("Cannot open file '" + fr.origFilename + "' for reading.");
+
+		int result;
+		if (params.BLOCK_MODE)
+			result = CompressFileBlock(&fout, &fin, fr, model);
+		else
+			result = CompressFile(&fout, &fin, fr, model);
+
+		if(result == CALLBACK_ABORT)
+		{
+			aborted = true;
+			break;
+		}
+
+		fin.close();
+	}
+
+	fout.flush();
+	fout.close();
+
+	cbmanager.RemoveCallback(&ccb);
+
+	if (aborted)
+	{
+		std::filesystem::remove(ArchiveFileName);
+#ifdef LOG4CPP
+		logger.info("User has cancelled compression process. Aborting.");
+#else
+		logger.Info("User has cancelled compression process. Aborting.");
+#endif
+	}
+	else
+	{
+		hd.updateHeaders(ArchiveFileName);
+#ifdef LOG4CPP
+		logger.info("All files are compressed.");
+#else
+		logger.Info("All files are compressed.");
+#endif
+	}
+}
+
+/*
+void Archiver::CompressFilesW(const vector_wstring_t& files, wstring ArchiveFileName, Parameters& params)
+{
+	ConsoleCallback ccb;
+	cbmanager.AddCallback(&ccb);
+
+	if (ArchiveFileName.substr(ArchiveFileName.size() - 3, 3) != ARC_EXTW) ArchiveFileName += ARC_EXTW;
+
+#ifdef LOG4CPP
+	log4cpp::Category& logger = Global::GetLogger();
+	logger.info("Creating archive '%s'.", ArchiveFileName.c_str());
+	PrintCompressionStart(params);
+	logger.info("Adding %d file%s to archive.", files.size() - 1, files.size() > 2 ? "s" : "");
+	logger.info("------------------------------");
+#elif defined(__BORLANDC__)
+	LogEngine::Logger& logger = Global::GetLogger();
+	logger.LogFmt(LogEngine::Levels::llInfo, "Creating archive '%s'.", ArchiveFileName.c_str());
+	PrintCompressionStart(params);
+	logger.LogFmt(LogEngine::Levels::llInfo, "Adding %d file%s to archive.", files.size() - 1, files.size() > 2 ? "s" : "");
+	logger.Info("------------------------------");
+#else
+	LogEngine::Logger& logger = Global::GetLogger();
+	logger.LogFmt(LogEngine::Levels::llInfo, "Creating archive '{}'.", ArchiveFileName.c_str());
+	PrintCompressionStart(params);
+	logger.LogFmt(LogEngine::Levels::llInfo, "Adding {} file{} to archive.", files.size() - 1, files.size() > 2 ? "s" : "");
+	logger.Info("------------------------------");
+
+#endif
+
+	ofstream fout;
+	fout.open(ArchiveFileName, ios::out | ios::binary, _SH_DENYWR);
+	if (fout.fail())
+	{
+		string str(ArchiveFileName.begin(), ArchiveFileName.end());
+		throw file_error("Cannot open file '" + str + "' for writing. Check file permissions.");
+	 }
 
 	ArchiveHeader hd;
 	vector_fr_t& frs = hd.fillFileRecs(files, params);
@@ -163,6 +229,7 @@ void Archiver::CompressFiles(const vector_string_t& files, string ArchiveFileNam
 #endif
 	}
 }
+	 */
 
 #define SHOWP (fr.fileSize > SHOW_PROGRESS_AFTER)
 
@@ -194,17 +261,17 @@ int Archiver::CompressFile(ofstream* fout, ifstream* fin, FileRecord& fr, IModel
 		throw file_error("Cannot open file '" + fr.origFilename + "' for reading.");
 	}*/
 
-	if (SHOWP) cbmanager.Start();
+	bool showprogress = SHOWP;
+	if (showprogress) cbmanager.Start();
 
 	model->BeginEncode(fout);
 
 	Context ctx;
-	bool showprogress = SHOWP;
+
 	while(true)
 	{
 		uchar sm = (uchar)fin->get();
 		if (fin->eof()) break;
-
 
 		cntRead++;
 
@@ -220,7 +287,7 @@ int Archiver::CompressFile(ofstream* fout, ifstream* fin, FileRecord& fr, IModel
 	}
 
 	model->StopEncode();
-	if (SHOWP) cbmanager.Finish();
+	if (showprogress) cbmanager.Finish();
 
 	fr.compressedSize = model->GetCoder().GetBytesPassed(); // TODO makes sense do it better and more convenient
 
@@ -240,6 +307,7 @@ int Archiver::CompressFile(ofstream* fout, ifstream* fin, FileRecord& fr, IModel
 
 	return CALLBACK_OK;
 }
+
 
 int Archiver::CompressFileBlock(ofstream* fout, ifstream* fin, FileRecord& fr, IModel* model)
 {
@@ -271,13 +339,14 @@ int Archiver::CompressFileBlock(ofstream* fout, ifstream* fin, FileRecord& fr, I
 	//    throw file_error("Cannot open file '" + fr.origFilename + "' for reading.");
 	//}
 
-	if (SHOWP) cbmanager.Start();
+	bool showprogress = SHOWP;
+
+	if (showprogress) cbmanager.Start();
 
 	ostringstream fblock;
 	model->BeginEncode(&fblock);
 
 	Context ctx;
-	bool showprogress = SHOWP;
 	uint32_t i = 0;
 	int64_t lineNum = -1;
 	uint8_t* buf    = new uint8_t[fr.blockSize];
@@ -286,7 +355,7 @@ int Archiver::CompressFileBlock(ofstream* fout, ifstream* fin, FileRecord& fr, I
 	//int64_t freq[256];
 	MTF mtf;
 
-	cbmanager.Progress(0);
+	if (showprogress) cbmanager.Progress(0);
 
 	while (true)
 	{
@@ -334,7 +403,7 @@ int Archiver::CompressFileBlock(ofstream* fout, ifstream* fin, FileRecord& fr, I
 	}
 
 	model->StopEncode();
-	if (SHOWP) cbmanager.Finish();
+	if (showprogress) cbmanager.Finish();
 
 	delete [] buf;
 	delete [] bwtbuf;
@@ -452,7 +521,8 @@ int Archiver::UncompressFile(ifstream* fin, ofstream* fout, FileRecord& fr, IMod
 	if(fout.fail())
 		throw file_error("Cannot open file '" + realFileName + "' for writing.");*/
 
-	if (SHOWP) cbmanager.Start();
+	bool showprogress = SHOWP;
+	if (showprogress) cbmanager.Start();
 	model->BeginDecode(fin);
 
 	uchar symbol;
@@ -463,7 +533,7 @@ int Archiver::UncompressFile(ifstream* fin, ofstream* fout, FileRecord& fr, IMod
 	{
 		while (decodedBytes < fr.fileSize)
 		{
-			if (SHOWP && decodedBytes > threshold)
+			if (showprogress && decodedBytes > threshold)
 			{
 				threshold += delta;
 				if(CALLBACK_ABORT == cbmanager.Progress((100ull * threshold / fr.fileSize)))
@@ -482,7 +552,7 @@ int Archiver::UncompressFile(ifstream* fin, ofstream* fout, FileRecord& fr, IMod
 	}
 
 	model->StopDecode();
-	if (SHOWP) cbmanager.Finish();
+	if (showprogress) cbmanager.Finish();
 
    // fout.close();
 
@@ -550,7 +620,7 @@ int Archiver::UncompressFileBlock(ifstream* fin, ofstream *fout, FileRecord& fr,
 	//    throw file_error("Cannot open file '" + realFileName + "' for writing.");
 
 	bool showprogress = SHOWP;
-	if (SHOWP) cbmanager.Start();
+	if (showprogress) cbmanager.Start();
 
 	uint8_t* buf    = new uint8_t[fr.blockSize];
 	uint8_t* bwtbuf = new uint8_t[fr.blockSize];
@@ -573,7 +643,7 @@ int Archiver::UncompressFileBlock(ifstream* fin, ofstream *fout, FileRecord& fr,
 
 	uint32_t i = 0;
 
-	cbmanager.Progress(0);
+	if (showprogress) cbmanager.Progress(0);
 
 	while (decodedBytes < fr.fileSize)
 	{
@@ -626,7 +696,7 @@ int Archiver::UncompressFileBlock(ifstream* fin, ofstream *fout, FileRecord& fr,
 	}
 
 	model->StopDecode();
-	if (SHOWP) cbmanager.Finish();
+	if (showprogress) cbmanager.Finish();
 
 	delete[] buf;
 	delete[] bwtbuf;
@@ -679,7 +749,7 @@ void Archiver::ExtractFile(const string& ArchiveFile, const string& FileToExtrac
 #endif
 
 	ifstream fin(ArchiveFile, ios::in | ios::binary);
-	if (!fin)
+	if (fin.fail())
 		throw file_error("Cannot open archive file '" + ArchiveFile + "' for reading. Exiting.");
 
 	ArchiveHeader ah;

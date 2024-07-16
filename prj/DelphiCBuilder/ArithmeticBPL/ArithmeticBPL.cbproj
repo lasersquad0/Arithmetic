@@ -126,6 +126,8 @@
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1_Win64)'!=''">
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
+        <Debugger_HostApplication>C:\Users\Andrey\Documents\Embarcadero\Studio\Projects\Arithmetic\prj\DelphiCBuilder\ArithmeticBPL\Win64\Debug\ArithmeticGUI.exe</Debugger_HostApplication>
+        <Debugger_CWD>C:\Users\Andrey\Documents\Embarcadero\Studio\Projects\Arithmetic\prj\DelphiCBuilder\ArithmeticBPL\Win64\Debug</Debugger_CWD>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2)'!=''">
         <Defines>NDEBUG;$(Defines)</Defines>
@@ -143,6 +145,9 @@
         </None>
         <None Include="..\..\..\include\Archiver.h">
             <BuildOrder>15</BuildOrder>
+        </None>
+        <None Include="..\..\..\include\ArchiverExt.h">
+            <BuildOrder>42</BuildOrder>
         </None>
         <None Include="..\..\..\include\ARIExceptions.h">
             <BuildOrder>16</BuildOrder>
@@ -220,6 +225,9 @@
         <CppCompile Include="..\..\..\src\Archiver.cpp">
             <BuildOrder>3</BuildOrder>
         </CppCompile>
+        <CppCompile Include="..\..\..\src\ArchiverExt.cpp">
+            <BuildOrder>43</BuildOrder>
+        </CppCompile>
         <DelphiCompile Include="..\..\..\src\ArchiverInterface.pas">
             <BuildOrder>38</BuildOrder>
         </DelphiCompile>
@@ -235,6 +243,9 @@
         <CppCompile Include="..\..\..\src\fpaq0.cpp">
             <BuildOrder>7</BuildOrder>
         </CppCompile>
+        <DelphiCompile Include="..\..\..\src\ICallback.pas">
+            <BuildOrder>41</BuildOrder>
+        </DelphiCompile>
         <CppCompile Include="..\..\..\src\ModelOrder0.cpp">
             <BuildOrder>8</BuildOrder>
         </CppCompile>

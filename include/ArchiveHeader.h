@@ -14,6 +14,7 @@
 
 typedef std::vector<FileRecord> vector_fr_t;
 typedef std::vector<std::string> vector_string_t;
+typedef std::vector<std::wstring> vector_wstring_t;
 
 class ArchiveHeader
 {

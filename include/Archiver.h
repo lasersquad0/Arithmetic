@@ -1,18 +1,12 @@
 #pragma once
 
 #include <fstream>
-#include <vector>
+//#include <vector>
 #include "BasicModel.h"
 #include "Callback.h"
-#include "ArchiveHeader.h"
+#include "ArchiveHeader.h"  // for vector_string_t
 
-#if defined(EXPORT_FOR_DELPHI)
-#include "ArchiverInterface.hpp"
-
-class __declspec(delphiclass) Archiver : public TArchiverInterface
-#else
 class Archiver
-#endif
 {
 private:
 	CallbackManager cbmanager;
@@ -41,29 +35,25 @@ public:
 	void RemoveCallback(ICallback* cb);
 
 	void CompressFiles(const vector_string_t& files, std::string ArchiveFileName, Parameters& params); // ArchiveFileName intentionally passed "by value" here
+ //	void CompressFilesW(const vector_wstring_t& files, std::wstring ArchiveFileName, Parameters& params);
+
 	void CompressFile(const std::string& FileName, std::string ArchiveFileName, Parameters& params); // ArchiveFileName intentionally passed "by value" here
+	void CompressFileW(const std::wstring& FileName, std::wstring ArchiveFileName, Parameters& params);
 
 	void UncompressFiles(std::ifstream* fin, Parameters& params);
 
-	void ExtractFiles(const std::string& ArchiveFile, const vector_string_t& FilesToExtract, const std::string& ExtractDir);
 	void ExtractFiles(const std::string& ArchiveFile, const vector_string_t& FilesToExtract, const std::string& ExtractDir, Parameters& params);
+	void ExtractFiles(const std::string& ArchiveFile, const vector_string_t& FilesToExtract, const std::string& ExtractDir);
 	void ExtractFile(const std::string& ArchiveFile, const std::string& FileToExtract, const std::string& ExtractDir, Parameters& params);
 	void ExtractFile(const std::string& ArchiveFile, const std::string& FileToExtract, const std::string& ExtractDir);
 
-	void RemoveFile(const std::string& ArchiveFile, const std::string& FileToDelete);
 	void RemoveFiles(const std::string& ArchiveFile, const vector_string_t& flist);
-
-#if defined(EXPORT_FOR_DELPHI)
-		// overrided methods
-	void __fastcall CompressFiles(const System::UnicodeString Files, const System::UnicodeString ArchiveFileName/*, Parameters params*/) override;
-	void __fastcall CompressFile(const System::UnicodeString FileName, const System::UnicodeString ArchiveFileName/*, Parameters params*/) override;
-	void __fastcall ExtractFile(const System::UnicodeString ArchiveFile, const System::UnicodeString FileToExtract, const System::UnicodeString ExtractDir/*, Parameters params = Parameters()*/) override;
-	void __fastcall RemoveFile(const System::UnicodeString ArchiveFile, const System::UnicodeString FileToDelete) override;
-#else
-
-#endif
+	void RemoveFile(const std::string& ArchiveFile, const std::string& FileToDelete);
 
 	//void EncodeFile(FILE* DecodedFile, FILE* EncodedFile, uint64_t fSize);
 	//void DecodeFile(FILE* DecodedFile, FILE* EncodedFile, uint64_t fSize);
 };
+
+
+
 
