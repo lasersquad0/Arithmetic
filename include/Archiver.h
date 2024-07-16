@@ -6,11 +6,9 @@
 #include "Callback.h"
 #include "ArchiveHeader.h"
 
-#if defined(__BORLANDC__)
+#if defined(EXPORT_FOR_DELPHI)
 #include "ArchiverInterface.hpp"
-#endif
 
-#if defined(__BORLANDC__)
 class __declspec(delphiclass) Archiver : public TArchiverInterface
 #else
 class Archiver
@@ -21,7 +19,7 @@ private:
 
 	void SaveBlock(std::ostringstream& fblock, std::ofstream* fout, uint32_t uBlockSize, int32_t lineNum);
 	void LoadBlock(std::istringstream& fb, std::ifstream* fin, uint32_t& uBlockSize, uint32_t& cBlockSize, int32_t& lineNum);
-	
+
 	/** Return values for next 4 methods:
 	* 0 - user aborted the process. need to stop/abort current operation
 	* 1 and any value except 0 - everything was ok, move on to the next file
@@ -31,8 +29,8 @@ private:
 	int UncompressFile(std::ifstream* fin, std::ofstream* fout, FileRecord& fr, IModel* model);
 	int UncompressFileBlock(std::ifstream* fin, std::ofstream* fout, FileRecord& fr, IModel* model);
 
-	void PrintCompressionStart(const Parameters& params);
-	void PrintUncompressionStart(const FileRecord& fr, const Parameters& params);
+	void PrintCompressionStart(Parameters& params);
+	void PrintUncompressionStart(const FileRecord& fr, Parameters& params);
 	void PrintFileCompressionDone(const FileRecord& fr);
 
 	bool BypassFile(std::ifstream* fin, const FileRecord& fr);
@@ -42,23 +40,27 @@ public:
 	void AddCallback(ICallback* cb);
 	void RemoveCallback(ICallback* cb);
 
-	void CompressFiles(const vector_string_t& files, std::string ArchiveFileName, const Parameters& params); // ArchiveFileName intentionally passed "by value" here
-	void CompressFile(const std::string& FileName, std::string ArchiveFileName, const Parameters& params); // ArchiveFileName intentionally passed "by value" here
-	
-	void UncompressFiles(std::ifstream* fin, const Parameters& params);
-	
-	void ExtractFiles(const std::string& ArchiveFile, const vector_string_t& FilesToExtract, const std::string& ExtractDir, const Parameters& params = Parameters());
-	void ExtractFile(const std::string& ArchiveFile, const std::string& FileToExtract, const std::string& ExtractDir, const Parameters& params = Parameters());
+	void CompressFiles(const vector_string_t& files, std::string ArchiveFileName, Parameters& params); // ArchiveFileName intentionally passed "by value" here
+	void CompressFile(const std::string& FileName, std::string ArchiveFileName, Parameters& params); // ArchiveFileName intentionally passed "by value" here
+
+	void UncompressFiles(std::ifstream* fin, Parameters& params);
+
+	void ExtractFiles(const std::string& ArchiveFile, const vector_string_t& FilesToExtract, const std::string& ExtractDir);
+	void ExtractFiles(const std::string& ArchiveFile, const vector_string_t& FilesToExtract, const std::string& ExtractDir, Parameters& params);
+	void ExtractFile(const std::string& ArchiveFile, const std::string& FileToExtract, const std::string& ExtractDir, Parameters& params);
+	void ExtractFile(const std::string& ArchiveFile, const std::string& FileToExtract, const std::string& ExtractDir);
 
 	void RemoveFile(const std::string& ArchiveFile, const std::string& FileToDelete);
 	void RemoveFiles(const std::string& ArchiveFile, const vector_string_t& flist);
 
-#if defined(__BORLANDC__)
+#if defined(EXPORT_FOR_DELPHI)
 		// overrided methods
 	void __fastcall CompressFiles(const System::UnicodeString Files, const System::UnicodeString ArchiveFileName/*, Parameters params*/) override;
 	void __fastcall CompressFile(const System::UnicodeString FileName, const System::UnicodeString ArchiveFileName/*, Parameters params*/) override;
 	void __fastcall ExtractFile(const System::UnicodeString ArchiveFile, const System::UnicodeString FileToExtract, const System::UnicodeString ExtractDir/*, Parameters params = Parameters()*/) override;
 	void __fastcall RemoveFile(const System::UnicodeString ArchiveFile, const System::UnicodeString FileToDelete) override;
+#else
+
 #endif
 
 	//void EncodeFile(FILE* DecodedFile, FILE* EncodedFile, uint64_t fSize);

@@ -9,6 +9,9 @@
         <Projects Include="ArithmeticBPL\ArithmeticBPL.cbproj">
             <Dependencies/>
         </Projects>
+        <Projects Include="ArithmeticGUI\ArithmeticGUI.dproj">
+            <Dependencies/>
+        </Projects>
     </ItemGroup>
     <ProjectExtensions>
         <Borland.Personality>Default.Personality.12</Borland.Personality>
@@ -35,14 +38,23 @@
     <Target Name="ArithmeticBPL:Make">
         <MSBuild Projects="ArithmeticBPL\ArithmeticBPL.cbproj" Targets="Make"/>
     </Target>
+    <Target Name="ArithmeticGUI">
+        <MSBuild Projects="ArithmeticGUI\ArithmeticGUI.dproj"/>
+    </Target>
+    <Target Name="ArithmeticGUI:Clean">
+        <MSBuild Projects="ArithmeticGUI\ArithmeticGUI.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="ArithmeticGUI:Make">
+        <MSBuild Projects="ArithmeticGUI\ArithmeticGUI.dproj" Targets="Make"/>
+    </Target>
     <Target Name="Build">
-        <CallTarget Targets="ArithmeticConsole;ArithmeticBPL"/>
+        <CallTarget Targets="ArithmeticConsole;ArithmeticBPL;ArithmeticGUI"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="ArithmeticConsole:Clean;ArithmeticBPL:Clean"/>
+        <CallTarget Targets="ArithmeticConsole:Clean;ArithmeticBPL:Clean;ArithmeticGUI:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="ArithmeticConsole:Make;ArithmeticBPL:Make"/>
+        <CallTarget Targets="ArithmeticConsole:Make;ArithmeticBPL:Make;ArithmeticGUI:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>

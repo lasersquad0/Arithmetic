@@ -204,7 +204,7 @@ int main(int argc,char* argv[])
         return 1;
     }
 
-	Parameters params2;
+	//Parameters params2;
 
 	auto params = new Parameters();
 	params->BLOCK_MODE = !cmd.HasOption("sm");

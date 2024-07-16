@@ -43,8 +43,6 @@ public
 
 end;
 
-function CreateArchiver: TArchiverInterface; stdcall; external 'ArithmeticBPL.bpl';
-
 
 implementation
 

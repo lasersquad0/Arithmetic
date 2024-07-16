@@ -80,6 +80,7 @@
         <BCC_UseClassicCompiler>false</BCC_UseClassicCompiler>
         <FinalOutputDir>.\$(Platform)\$(Config)</FinalOutputDir>
         <ILINK_LibraryPath>..\..\..\..\libsais\src\;..\..\..\src\;..\..\..\include\;$(ILINK_LibraryPath)</ILINK_LibraryPath>
+        <BCC_Defines>EXPORT_FOR_DELPHI;$(BCC_Defines)</BCC_Defines>
         <DynamicRTL>true</DynamicRTL>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win32)'!=''">

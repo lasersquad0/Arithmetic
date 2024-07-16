@@ -6,32 +6,50 @@
 #else
 #include "LogEngine.h"
 #endif
-#if defined (__BORLANDC__)
+
+#if defined (EXPORT_FOR_DELPHI)
 #include "ParametersInterface.hpp"
-#endif
 
-enum class CoderType { NONE, HUFFMAN, AHUFFMAN, RLE, ARITHMETIC, ARITHMETIC32, ARITHMETIC64, AARITHMETIC, AARITHMETIC32, AARITHMETIC64, ABITARITHMETIC };
+typedef TCoderType CoderType;
+typedef TModelType ModelType;
+//using ModelType = TModelType;
 
-enum class ModelType { UNKNOWN, O0, O1, O2, O3, MIXO3, FO1, BITO1 };
-
-#if defined (__BORLANDC__)
 class __declspec(delphiclass) Parameters : public TParametersInterface
 {
+private:
+	uint32_t FTHREADS = 1;
+	UnicodeString FOUTPUT_DIR = ".\\";
+	uint32_t FBLOCK_SIZE = 1 << 16;
+	bool FBLOCK_MODE = true;  // using block mode by default, to back to 'stream' mode use -sm cli option
+	bool FVERBOSE = false;
+	TModelType FMODEL_TYPE = TModelType::O2;
+	TCoderType FCODER_TYPE = TCoderType::AARITHMETIC;
 public:
-	uint32_t THREADS = 1;
 	std::string OUTPUT_DIR = ".\\";
-	uint32_t BLOCK_SIZE = 1 << 16;
-	bool BLOCK_MODE = true;  // using block mode by default, to back to 'stream' mode use -sm cli option
-	bool VERBOSE = false;
-	ModelType MODEL_TYPE = ModelType::O2;
-	CoderType CODER_TYPE = CoderType::AARITHMETIC;
 	static const inline std::string CoderNames[] = { "NONE", "HUF", "AHUF", "RLE", "ARI", "ARI32", "ARI64", "AARI", "AARI32", "AARI64", "BITARI" };
 	static const inline std::string ModelTypeCode[] = { "UNKNOWN", "O0", "O1", "O2", "O3", "MIXO3", "FO1", "BITO1" };
 private:
-	uint32_t __fastcall GetThreads() override { return THREADS; }
-	void __fastcall SetThreads(uint32_t thrds) override {THREADS = thrds; }
+	uint32_t __fastcall GetThreads() override { return FTHREADS; }
+	void __fastcall SetThreads(uint32_t thrds) override {FTHREADS = thrds; }
+	TModelType __fastcall GetModelType() override { return FMODEL_TYPE; }
+	void __fastcall SetModelType(TModelType mtype) override {FMODEL_TYPE = mtype; }
+	TCoderType __fastcall GetCoderType() override { return FCODER_TYPE; }
+	void __fastcall SetCoderType(TCoderType ctype) override {FCODER_TYPE = ctype; }
+	bool __fastcall GetVerbose() override { return FVERBOSE; }
+	void __fastcall SetVerbose(bool vrbs) override {FVERBOSE = vrbs; }
+	bool __fastcall GetBlockMode() override { return FBLOCK_MODE; }
+	void __fastcall SetBlockMode(bool bmode) override {FBLOCK_MODE = bmode; }
+	uint32_t __fastcall GetBlockSize() override { return FBLOCK_SIZE; }
+	void __fastcall SetBlockSize(uint32_t bsize) override {FBLOCK_SIZE = bsize; }
+	UnicodeString __fastcall GetOutputDir() override { return FOUTPUT_DIR; }
+	void __fastcall SetOutputDir(UnicodeString odir) override {FOUTPUT_DIR = odir; }
 };
+
 #else
+
+enum class CoderType { NONE, HUFFMAN, AHUFFMAN, RLE, ARITHMETIC, ARITHMETIC32, ARITHMETIC64, AARITHMETIC, AARITHMETIC32, AARITHMETIC64, ABITARITHMETIC };
+enum class ModelType { UNKNOWN, O0, O1, O2, O3, MIXO3, FO1, BITO1 };
+
 class Parameters
 {
 public:
@@ -44,6 +62,19 @@ public:
 	CoderType CODER_TYPE = CoderType::AARITHMETIC;
 	static const inline std::string CoderNames[] = { "NONE", "HUF", "AHUF", "RLE", "ARI", "ARI32", "ARI64", "AARI", "AARI32", "AARI64", "BITARI" };
 	static const inline std::string ModelTypeCode[] = { "UNKNOWN", "O0", "O1", "O2", "O3", "MIXO3", "FO1", "BITO1" };
+
+	uint32_t GetThreads() { return THREADS; }
+	void SetThreads(uint32_t thrds) { THREADS = thrds; }
+	ModelType GetModelType() { return MODEL_TYPE; }
+	void SetModelType(ModelType mtype) { MODEL_TYPE = mtype; }
+	CoderType GetCoderType() { return CODER_TYPE; }
+	void SetCoderType(CoderType ctype) { CODER_TYPE = ctype; }
+	bool GetVerbose() { return VERBOSE; }
+	void SetVerbose(bool vrbs) { VERBOSE = vrbs; }
+	bool GetBlockMode() { return BLOCK_MODE; }
+	void SetBlockMode(bool bmode) { BLOCK_MODE = bmode; }
+	uint32_t GetBlockSize() { return BLOCK_SIZE; }
+	void SetBlockSize(uint32_t bsize) { BLOCK_SIZE = bsize; }
 };
 
 #endif

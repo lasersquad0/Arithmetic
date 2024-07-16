@@ -153,7 +153,7 @@ public:
 	 * Adds filenames into vector of FileRecord together with file lengths and modified attributes
 	 * @param filenames list of files (as strings) to compress.
 	 */
-	vector_fr_t& fillFileRecs(const vector_string_t& filenames, const Parameters& params);
+	vector_fr_t& fillFileRecs(const vector_string_t& filenames, Parameters& params);
 
 	/**
 	 * Update existing archive with information about sizes of compressed files in it (in bytes)
