@@ -19,6 +19,10 @@ using namespace std;
 #define ARC_EXT ".ar"
 //#define ARC_EXTW L".ar"
 
+#define SHOW_PROGRESS_AFTER 1000
+#define SHOWP (fr.fileSize > SHOW_PROGRESS_AFTER)
+
+
 #if defined (__BORLANDC__)
 #define _SH_DENYRW SH_DENYRW
 #define _SH_DENYWR SH_DENYWR
@@ -46,8 +50,8 @@ void Archiver::CompressFile(const string& FileName, string ArchiveFileName, Para
 
 void Archiver::CompressFiles(const vector_string_t& files, string ArchiveFileName, Parameters& params)
 {
-	ConsoleCallback ccb;
-	cbmanager.AddCallback(&ccb);
+	//ConsoleProgressCallback ccb;
+	//cbmanager.AddCallback(&ccb);
 
 	if (ArchiveFileName.substr(ArchiveFileName.size() - 3, 3) != ARC_EXT) ArchiveFileName += ARC_EXT;
 
@@ -109,7 +113,7 @@ void Archiver::CompressFiles(const vector_string_t& files, string ArchiveFileNam
 	fout.flush();
 	fout.close();
 
-	cbmanager.RemoveCallback(&ccb);
+	//cbmanager.RemoveCallback(&ccb);
 
 	if (aborted)
 	{
@@ -134,7 +138,7 @@ void Archiver::CompressFiles(const vector_string_t& files, string ArchiveFileNam
 /*
 void Archiver::CompressFilesW(const vector_wstring_t& files, wstring ArchiveFileName, Parameters& params)
 {
-	ConsoleCallback ccb;
+	ConsoleProgressCallback ccb;
 	cbmanager.AddCallback(&ccb);
 
 	if (ArchiveFileName.substr(ArchiveFileName.size() - 3, 3) != ARC_EXTW) ArchiveFileName += ARC_EXTW;
@@ -222,7 +226,6 @@ void Archiver::CompressFilesW(const vector_wstring_t& files, wstring ArchiveFile
 }
 	 */
 
-#define SHOWP (fr.fileSize > SHOW_PROGRESS_AFTER)
 
 int Archiver::CompressFile(ofstream* fout, ifstream* fin, FileRecord& fr, IModel* model)
 {
@@ -446,7 +449,7 @@ void Archiver::UncompressFiles(ifstream* fin, Parameters& params)
 	LogEngine::Logger& logger = Global::GetLogger();
 #endif
 
-	ConsoleCallback ccb;
+	ConsoleProgressCallback ccb;
 	cbmanager.AddCallback(&ccb);
 
 	ArchiveHeader ah;
@@ -783,7 +786,7 @@ void Archiver::ExtractFile(const string& ArchiveFile, const string& FileToExtrac
 
 	IModel* model = ModelCoderFactory::GetModelAndCoder(fr);
 
-	ConsoleCallback ccb;
+	ConsoleProgressCallback ccb;
 	cbmanager.AddCallback(&ccb);
 
 	int result;
