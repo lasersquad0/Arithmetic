@@ -38,3 +38,58 @@ std::string toStringSep(IntType v)
 	return ss.str();
 }
 
+
+// split string into array of strings using Delim as delimiter
+template<class STRING>
+void StringToArray(const STRING& str, std::vector<STRING>& arr, const typename STRING::value_type Delim = '\n')
+{
+    // make sure that STRING is one of instantiations of std::string
+    static_assert(std::is_base_of<std::basic_string<typename STRING::value_type, typename STRING::traits_type>, STRING>::value);
+
+    uint i = 0;
+    size_t len = str.length();
+    STRING s;
+    s.reserve(len);
+
+    while (i < len)
+    {
+        s.clear();
+        while (i < len)
+        {
+            if (str[i] == Delim)
+            {
+                i++;
+                break;
+            }
+            s += str[i++];
+        }
+
+        if (s.length() > 0)
+            arr.push_back(s);
+    }
+}
+
+// splits string to array of strings using Delim as delimiter
+template<class STRING>
+void StringToArrayAccum(const STRING& str, std::vector<STRING>& arr, const typename STRING::value_type Delim = '\n')
+{
+    // make sure that STRING is one of instantiations of std::string
+    static_assert(std::is_base_of<std::basic_string<typename STRING::value_type, typename STRING::traits_type>, STRING>::value);
+
+    uint i = 0;
+    size_t len = str.length();
+    STRING s;
+    s.reserve(len);
+
+    while (i < len)
+    {
+        if (str[i] == Delim)
+            if (s.length() > 0) arr.push_back(s);
+        s += str[i++];
+
+    }
+
+    if (s.length() > 0)
+        arr.push_back(s);
+}
+
