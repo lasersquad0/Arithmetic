@@ -44,15 +44,6 @@ void Archiver::CompressFile(const string& FileName, string ArchiveFileName, Para
 	CompressFiles(files, ArchiveFileName, params);
 }
 
-void Archiver::CompressFileW(const wstring& FileName, wstring ArchiveFileName, Parameters& params)
-{
-	vector_string_t files;
-	string tmpFileName(FileName.begin(), FileName.end());
-	files.push_back(tmpFileName);
-	string tmpAFileName(ArchiveFileName.begin(), ArchiveFileName.end());
-	CompressFiles(files, tmpAFileName, params);
-}
-
 void Archiver::CompressFiles(const vector_string_t& files, string ArchiveFileName, Parameters& params)
 {
 	ConsoleCallback ccb;

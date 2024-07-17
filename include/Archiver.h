@@ -38,7 +38,7 @@ public:
  //	void CompressFilesW(const vector_wstring_t& files, std::wstring ArchiveFileName, Parameters& params);
 
 	void CompressFile(const std::string& FileName, std::string ArchiveFileName, Parameters& params); // ArchiveFileName intentionally passed "by value" here
-	void CompressFileW(const std::wstring& FileName, std::wstring ArchiveFileName, Parameters& params);
+	//void CompressFileW(const std::wstring& FileName, std::wstring ArchiveFileName, Parameters& params);
 
 	void UncompressFiles(std::ifstream* fin, Parameters& params);
 

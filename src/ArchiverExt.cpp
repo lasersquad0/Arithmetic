@@ -26,7 +26,13 @@ void ArchiverExt::CompressFiles(const System::UnicodeString Files, const System:
 void ArchiverExt::CompressFile(const System::UnicodeString FileName, const System::UnicodeString ArchiveFileName,
 								TParametersInterface* paramsp)
 {
-	FArchiver.CompressFileW(FileName.w_str(), ArchiveFileName.w_str(), *static_cast<Parameters*>(paramsp));
+	vector_string_t files;
+	string tmpFileName(FileName.begin(), FileName.end());
+	files.push_back(tmpFileName);
+	string tmpAFileName(ArchiveFileName.begin(), ArchiveFileName.end());
+	FArchiver.CompressFiles(files, tmpAFileName, *paramsp);
+
+//	FArchiver.CompressFileW(FileName.w_str(), ArchiveFileName.w_str(), *static_cast<Parameters*>(paramsp));
 }
 
 void ArchiverExt::ExtractFile(const System::UnicodeString ArchiveFile, const System::UnicodeString FileToExtract,
