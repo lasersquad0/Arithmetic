@@ -40,15 +40,18 @@ void Archiver::RemoveCallback(ICallback* cb)
 	cbmanager.RemoveCallback(cb);
 }
 
-void Archiver::CompressFile(const string& FileName, string ArchiveFileName, Parameters& params)
+// if ArchiveFileName does not have '.ar' extension it will be added
+// if ArchiveFileName exists - it will be overwritten
+// if ArchiveFileName does not exist it will be created
+void Archiver::CompressFile(string ArchiveFileName, const string& FileName, Parameters& params)
 {
 	vector_string_t files;
 
 	files.push_back(FileName);
-	CompressFiles(files, ArchiveFileName, params);
+	CompressFiles(ArchiveFileName, files, params);
 }
 
-void Archiver::CompressFiles(const vector_string_t& files, string ArchiveFileName, Parameters& params)
+void Archiver::CompressFiles(string ArchiveFileName, const vector_string_t& files, Parameters& params)
 {
 	//ConsoleProgressCallback ccb;
 	//cbmanager.AddCallback(&ccb);
@@ -138,8 +141,8 @@ void Archiver::CompressFiles(const vector_string_t& files, string ArchiveFileNam
 /*
 void Archiver::CompressFilesW(const vector_wstring_t& files, wstring ArchiveFileName, Parameters& params)
 {
-	ConsoleProgressCallback ccb;
-	cbmanager.AddCallback(&ccb);
+	//ConsoleProgressCallback ccb;
+	//cbmanager.AddCallback(&ccb);
 
 	if (ArchiveFileName.substr(ArchiveFileName.size() - 3, 3) != ARC_EXTW) ArchiveFileName += ARC_EXTW;
 
@@ -203,7 +206,7 @@ void Archiver::CompressFilesW(const vector_wstring_t& files, wstring ArchiveFile
 	fout.flush();
 	fout.close();
 
-	cbmanager.RemoveCallback(&ccb);
+	//cbmanager.RemoveCallback(&ccb);
 
 	if (aborted)
 	{
@@ -422,24 +425,6 @@ int Archiver::CompressFileBlock(ofstream* fout, ifstream* fin, FileRecord& fr, I
 	return CALLBACK_OK;
 }
 
-void Archiver::SaveBlock(ostringstream& fb, ofstream* fout, uint32_t uBlockSize, int32_t lineNum)
-{
-	string s = fb.str();
-
-	uint32_t cBlockSize = (uint32_t)s.size();
-	char flags = 0;
-
-	fout->write((char*)&cBlockSize, sizeof(uint32_t)); // compressed size
-	fout->write((char*)&uBlockSize, sizeof(uint32_t)); // uncompressed size
-	fout->write((char*)&lineNum,    sizeof(int32_t));
-	fout->write((char*)&flags,      sizeof(char));
-
-	fout->write(s.data(), cBlockSize);
-	fb.str(""); //clear output block buffer
-
-	//string fn = "compressedblocksaved" + to_string(lineNum);
-	//SaveToFile(fn, s.data(), len);
-}
 
 void Archiver::UncompressFiles(ifstream* fin, Parameters& params)
 {
@@ -449,8 +434,8 @@ void Archiver::UncompressFiles(ifstream* fin, Parameters& params)
 	LogEngine::Logger& logger = Global::GetLogger();
 #endif
 
-	ConsoleProgressCallback ccb;
-	cbmanager.AddCallback(&ccb);
+	//ConsoleProgressCallback ccb;
+	//cbmanager.AddCallback(&ccb);
 
 	ArchiveHeader ah;
 	auto files = ah.loadHeader(fin);
@@ -483,7 +468,7 @@ void Archiver::UncompressFiles(ifstream* fin, Parameters& params)
 		}
 	}
 
-	cbmanager.RemoveCallback(&ccb);
+	//cbmanager.RemoveCallback(&ccb);
 
 	if (aborted)
 	{
@@ -569,28 +554,6 @@ int Archiver::UncompressFile(ifstream* fin, ofstream* fout, FileRecord& fr, IMod
 	return CALLBACK_OK;
 }
 
-void Archiver::LoadBlock(istringstream& fb, ifstream* fin, uint32_t& uBlockSize, uint32_t& cBlockSize, int32_t& lineNum)
-{
-	char flags = 0;
-
-	fin->read((char*)&cBlockSize, sizeof(uint32_t)); // compressed size
-	fin->read((char*)&uBlockSize, sizeof(uint32_t)); // uncompressed size
-	fin->read((char*)&lineNum, sizeof(int32_t));
-	fin->read((char*)&flags, sizeof(char));
-
-	static string s;// (buf, cBlockSize);// TODO make s static? to avoid buffer realocating each time
-	s.reserve(uBlockSize);
-	s.resize(cBlockSize);
-
-	//char* buf = new char[cBlockSize];
-	fin->read(s.data(), cBlockSize);
-
-	fb.str(s);
-	fb.clear();
-
-	//string fn = "compressedblockloaded" + to_string(lineNum);
-	//SaveToFile(fn, s.data(), cBlockSize);
-}
 
 int Archiver::UncompressFileBlock(ifstream* fin, ofstream *fout, FileRecord& fr, IModel* model)
 {
@@ -714,27 +677,31 @@ int Archiver::UncompressFileBlock(ifstream* fin, ofstream *fout, FileRecord& fr,
 	return CALLBACK_OK;
 }
 
-void Archiver::ExtractFiles(const string& ArchiveFile, const vector_string_t& FilesToExtract, const string& ExtractDir)
+// ArchiveFileName should be fully qualified file name with extension (.ar)
+// Archive extension will NOT be added automatically in contrast to CompressFile(s) methods
+void Archiver::ExtractFiles(const string& ArchiveFileName, const vector_string_t& FilesToExtract, const string& ExtractDir)
 {
-	Parameters* paramsp = new Parameters;
-	ExtractFiles(ArchiveFile, FilesToExtract, ExtractDir, *paramsp);
+	Parameters params;
+	params.OUTPUT_DIR = ExtractDir;
+	ExtractFiles(ArchiveFileName, FilesToExtract, ExtractDir, params);
 }
 
-void Archiver::ExtractFiles(const string& ArchiveFile, const vector_string_t& FilesToExtract, const string& ExtractDir, Parameters& params)
+void Archiver::ExtractFiles(const string& ArchiveFileName, const vector_string_t& FilesToExtract, const string& ExtractDir, Parameters& params)
 {
 	for (auto fl: FilesToExtract)
 	{
-		ExtractFile(ArchiveFile, fl, ExtractDir, params);
+		ExtractFile(ArchiveFileName, fl, ExtractDir, params);
 	}
 }
 
-void Archiver::ExtractFile(const string& ArchiveFile, const string& FileToExtract, const string& ExtractDir)
+void Archiver::ExtractFile(const string& ArchiveFileName, const string& FileToExtract, const string& ExtractDir)
 {
-	Parameters* paramsp = new Parameters;
-	ExtractFile(ArchiveFile, FileToExtract, ExtractDir, *paramsp);
+	Parameters params;
+	params.OUTPUT_DIR = ExtractDir;
+	ExtractFile(ArchiveFileName, FileToExtract, ExtractDir, params);
 }
 
-void Archiver::ExtractFile(const string& ArchiveFile, const string& FileToExtract, const string& ExtractDir, Parameters& params)
+void Archiver::ExtractFile(const string& ArchiveFileName, const string& FileToExtract, const string& ExtractDir, Parameters& params)
 {
 #ifdef LOG4CPP
 	log4cpp::Category& logger = Global::GetLogger();
@@ -742,9 +709,9 @@ void Archiver::ExtractFile(const string& ArchiveFile, const string& FileToExtrac
 	LogEngine::Logger& logger = Global::GetLogger();
 #endif
 
-	ifstream fin(ArchiveFile, ios::in | ios::binary);
+	ifstream fin(ArchiveFileName, ios::in | ios::binary);
 	if (fin.fail())
-		throw file_error("Cannot open archive file '" + ArchiveFile + "' for reading. Exiting.");
+		throw file_error("Cannot open archive file '" + ArchiveFileName + "' for reading. Exiting.");
 
 	ArchiveHeader ah;
 	auto files = ah.loadHeader(&fin);
@@ -786,8 +753,8 @@ void Archiver::ExtractFile(const string& ArchiveFile, const string& FileToExtrac
 
 	IModel* model = ModelCoderFactory::GetModelAndCoder(fr);
 
-	ConsoleProgressCallback ccb;
-	cbmanager.AddCallback(&ccb);
+	//ConsoleProgressCallback ccb;
+	//cbmanager.AddCallback(&ccb);
 
 	int result;
 	if (fr.blockCount > 0)
@@ -796,7 +763,7 @@ void Archiver::ExtractFile(const string& ArchiveFile, const string& FileToExtrac
 		result = UncompressFile(&fin, &fout, fr, model);
 
 	fout.close();
-	cbmanager.RemoveCallback(&ccb);
+	//cbmanager.RemoveCallback(&ccb);
 
 
 	if (result == CALLBACK_ABORT)
@@ -808,6 +775,49 @@ void Archiver::ExtractFile(const string& ArchiveFile, const string& FileToExtrac
 		logger.Info("User has cancelled file extracting process. Aborting.");
 #endif
 	}
+}
+
+
+void Archiver::LoadBlock(istringstream& fb, ifstream* fin, uint32_t& uBlockSize, uint32_t& cBlockSize, int32_t& lineNum)
+{
+	char flags = 0;
+
+	fin->read((char*)&cBlockSize, sizeof(uint32_t)); // compressed size
+	fin->read((char*)&uBlockSize, sizeof(uint32_t)); // uncompressed size
+	fin->read((char*)&lineNum, sizeof(int32_t));
+	fin->read((char*)&flags, sizeof(char));
+
+	static string s;// (buf, cBlockSize);// TODO make s static? to avoid buffer realocating each time
+	s.reserve(uBlockSize);
+	s.resize(cBlockSize);
+
+	//char* buf = new char[cBlockSize];
+	fin->read(s.data(), cBlockSize);
+
+	fb.str(s);
+	fb.clear();
+
+	//string fn = "compressedblockloaded" + to_string(lineNum);
+	//SaveToFile(fn, s.data(), cBlockSize);
+}
+
+void Archiver::SaveBlock(ostringstream& fb, ofstream* fout, uint32_t uBlockSize, int32_t lineNum)
+{
+	string s = fb.str();
+
+	uint32_t cBlockSize = (uint32_t)s.size();
+	char flags = 0;
+
+	fout->write((char*)&cBlockSize, sizeof(uint32_t)); // compressed size
+	fout->write((char*)&uBlockSize, sizeof(uint32_t)); // uncompressed size
+	fout->write((char*)&lineNum, sizeof(int32_t));
+	fout->write((char*)&flags, sizeof(char));
+
+	fout->write(s.data(), cBlockSize);
+	fb.str(""); //clear output block buffer
+
+	//string fn = "compressedblocksaved" + to_string(lineNum);
+	//SaveToFile(fn, s.data(), len);
 }
 
 bool Archiver::BypassFile(ifstream* fin, const FileRecord& fr)
@@ -902,7 +912,9 @@ bool Archiver::CopyFileData(ifstream* fin, ofstream* fout, const FileRecord& fr)
     return !fin->fail() && !fout->fail();
 }
 
-void Archiver::RemoveFile(const string& ArchiveFile, const string& FileToDelete)
+// ArchiveFileName should be fully qualified file name with extension (.ar)
+// Archive extension will NOT be added automatically in contrast to CompressFile(s) methods
+void Archiver::RemoveFile(const string& ArchiveFileName, const string& FileToDelete)
 {
 #ifdef LOG4CPP
     log4cpp::Category& logger = Global::GetLogger();
@@ -910,9 +922,9 @@ void Archiver::RemoveFile(const string& ArchiveFile, const string& FileToDelete)
     LogEngine::Logger& logger = Global::GetLogger();
 #endif
     
-    ifstream fin(ArchiveFile, ios::in | ios::binary);
-    if (!fin)
-        throw file_error("Cannot open archive file '" + ArchiveFile + "' for reading. Exiting.");
+    ifstream fin(ArchiveFileName, ios::in | ios::binary);
+    if (fin.fail())
+        throw file_error("Cannot open archive file '" + ArchiveFileName + "' for reading. Exiting.");
 
     ArchiveHeader ah;
     vector_fr_t& files = ah.loadHeader(&fin);
@@ -921,21 +933,21 @@ void Archiver::RemoveFile(const string& ArchiveFile, const string& FileToDelete)
 
     if (!ah.FileInList(FileToDelete)) //incorrect file name
     {
-        throw invalid_argument("File '" + FileToDelete + "' cannot be found in archive '" + ArchiveFile + "'.");
+        throw invalid_argument("File '" + FileToDelete + "' cannot be found in archive '" + ArchiveFileName + "'.");
     }
 #ifdef LOG4CPP
     logger.info("Deleting file '%s' from archive '%s'", FileToDelete.c_str(), ArchiveFile.c_str());
 #elif defined(__BORLANDC__)
     logger.LogFmt(LogEngine::Levels::llInfo, "Deleting file '%s' from archive '%s'", FileToDelete.c_str(), ArchiveFile.c_str());
 #else
-    logger.LogFmt(LogEngine::Levels::llInfo, "Deleting file '{}' from archive '{}'", FileToDelete.c_str(), ArchiveFile.c_str());
+    logger.LogFmt(LogEngine::Levels::llInfo, "Deleting file '{}' from archive '{}'", FileToDelete.c_str(), ArchiveFileName.c_str());
 #endif
 
     ah.RemoveFileFromList(FileToDelete);
 
     // TODO add handling of removing last files from archive.
     
-    string newArchiveFile = ArchiveFile + ".tmp";
+    string newArchiveFile = ArchiveFileName + ".tmp";
     ofstream fout(newArchiveFile, ios::out | ios::binary, _SH_DENYWR);
     if (fout.fail())
         throw file_error("Cannot open file '" + newArchiveFile + "' for writing.");
@@ -961,7 +973,7 @@ void Archiver::RemoveFile(const string& ArchiveFile, const string& FileToDelete)
     if (fin.fail())
     {
         std::remove(newArchiveFile.c_str());
-        throw file_error("Error reading archive file '" + ArchiveFile + "'.");
+        throw file_error("Error reading archive file '" + ArchiveFileName + "'.");
     }
 
     if (fout.fail())
@@ -970,8 +982,8 @@ void Archiver::RemoveFile(const string& ArchiveFile, const string& FileToDelete)
         throw file_error("Error writing archive file '" + newArchiveFile + "'.");
     }
 
-    std::remove(ArchiveFile.c_str());
-    std::rename(newArchiveFile.c_str(), ArchiveFile.c_str());
+    std::remove(ArchiveFileName.c_str());
+    std::rename(newArchiveFile.c_str(), ArchiveFileName.c_str());
 #ifdef LOG4CPP
     logger.info("Deleted successfully");
 #else
@@ -979,7 +991,9 @@ void Archiver::RemoveFile(const string& ArchiveFile, const string& FileToDelete)
 #endif
 }
 
-void Archiver::RemoveFiles(const string& ArchiveFile, const vector_string_t& flist)
+// ArchiveFileName should be fully qualified file name with extension (.ar)
+// Archive extension will NOT be added automatically in contrast to CompressFile(s) methods
+void Archiver::RemoveFiles(const string& ArchiveFileName, const vector_string_t& flist)
 {
     if (flist.size() == 0) return;
 
@@ -989,9 +1003,9 @@ void Archiver::RemoveFiles(const string& ArchiveFile, const vector_string_t& fli
     LogEngine::Logger& logger = Global::GetLogger();
 #endif
 
-    ifstream fin(ArchiveFile, ios::in | ios::binary);
+    ifstream fin(ArchiveFileName, ios::in | ios::binary);
     if (!fin)
-        throw file_error("Cannot open archive file '" + ArchiveFile + "' for reading. Exiting.");
+        throw file_error("Cannot open archive file '" + ArchiveFileName + "' for reading. Exiting.");
 
     ArchiveHeader ah;
     vector_fr_t& files = ah.loadHeader(&fin);
@@ -1007,14 +1021,14 @@ void Archiver::RemoveFiles(const string& ArchiveFile, const vector_string_t& fli
 #elif defined(__BORLANDC__)
     logger.LogFmt(LogEngine::Levels::llInfo, "Deleting files from archive '%s'", ArchiveFile.c_str());
 #else
-    logger.LogFmt(LogEngine::Levels::llInfo, "Deleting files from archive '{}'", ArchiveFile.c_str());
+    logger.LogFmt(LogEngine::Levels::llInfo, "Deleting files from archive '{}'", ArchiveFileName.c_str());
 #endif
     
     ah.RemoveFilesFromList(flist);
 
     // TODO add handling of removing last file from archive.
 
-    string newArchiveFile = ArchiveFile + ".tmp";
+    string newArchiveFile = ArchiveFileName + ".tmp";
     ofstream fout(newArchiveFile, ios::out | ios::binary, _SH_DENYWR);
     if (fout.fail())
         throw file_error("Cannot open file '" + newArchiveFile + "' for writing.");
@@ -1037,7 +1051,7 @@ void Archiver::RemoveFiles(const string& ArchiveFile, const vector_string_t& fli
     {
         fin.close();
         std::remove(newArchiveFile.c_str());
-        throw file_error("Error reading archive file '" + ArchiveFile + "'.");
+        throw file_error("Error reading archive file '" + ArchiveFileName + "'.");
     }
 
     if (fout.fail())
@@ -1050,8 +1064,8 @@ void Archiver::RemoveFiles(const string& ArchiveFile, const vector_string_t& fli
     fin.close();
     fout.close();
     
-    std::remove(ArchiveFile.c_str());
-    std::rename(newArchiveFile.c_str(), ArchiveFile.c_str());
+    std::remove(ArchiveFileName.c_str());
+    std::rename(newArchiveFile.c_str(), ArchiveFileName.c_str());
 
 #ifdef LOG4CPP
     logger.info("Deleted successfully");

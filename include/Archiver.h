@@ -34,24 +34,21 @@ public:
 	void AddCallback(ICallback* cb);
 	void RemoveCallback(ICallback* cb);
 
-	void CompressFiles(const vector_string_t& files, std::string ArchiveFileName, Parameters& params); // ArchiveFileName intentionally passed "by value" here
+	void CompressFiles(std::string ArchiveFileName, const vector_string_t& files, Parameters& params); // ArchiveFileName intentionally passed "by value" here
  //	void CompressFilesW(const vector_wstring_t& files, std::wstring ArchiveFileName, Parameters& params);
 
-	void CompressFile(const std::string& FileName, std::string ArchiveFileName, Parameters& params); // ArchiveFileName intentionally passed "by value" here
+	void CompressFile(std::string ArchiveFileName, const std::string& FileName, Parameters& params); // ArchiveFileName intentionally passed "by value" here
 	//void CompressFileW(const std::wstring& FileName, std::wstring ArchiveFileName, Parameters& params);
 
 	void UncompressFiles(std::ifstream* fin, Parameters& params);
 
-	void ExtractFiles(const std::string& ArchiveFile, const vector_string_t& FilesToExtract, const std::string& ExtractDir, Parameters& params);
-	void ExtractFiles(const std::string& ArchiveFile, const vector_string_t& FilesToExtract, const std::string& ExtractDir);
-	void ExtractFile(const std::string& ArchiveFile, const std::string& FileToExtract, const std::string& ExtractDir, Parameters& params);
-	void ExtractFile(const std::string& ArchiveFile, const std::string& FileToExtract, const std::string& ExtractDir);
+	void ExtractFiles(const std::string& ArchiveFileName, const vector_string_t& FilesToExtract, const std::string& ExtractDir, Parameters& params);
+	void ExtractFiles(const std::string& ArchiveFileName, const vector_string_t& FilesToExtract, const std::string& ExtractDir);
+	void ExtractFile(const std::string& ArchiveFileName, const std::string& FileToExtract, const std::string& ExtractDir, Parameters& params);
+	void ExtractFile(const std::string& ArchiveFileName, const std::string& FileToExtract, const std::string& ExtractDir);
 
-	void RemoveFiles(const std::string& ArchiveFile, const vector_string_t& flist);
-	void RemoveFile(const std::string& ArchiveFile, const std::string& FileToDelete);
-
-	//void EncodeFile(FILE* DecodedFile, FILE* EncodedFile, uint64_t fSize);
-	//void DecodeFile(FILE* DecodedFile, FILE* EncodedFile, uint64_t fSize);
+	void RemoveFiles(const std::string& ArchiveFileName, const vector_string_t& flist);
+	void RemoveFile(const std::string& ArchiveFileName, const std::string& FileToDelete);
 };
 
 

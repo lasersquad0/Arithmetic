@@ -11,10 +11,6 @@
 //#define  TOP       (1<<CODEBITS)
 //#define  BOTTOM    (1<<(CODEBITS - 8))
 
-#define SHOW_PROGRESS_AFTER 1000
-
-
-
 class RangeCoder: public IBlockCoder
 {
 public:

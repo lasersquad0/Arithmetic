@@ -23,7 +23,11 @@ public:
 
 };
 
-class ConsoleCallback: public ICallback
+/**
+* This class used for showing ONLY progress on the console
+* It shows one line without '\n' at the end and updates info on this line each time when progress() method is called
+*/
+class ConsoleProgressCallback: public ICallback
 {
 public:
 

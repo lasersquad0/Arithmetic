@@ -272,7 +272,10 @@ int main(int argc,char* argv[])
 
             //copy(files1.begin()++, files1.end(), files2.begin()); 
             Archiver comp;
-            comp.CompressFiles(files2, files1[0], params);
+            ConsoleProgressCallback ccb;
+            comp.AddCallback(&ccb);
+            comp.CompressFiles(files1[0], files2, params);
+            comp.RemoveCallback(&ccb);
         }
         else if (cmd.HasOption("x"))
         {
@@ -297,11 +300,13 @@ int main(int argc,char* argv[])
             if (values.size() > 1)
             {
                 Archiver comp;  // extract certain files from archive
-
+                ConsoleProgressCallback ccb;
+                comp.AddCallback(&ccb);
                 for (size_t i = 1; i < values.size(); i++) // first item is archive name
                 {
                     comp.ExtractFile(arcFile, values[i], params.OUTPUT_DIR);
                 }
+                comp.RemoveCallback(&ccb);
             }
             else // uncompress ALL files from archive
             {
@@ -319,6 +324,8 @@ int main(int argc,char* argv[])
                 }
 
                 Archiver comp;
+                ConsoleProgressCallback ccb;
+                comp.AddCallback(&ccb);
                 comp.UncompressFiles(&fin, params);
             }
 
