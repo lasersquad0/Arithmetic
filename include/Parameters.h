@@ -7,27 +7,22 @@
 #include "LogEngine.h"
 #endif
 
-#if defined (EXPORT_FOR_DELPHI)
+#ifdef EXPORT_FOR_DELPHI
 #include "ParametersInterface.hpp"
 
-typedef TCoderType CoderType;
-typedef TModelType ModelType;
-//using ModelType = TModelType;
+//typedef TCoderType CoderType;
+//typedef TModelType ModelType;
 
-class __declspec(delphiclass) Parameters : public TParametersInterface
+class __declspec(delphiclass) DelphiParameters : public TParametersInterface
 {
 private:
 	uint32_t FTHREADS = 1;
-	UnicodeString FOUTPUT_DIR = ".\\";
 	uint32_t FBLOCK_SIZE = 1 << 16;
+	UnicodeString FOUTPUT_DIR = ".\\";
 	bool FBLOCK_MODE = true;  // using block mode by default, to back to 'stream' mode use -sm cli option
 	bool FVERBOSE = false;
 	TModelType FMODEL_TYPE = TModelType::O2;
 	TCoderType FCODER_TYPE = TCoderType::AARITHMETIC;
-public:
-	std::string OUTPUT_DIR = ".\\";
-	static const inline std::string CoderNames[] = { "NONE", "HUF", "AHUF", "RLE", "ARI", "ARI32", "ARI64", "AARI", "AARI32", "AARI64", "BITARI" };
-	static const inline std::string ModelTypeCode[] = { "UNKNOWN", "O0", "O1", "O2", "O3", "MIXO3", "FO1", "BITO1" };
 private:
 	uint32_t __fastcall GetThreads() override { return FTHREADS; }
 	void __fastcall SetThreads(uint32_t thrds) override {FTHREADS = thrds; }
@@ -44,8 +39,7 @@ private:
 	UnicodeString __fastcall GetOutputDir() override { return FOUTPUT_DIR; }
 	void __fastcall SetOutputDir(UnicodeString odir) override {FOUTPUT_DIR = odir; }
 };
-
-#else
+#endif
 
 enum class CoderType { NONE, HUFFMAN, AHUFFMAN, RLE, ARITHMETIC, ARITHMETIC32, ARITHMETIC64, AARITHMETIC, AARITHMETIC32, AARITHMETIC64, ABITARITHMETIC };
 enum class ModelType { UNKNOWN, O0, O1, O2, O3, MIXO3, FO1, BITO1 };
@@ -75,9 +69,26 @@ public:
 	void SetBlockMode(bool bmode) { BLOCK_MODE = bmode; }
 	uint32_t GetBlockSize() { return BLOCK_SIZE; }
 	void SetBlockSize(uint32_t bsize) { BLOCK_SIZE = bsize; }
-};
+
+#ifdef EXPORT_FOR_DELPHI
+	Parameters (){} // explicit default contructor needed because it is removed by compiler when constructor from TParametersInterface exists
+
+	Parameters(TParametersInterface* other) // initialization from Delphi class
+	{
+		THREADS =  other->THREADS;
+		BLOCK_MODE = other->BLOCK_MODE;
+		BLOCK_SIZE = other->BLOCK_SIZE;
+		VERBOSE = other->VERBOSE;
+		MODEL_TYPE = (ModelType)other->MODEL_TYPE;
+		CODER_TYPE = (CoderType)other->CODER_TYPE;
+
+		System::UnicodeString ustr = other->OUTPUT_DIR;
+		std::string str(ustr.begin(), ustr.end());
+		OUTPUT_DIR = str;
+	}
 
 #endif
+};
 
 class Global
 {

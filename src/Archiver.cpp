@@ -262,7 +262,7 @@ int Archiver::CompressFile(ofstream* fout, ifstream* fin, FileRecord& fr, IModel
 	if (showprogress) cbmanager.Start();
 
 	model->BeginEncode(fout);
-
+	int RESULT = CALLBACK_OK;
 	Context ctx;
 
 	while(true)
@@ -276,7 +276,11 @@ int Archiver::CompressFile(ofstream* fout, ifstream* fin, FileRecord& fr, IModel
 		{
 			threshold += delta;
 			if(CALLBACK_ABORT == cbmanager.Progress((100ull * threshold/fr.fileSize))) // user has aborted compression process
-				return CALLBACK_ABORT;
+			{
+				RESULT = CALLBACK_ABORT;
+				break;
+				//return CALLBACK_ABORT;
+			}
 		}
 
 		model->EncodeSymbol(ctx.getCtx(), sm);
@@ -288,8 +292,11 @@ int Archiver::CompressFile(ofstream* fout, ifstream* fin, FileRecord& fr, IModel
 
 	fr.compressedSize = model->GetCoder().GetBytesPassed(); // TODO makes sense do it better and more convenient
 
-	//fin.close();
-	PrintFileCompressionDone(fr);
+	if (RESULT == CALLBACK_ABORT)
+		PrintFileCompressionAborted(fr);
+	else
+		PrintFileCompressionDone(fr);
+
 	auto tick = Ticks::Finish(fr.origFilename);
 #ifdef LOG4CPP
 	logger.info("%-16s %s", "Spent time:", millisecToStr(tick).c_str());
@@ -302,7 +309,7 @@ int Archiver::CompressFile(ofstream* fout, ifstream* fin, FileRecord& fr, IModel
 	logger.Info("------------------------------");
 #endif
 
-	return CALLBACK_OK;
+	return RESULT;
 }
 
 
@@ -353,7 +360,7 @@ int Archiver::CompressFileBlock(ofstream* fout, ifstream* fin, FileRecord& fr, I
 	MTF mtf;
 
 	if (showprogress) cbmanager.Progress(0);
-
+	int RESULT = CALLBACK_OK;
 	while (true)
 	{
 		fin->read((char*)buf, fr.blockSize);
@@ -393,7 +400,11 @@ int Archiver::CompressFileBlock(ofstream* fout, ifstream* fin, FileRecord& fr, I
 		{
 			threshold += delta;
 			if(CALLBACK_ABORT == cbmanager.Progress((100ull * threshold / numBlocks)))
-				return CALLBACK_ABORT; // TODO immediate return causes memory leak
+			{
+				RESULT = CALLBACK_ABORT;
+				break;
+				//return CALLBACK_ABORT; // TODO immediate return causes memory leak
+			}
 		}
 
 		if (fin->eof()) break;
@@ -409,8 +420,11 @@ int Archiver::CompressFileBlock(ofstream* fout, ifstream* fin, FileRecord& fr, I
 	fr.compressedSize = model->GetCoder().GetBytesPassed(); // TODO makes sense do it better and more convenient
 	fr.blockCount = cntBlocks;
 
-	//fin.close();
-	PrintFileCompressionDone(fr);
+	if (RESULT == CALLBACK_ABORT)
+		PrintFileCompressionAborted(fr);
+	else
+		PrintFileCompressionDone(fr);
+
 	auto tick = Ticks::Finish(fr.origFilename);
 #ifdef LOG4CPP
 	logger.info("%-16s %s", "Spent time:", millisecToStr(tick).c_str());
@@ -422,11 +436,11 @@ int Archiver::CompressFileBlock(ofstream* fout, ifstream* fin, FileRecord& fr, I
 	logger.LogFmt(LogEngine::Levels::llInfo, "{:16} {}", "Spent time:", millisecToStr(tick).c_str());
 	logger.Info("------------------------------");
 #endif
-	return CALLBACK_OK;
+	return RESULT;
 }
 
 
-void Archiver::UncompressFiles(ifstream* fin, Parameters& params)
+void Archiver::UncompressFiles(const string& ArchiveFileName, Parameters& params)
 {
 #ifdef LOG4CPP
 	log4cpp::Category& logger = Global::GetLogger();
@@ -434,13 +448,17 @@ void Archiver::UncompressFiles(ifstream* fin, Parameters& params)
 	LogEngine::Logger& logger = Global::GetLogger();
 #endif
 
+	ifstream fin(ArchiveFileName, ios::in | ios::binary);
+	if (fin.fail())
+		throw file_error("Cannot open archive file " + ArchiveFileName + "for reading. Exiting.");
+
 	//ConsoleProgressCallback ccb;
 	//cbmanager.AddCallback(&ccb);
 
 	ArchiveHeader ah;
-	auto files = ah.loadHeader(fin);
+	auto files = ah.loadHeader(&fin);
 
-	bool aborted = false;
+	int RESULT = CALLBACK_OK;
 	for (size_t i = 0; i < files.size(); i++)
 	{
 		IModel* model = ModelCoderFactory::GetModelAndCoder(files[i]);
@@ -452,25 +470,23 @@ void Archiver::UncompressFiles(ifstream* fin, Parameters& params)
 
 		PrintUncompressionStart(files[i], params);
 
-		int result;
 		if (files[i].blockCount > 0)
-			result = UncompressFileBlock(fin, &fout, files[i], model);
+			RESULT = UncompressFileBlock(&fin, &fout, files[i], model);
 		else
-			result = UncompressFile(fin, &fout, files[i], model);
+			RESULT = UncompressFile(&fin, &fout, files[i], model);
 
 		fout.close();
 
-		if (result == CALLBACK_ABORT)
+		if (RESULT == CALLBACK_ABORT)
 		{
 			std::filesystem::remove(realFileName); // remove partially uncompressed file
-			aborted = true;
 			break;
 		}
 	}
 
 	//cbmanager.RemoveCallback(&ccb);
 
-	if (aborted)
+	if (RESULT == CALLBACK_ABORT)
 	{
 #ifdef LOG4CPP
 		logger.info("User has cancelled uncompression process. Aborting.");
@@ -683,14 +699,14 @@ void Archiver::ExtractFiles(const string& ArchiveFileName, const vector_string_t
 {
 	Parameters params;
 	params.OUTPUT_DIR = ExtractDir;
-	ExtractFiles(ArchiveFileName, FilesToExtract, ExtractDir, params);
+	ExtractFiles(ArchiveFileName, FilesToExtract, params);
 }
 
-void Archiver::ExtractFiles(const string& ArchiveFileName, const vector_string_t& FilesToExtract, const string& ExtractDir, Parameters& params)
+void Archiver::ExtractFiles(const string& ArchiveFileName, const vector_string_t& FilesToExtract, Parameters& params)
 {
 	for (auto fl: FilesToExtract)
 	{
-		ExtractFile(ArchiveFileName, fl, ExtractDir, params);
+		ExtractFile(ArchiveFileName, fl, params);
 	}
 }
 
@@ -698,10 +714,10 @@ void Archiver::ExtractFile(const string& ArchiveFileName, const string& FileToEx
 {
 	Parameters params;
 	params.OUTPUT_DIR = ExtractDir;
-	ExtractFile(ArchiveFileName, FileToExtract, ExtractDir, params);
+	ExtractFile(ArchiveFileName, FileToExtract, params);
 }
 
-void Archiver::ExtractFile(const string& ArchiveFileName, const string& FileToExtract, const string& ExtractDir, Parameters& params)
+void Archiver::ExtractFile(const string& ArchiveFileName, const string& FileToExtract, Parameters& params)
 {
 #ifdef LOG4CPP
 	log4cpp::Category& logger = Global::GetLogger();
@@ -743,7 +759,7 @@ void Archiver::ExtractFile(const string& ArchiveFileName, const string& FileToEx
 		}
 	}
 
-	string realFileName = ExtractDir + "\\" + FileToExtract;
+	string realFileName = params.OUTPUT_DIR + "\\" + FileToExtract;
 
 	ofstream fout(realFileName, ios::out | ios::binary, _SH_DENYWR);
 	if (fout.fail())
@@ -938,7 +954,7 @@ void Archiver::RemoveFile(const string& ArchiveFileName, const string& FileToDel
 #ifdef LOG4CPP
     logger.info("Deleting file '%s' from archive '%s'", FileToDelete.c_str(), ArchiveFile.c_str());
 #elif defined(__BORLANDC__)
-    logger.LogFmt(LogEngine::Levels::llInfo, "Deleting file '%s' from archive '%s'", FileToDelete.c_str(), ArchiveFile.c_str());
+	logger.LogFmt(LogEngine::Levels::llInfo, "Deleting file '%s' from archive '%s'", FileToDelete.c_str(), ArchiveFileName.c_str());
 #else
     logger.LogFmt(LogEngine::Levels::llInfo, "Deleting file '{}' from archive '{}'", FileToDelete.c_str(), ArchiveFileName.c_str());
 #endif
@@ -1019,7 +1035,7 @@ void Archiver::RemoveFiles(const string& ArchiveFileName, const vector_string_t&
 #ifdef LOG4CPP
     logger.info("Deleting files from archive '%s'", ArchiveFile.c_str());
 #elif defined(__BORLANDC__)
-    logger.LogFmt(LogEngine::Levels::llInfo, "Deleting files from archive '%s'", ArchiveFile.c_str());
+    logger.LogFmt(LogEngine::Levels::llInfo, "Deleting files from archive '%s'", ArchiveFileName.c_str());
 #else
     logger.LogFmt(LogEngine::Levels::llInfo, "Deleting files from archive '{}'", ArchiveFileName.c_str());
 #endif
@@ -1145,43 +1161,60 @@ void Archiver::PrintUncompressionStart(const FileRecord& fr, Parameters& params)
 
     logger.LogFmt(LogEngine::Levels::llInfo, "{:19} {}", "Extracting file:", fr.fileName.c_str());
     logger.LogFmt(LogEngine::Levels::llInfo, "{:19} {}", "Extracting to:", params.OUTPUT_DIR.c_str());
-    logger.LogFmt(LogEngine::Levels::llInfo, "{:19} {}", "Compression coder:", Parameters::CoderNames[fr.alg].c_str());
+	logger.LogFmt(LogEngine::Levels::llInfo, "{:19} {}", "Compression coder:", Parameters::CoderNames[fr.alg].c_str());
 	logger.LogFmt(LogEngine::Levels::llInfo, "{:19} {}", "Model type:", Parameters::ModelTypeCode[fr.modelOrder].c_str());
-    logger.LogFmt(LogEngine::Levels::llInfo, "{:19} {}", "Block mode:", fr.blockCount > 0 ? "YES" : "NO");
-    logger.LogFmt(LogEngine::Levels::llInfo, "{:19} {} bytes", "Block size:", toStringSep(fr.blockSize).c_str());
-    logger.LogFmt(LogEngine::Levels::llInfo, "{:19} {}", "Threads count:", params.THREADS);
-    logger.LogFmt(LogEngine::Levels::llInfo, "{:19} {}", "Verbose:", params.VERBOSE ? "true" : "false");
-    //logger.info("------------------------------");
+	logger.LogFmt(LogEngine::Levels::llInfo, "{:19} {}", "Block mode:", fr.blockCount > 0 ? "YES" : "NO");
+	logger.LogFmt(LogEngine::Levels::llInfo, "{:19} {} bytes", "Block size:", toStringSep(fr.blockSize).c_str());
+	logger.LogFmt(LogEngine::Levels::llInfo, "{:19} {}", "Threads count:", params.THREADS);
+	logger.LogFmt(LogEngine::Levels::llInfo, "{:19} {}", "Verbose:", params.VERBOSE ? "true" : "false");
+	//logger.info("------------------------------");
 #endif // LOG4CPP
 }
 
 void Archiver::PrintFileCompressionDone(const FileRecord& fr)
 {
 #ifdef LOG4CPP
-    log4cpp::Category& logger = Global::GetLogger();
+	log4cpp::Category& logger = Global::GetLogger();
 
-    logger.info("Done compression.");
-    logger.info("%-16s '%s'", "File name:", fr.origFilename.c_str());
-    logger.info("%-16s %s bytes", "File size:", toStringSep(fr.fileSize).c_str());
-    logger.info("%-16s %s bytes", "Compressed size:", toStringSep(fr.compressedSize).c_str());
-    logger.info("%-16s %.2f", "Ratio:", (float)fr.fileSize / (float)fr.compressedSize);
-    logger.info("%-16s %s", "Blocks:", toStringSep(fr.blockCount).c_str());
+	logger.info("Done compression.");
+	logger.info("%-16s '%s'", "File name:", fr.origFilename.c_str());
+	logger.info("%-16s %s bytes", "File size:", toStringSep(fr.fileSize).c_str());
+	logger.info("%-16s %s bytes", "Compressed size:", toStringSep(fr.compressedSize).c_str());
+	logger.info("%-16s %.2f", "Ratio:", (float)fr.fileSize / (float)fr.compressedSize);
+	logger.info("%-16s %s", "Blocks:", toStringSep(fr.blockCount).c_str());
 #elif defined(__BORLANDC__)
-    LogEngine::Logger& logger = Global::GetLogger();
-    logger.Info("Done compression.");
-    logger.LogFmt(LogEngine::Levels::llInfo, "%-16s '%s'", "File name:", fr.origFilename.c_str());
-    logger.LogFmt(LogEngine::Levels::llInfo, "%-16s %s bytes", "File size:", toStringSep(fr.fileSize).c_str());
-    logger.LogFmt(LogEngine::Levels::llInfo, "%-16s %s bytes", "Compressed size:", toStringSep(fr.compressedSize).c_str());
-    logger.LogFmt(LogEngine::Levels::llInfo, "%-16s %.2f", "Ratio:", (float)fr.fileSize / (float)fr.compressedSize);
-    logger.LogFmt(LogEngine::Levels::llInfo, "%-16s %s", "Blocks:", toStringSep(fr.blockCount).c_str());
+	LogEngine::Logger& logger = Global::GetLogger();
+	logger.Info("Done compression.");
+	logger.LogFmt(LogEngine::Levels::llInfo, "%-16s '%s'", "File name:", fr.origFilename.c_str());
+	logger.LogFmt(LogEngine::Levels::llInfo, "%-16s %s bytes", "File size:", toStringSep(fr.fileSize).c_str());
+	logger.LogFmt(LogEngine::Levels::llInfo, "%-16s %s bytes", "Compressed size:", toStringSep(fr.compressedSize).c_str());
+	logger.LogFmt(LogEngine::Levels::llInfo, "%-16s %.2f", "Ratio:", (float)fr.fileSize / (float)fr.compressedSize);
+	logger.LogFmt(LogEngine::Levels::llInfo, "%-16s %s", "Blocks:", toStringSep(fr.blockCount).c_str());
 #else
-    LogEngine::Logger& logger = Global::GetLogger();
-    logger.Info("Done compression.");
-    logger.LogFmt(LogEngine::Levels::llInfo, "{:16} '{}'", "File name:", fr.origFilename.c_str());
-    logger.LogFmt(LogEngine::Levels::llInfo, "{:16} {} bytes", "File size:", toStringSep(fr.fileSize).c_str());
-    logger.LogFmt(LogEngine::Levels::llInfo, "{:16} {} bytes", "Compressed size:", toStringSep(fr.compressedSize).c_str());
-    logger.LogFmt(LogEngine::Levels::llInfo, "{:16} {}", "Ratio:", (float)fr.fileSize / (float)fr.compressedSize);
-    logger.LogFmt(LogEngine::Levels::llInfo, "{:16} {}", "Blocks:", toStringSep(fr.blockCount).c_str());
+	LogEngine::Logger& logger = Global::GetLogger();
+	logger.Info("Done compression.");
+	logger.LogFmt(LogEngine::Levels::llInfo, "{:16} '{}'", "File name:", fr.origFilename.c_str());
+	logger.LogFmt(LogEngine::Levels::llInfo, "{:16} {} bytes", "File size:", toStringSep(fr.fileSize).c_str());
+	logger.LogFmt(LogEngine::Levels::llInfo, "{:16} {} bytes", "Compressed size:", toStringSep(fr.compressedSize).c_str());
+	logger.LogFmt(LogEngine::Levels::llInfo, "{:16} {}", "Ratio:", (float)fr.fileSize / (float)fr.compressedSize);
+	logger.LogFmt(LogEngine::Levels::llInfo, "{:16} {}", "Blocks:", toStringSep(fr.blockCount).c_str());
+#endif // LOG4CPP
+
+}
+
+void Archiver::PrintFileCompressionAborted(const FileRecord& fr)
+{
+#ifdef LOG4CPP
+#elif defined(__BORLANDC__)
+	LogEngine::Logger& logger = Global::GetLogger();
+	logger.Warn("Compression aborted by user.");
+	logger.LogFmt(LogEngine::Levels::llInfo, "%-16s '%s'", "File name:", fr.origFilename.c_str());
+	logger.LogFmt(LogEngine::Levels::llInfo, "%-16s %s bytes", "File size:", toStringSep(fr.fileSize).c_str());
+#else
+	LogEngine::Logger& logger = Global::GetLogger();
+	logger.Info("Compression aborted by user.");
+	logger.LogFmt(LogEngine::Levels::llInfo, "{:16} '{}'", "File name:", fr.origFilename.c_str());
+	logger.LogFmt(LogEngine::Levels::llInfo, "{:16} {} bytes", "File size:", toStringSep(fr.fileSize).c_str());
 #endif // LOG4CPP
 
 }

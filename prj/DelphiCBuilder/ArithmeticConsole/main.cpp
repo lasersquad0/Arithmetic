@@ -206,42 +206,42 @@ int main(int argc,char* argv[])
 
 	//Parameters params2;
 
-	auto params = new Parameters();
-	params->BLOCK_MODE = !cmd.HasOption("sm");
+	Parameters params;
+	params.BLOCK_MODE = !cmd.HasOption("sm");
 
 
 	if (cmd.HasOption("t"))
 	{
 		//TODO add check for value range (1...24)
-		TRYCATCH(params->THREADS = stoi(cmd.GetOptionValue("t", 0).c_str()), "Cannot parse Threads count option value (-t). Default value 1 will be used.");
+		TRYCATCH(params.THREADS = stoi(cmd.GetOptionValue("t", 0).c_str()), "Cannot parse Threads count option value (-t). Default value 1 will be used.");
 	}
 
 	if (cmd.HasOption("b"))
 	{
 		//TODO add check for value range (1024...100M)
-		TRYCATCH(params->BLOCK_SIZE = ParseBlockSize(cmd.GetOptionValue("b", 0)), "Cannot parse Block size option value (-b). Default value 64K bytes will be used.");
+		TRYCATCH(params.BLOCK_SIZE = ParseBlockSize(cmd.GetOptionValue("b", 0)), "Cannot parse Block size option value (-b). Default value 64K bytes will be used.");
 	}
 	if (cmd.HasOption("m"))
 	{
-		TRYCATCH(params->MODEL_TYPE = ParseModelType(cmd.GetOptionValue("m", 0)), "Cannot parse Model type option value (-m). Default value 'O2' will be used.");
+		TRYCATCH(params.MODEL_TYPE = ParseModelType(cmd.GetOptionValue("m", 0)), "Cannot parse Model type option value (-m). Default value 'O2' will be used.");
 	}
 
 	if (cmd.HasOption("c"))
 	{
-		TRYCATCH(params->CODER_TYPE = ParseCoderType(cmd.GetOptionValue("c", 0)), "Cannot parse Coder type option value (-c). Default value 'AARI' will be used.");
+		TRYCATCH(params.CODER_TYPE = ParseCoderType(cmd.GetOptionValue("c", 0)), "Cannot parse Coder type option value (-c). Default value 'AARI' will be used.");
 	}
 
 	if (cmd.HasOption("v"))
 	{
-		params->VERBOSE = true;
+		params.VERBOSE = true;
 	}
 
 	if (cmd.HasOption("o"))
 	{
-		params->OUTPUT_DIR = cmd.GetOptionValue("o");
+		params.OUTPUT_DIR = cmd.GetOptionValue("o");
 	}
 
-	if (params->VERBOSE)
+	if (params.VERBOSE)
 	{
 		for (size_t i = 0; i < argc; i++) // for debugging purposes
 #ifdef LOG4CPP
@@ -264,7 +264,7 @@ int main(int argc,char* argv[])
 		else if (cmd.HasOption("l"))
 		{
 			ArchiveHeader hd;
-			hd.listContent(cmd.GetOptionValue("l", 0), params->VERBOSE);
+			hd.listContent(cmd.GetOptionValue("l", 0), params.VERBOSE);
 		}
 		else if (cmd.HasOption("a"))
 		{
@@ -272,14 +272,14 @@ int main(int argc,char* argv[])
 			vector_string_t files2(files1.begin() + 1, files1.end()); // copy to file2 everything but files[0]
 
 			//copy(files1.begin()++, files1.end(), files2.begin());
-			auto comp = new Archiver();
-			comp->CompressFiles(files2, files1[0], *params);
+			Archiver comp;
+			comp.CompressFiles(files1[0], files2, params);
 		}
 		else if (cmd.HasOption("x"))
 		{
 			if (cmd.HasOption("o"))
 			{
-				int err = _mkdir(params->OUTPUT_DIR.c_str()); // try to make dir to ensure that we received correct dir string
+				int err = _mkdir(params.OUTPUT_DIR.c_str()); // try to make dir to ensure that we received correct dir string
 				if (err != 0)
 					if (errno != EEXIST) // EEXIST is a valid error here
 					{
@@ -297,88 +297,75 @@ int main(int argc,char* argv[])
 
 			if (values.size() > 1)
 			{
-				auto comp = new Archiver;  // extract certain files from archive
+				Archiver comp;  // extract certain files from archive
 
 				for (size_t i = 1; i < values.size(); i++) // first item is archive name
 				{
-					comp->ExtractFile(arcFile, values[i], params->OUTPUT_DIR);
+					comp.ExtractFile(arcFile, values[i], params.OUTPUT_DIR);
 				}
 			}
 			else // uncompress ALL files from archive
 			{
-				ifstream fin(arcFile, ios::in | ios::binary);
-				if (fin.fail())
-				{
-#ifdef LOG4CPP
-					logger.warn("Cannot open archive file '%s' for reading. Exiting.", arcFile.c_str());
-#elif defined (__BORLANDC__)
-                    logger.LogFmt(LogEngine::Levels::llInfo, "Cannot open archive file '%s' for reading. Exiting.", arcFile.c_str());
-#else
-                    logger.LogFmt(LogEngine::Levels::llInfo, "Cannot open archive file '{}' for reading. Exiting.", arcFile.c_str());
-#endif
-                    return 1;
-                }
+				Archiver comp;
+				comp.UncompressFiles(arcFile, params);
+			}
 
-				auto comp = new Archiver();
-				comp->UncompressFiles(&fin, *params);
-            }
+		}
+		else if (cmd.HasOption("d"))
+		{
+			string arcFile = cmd.GetOptionValue("d", 0);
 
-        }
-        else if (cmd.HasOption("d"))
-        {
-            string arcFile = cmd.GetOptionValue("d", 0);
-            
-            vector_string_t files1 = cmd.GetOptionValues("d");
-            vector_string_t files2(files1.begin() + 1, files1.end());
+			vector_string_t files1 = cmd.GetOptionValues("d");
+			vector_string_t files2(files1.begin() + 1, files1.end());
 
-            //string fileToDelete = cmd.GetOptionValue("d", 1);
-			auto arch = new Archiver();
-            arch->RemoveFiles(arcFile, files2);
-        }
-        else
-        {
+			//string fileToDelete = cmd.GetOptionValue("d", 1);
+			Archiver arch;
+			arch.RemoveFiles(arcFile, files2);
+		}
+		else
+		{
 #ifdef LOG4CPP
-            logger.warn("Incorrect command line parameters."); 
+			logger.warn("Incorrect command line parameters.");
 #else
-            logger.Warn("Incorrect command line parameters."); 
+			logger.Warn("Incorrect command line parameters.");
 #endif
-            PrintUsage(options);
-            return 1;
-        }
-    }
-    catch (runtime_error& e)
-    {
+			PrintUsage(options);
+			return 1;
+		}
+	}
+	catch (runtime_error& e)
+	{
 #ifdef LOG4CPP
-        logger.error(e.what());
+		logger.error(e.what());
 #else
-        logger.Error(e.what());
+		logger.Error(e.what());
 #endif
-        return 1;
-    }
-    catch (exception& e)
-    {
+		return 1;
+	}
+	catch (exception& e)
+	{
 #ifdef LOG4CPP
-        logger.error(e.what());
+		logger.error(e.what());
 #else
-        logger.Error(e.what());
+		logger.Error(e.what());
 #endif
-        return 1;
-    }
-    catch (...)
-    {
+		return 1;
+	}
+	catch (...)
+	{
 #ifdef LOG4CPP
-        logger.error("Unknown error has been caught.");
+		logger.error("Unknown error has been caught.");
 #else
-        logger.Error("Unknown error has been caught.");
+		logger.Error("Unknown error has been caught.");
 #endif
-        return 1;
-    }
+		return 1;
+	}
 
 #ifdef LOG4CPP
-    logger.info("Arithmetic coder finished.");
+	logger.info("Arithmetic coder finished.");
 #else
-    logger.Info("Arithmetic coder finished."); 
+	logger.Info("Arithmetic coder finished.");
 #endif
-    
-    return 0;
+
+	return 0;
 }

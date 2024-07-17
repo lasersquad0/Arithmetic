@@ -24,6 +24,8 @@ type
     procedure SetBlockSize(bsize: uint32); virtual; abstract;
     function GetOutputDir: string; virtual; abstract;
     procedure SetOutputDir(odir: string); virtual; abstract;
+   // function GetAnsiOutputDir: AnsiString; virtual; abstract;
+   // procedure SetAnsiOutputDir(odir: AnsiString); virtual; abstract;
 
   public
    	//property Threads: uint32 read GetThreads write SetThreads; // = 1;
@@ -35,7 +37,7 @@ type
 	  property CoderType: TCoderType read GetCoderType write SetCoderType; // = CoderType::AARITHMETIC;
 
    	property THREADS: uint32 read GetThreads write SetThreads; // = 1;
-    //property OUTPUT_DIR: AnsiString read GetOutputDir write SetOutputDir; // = ".\\";
+    property OUTPUT_DIR: string read GetOutputDir write SetOutputDir; // = ".\\";
 	  property BLOCK_SIZE: uint32 read GetBlockSize write SetBlockSize; //= 1 << 16;
 	  property BLOCK_MODE: Boolean read GetBlockMode write SetBlockMode; // = true;  // using block mode by default, to back to 'stream' mode use -sm cli option
 	  property VERBOSE: Boolean read GetVerbose write SetVerbose; // = false;

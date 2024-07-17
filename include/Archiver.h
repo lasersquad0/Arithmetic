@@ -26,6 +26,7 @@ private:
 	void PrintCompressionStart(Parameters& params);
 	void PrintUncompressionStart(const FileRecord& fr, Parameters& params);
 	void PrintFileCompressionDone(const FileRecord& fr);
+	void PrintFileCompressionAborted(const FileRecord& fr);
 
 	bool BypassFile(std::ifstream* fin, const FileRecord& fr);
 	bool CopyFileData(std::ifstream* fin, std::ofstream* fout, const FileRecord& fr);
@@ -40,11 +41,12 @@ public:
 	void CompressFile(std::string ArchiveFileName, const std::string& FileName, Parameters& params); // ArchiveFileName intentionally passed "by value" here
 	//void CompressFileW(const std::wstring& FileName, std::wstring ArchiveFileName, Parameters& params);
 
-	void UncompressFiles(std::ifstream* fin, Parameters& params);
+	// Extracts (uncompresses) ALL files from archive into params.OUTPUT_DIR directory
+	void UncompressFiles(const std::string& ArchiveFileName, Parameters& params);
 
-	void ExtractFiles(const std::string& ArchiveFileName, const vector_string_t& FilesToExtract, const std::string& ExtractDir, Parameters& params);
+	void ExtractFiles(const std::string& ArchiveFileName, const vector_string_t& FilesToExtract, Parameters& params);
 	void ExtractFiles(const std::string& ArchiveFileName, const vector_string_t& FilesToExtract, const std::string& ExtractDir);
-	void ExtractFile(const std::string& ArchiveFileName, const std::string& FileToExtract, const std::string& ExtractDir, Parameters& params);
+	void ExtractFile(const std::string& ArchiveFileName, const std::string& FileToExtract, Parameters& params);
 	void ExtractFile(const std::string& ArchiveFileName, const std::string& FileToExtract, const std::string& ExtractDir);
 
 	void RemoveFiles(const std::string& ArchiveFileName, const vector_string_t& flist);

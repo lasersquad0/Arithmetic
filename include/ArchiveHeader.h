@@ -163,7 +163,7 @@ public:
 	 */
 	void updateHeaders(const std::string& arcFilename);
 
-	std::string truncate(const std::string& str, int len)
+	std::string truncate(const std::string& str, uint len)
 	{
 		return (str.length() > len) ? str.substr(0, len - 3) + "..." : str;
 	}

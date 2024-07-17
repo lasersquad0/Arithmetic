@@ -13,17 +13,20 @@ public
 	procedure AddCallback(cb: TICallback); virtual; abstract;
 	procedure RemoveCallback(cb: TICallback); virtual; abstract;
 
-	procedure CompressFiles(const Files: string; ArchiveFileName: string; params: TParametersInterface); virtual; abstract;
-	procedure CompressFile(FileName, ArchiveFileName: string; params: TParametersInterface); virtual; abstract;
+  // Files - list of file names separated by colon ':'
+	procedure CompressFiles(ArchiveFileName: string; const Files: string; params: TParametersInterface); virtual; abstract;
+	procedure CompressFile(ArchiveFileName, FileName: string; params: TParametersInterface); virtual; abstract;
 
 	//procedure UncompressFiles(std::ifstream* fin, Parameters params); virtual; abstract;
 
-	//procedure ExtractFiles(ArchiveFile: string, vector_string_t FilesToExtract, ExtractDir: string, Parameters params = Parameters()); virtual; abstract;
-	procedure ExtractFile(ArchiveFile, FileToExtract: string; ExtractDir: string{, Parameters params = Parameters()}); virtual; abstract;
+  // Files - list of file names separated by colon ':'
+	procedure ExtractFiles(ArchiveFileName, FilesToExtract, ExtractDir: string{, Parameters params = Parameters()}); virtual; abstract;
+	procedure ExtractFile(ArchiveFileName, FileToExtract: string; ExtractDir: string{, Parameters params = Parameters()}); virtual; abstract;
 
-	procedure RemoveFile(ArchiveFile, FileToDelete: string); virtual; abstract;
-	//procedure RemoveFiles(ArchiveFile: string, vector_string_t& flist); virtual; abstract;
+	procedure RemoveFile(ArchiveFileName, FileToRemove: string); virtual; abstract;
+	procedure RemoveFiles(ArchiveFileName, FilesToRemove: string); virtual; abstract; // list of file names separated by colon ':'
 
+  procedure UncompressFiles(ArchiveFileName: string; params: TParametersInterface); virtual; abstract;
 end;
 
 

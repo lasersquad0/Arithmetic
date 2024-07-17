@@ -61,7 +61,6 @@
         <DCC_CBuilderOutput>JPHNE</DCC_CBuilderOutput>
         <UsePackages>true</UsePackages>
         <IntermediateOutputDir>.\$(Platform)\$(Config)</IntermediateOutputDir>
-        <BCC_wpar>false</BCC_wpar>
         <BCC_OptimizeForSpeed>true</BCC_OptimizeForSpeed>
         <BCC_ExtendedErrorInfo>true</BCC_ExtendedErrorInfo>
         <ILINK_TranslatedLibraryPath>$(BDSLIB)\$(PLATFORM)\release\$(LANGDIR);$(ILINK_TranslatedLibraryPath)</ILINK_TranslatedLibraryPath>
@@ -82,6 +81,30 @@
         <ILINK_LibraryPath>..\..\..\..\libsais\src\;..\..\..\src\;..\..\..\include\;$(ILINK_LibraryPath)</ILINK_LibraryPath>
         <BCC_Defines>EXPORT_FOR_DELPHI;$(BCC_Defines)</BCC_Defines>
         <DynamicRTL>true</DynamicRTL>
+        <BCC_wamb>true</BCC_wamb>
+        <BCC_wamp>true</BCC_wamp>
+        <BCC_wasm>true</BCC_wasm>
+        <BCC_wbbf>true</BCC_wbbf>
+        <BCC_wcln>true</BCC_wcln>
+        <BCC_wdef>true</BCC_wdef>
+        <BCC_winl>true</BCC_winl>
+        <BCC_wnak>true</BCC_wnak>
+        <BCC_wpin>true</BCC_wpin>
+        <BCC_wnod>true</BCC_wnod>
+        <BCC_wsig>true</BCC_wsig>
+        <BCC_wstv>true</BCC_wstv>
+        <BCC_wstu>true</BCC_wstu>
+        <BCC_wuse>true</BCC_wuse>
+        <BCC_wprc>true</BCC_wprc>
+        <BCC_wucp>true</BCC_wucp>
+        <BCC_wstl>true</BCC_wstl>
+        <BCC_wexc>true</BCC_wexc>
+        <BCC_wimp>true</BCC_wimp>
+        <BCC_wntn>true</BCC_wntn>
+        <BCC_wpad>true</BCC_wpad>
+        <BCC_wiac>true</BCC_wiac>
+        <BCC_wbcx>true</BCC_wbcx>
+        <BCC_wpun>true</BCC_wpun>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win32)'!=''">
         <PackageImports>adortl;appanalytics;bcbie;bcbsmp;bindcomp;bindcompdbx;bindcompfmx;bindcompvcl;bindcompvclsmp;bindcompvclwinx;bindengine;CloudService;CustomIPTransport;DataSnapClient;DataSnapCommon;DataSnapConnectors;DatasnapConnectorsFreePascal;DataSnapFireDAC;DataSnapIndy10ServerTransport;DataSnapNativeClient;DataSnapProviderClient;DataSnapServer;DataSnapServerMidas;dbexpress;dbrtl;dbxcds;DbxClientDriver;DbxCommonDriver;DBXDb2Driver;DBXFirebirdDriver;DBXInformixDriver;DBXInterBaseDriver;DBXMSSQLDriver;DBXMySQLDriver;DBXOdbcDriver;DBXOracleDriver;DBXSqliteDriver;DBXSybaseASADriver;DBXSybaseASEDriver;dsnap;dsnapcon;dsnapxml;emsclient;emsclientfiredac;emsedge;emshosting;emsserverresource;FireDAC;FireDACADSDriver;FireDACASADriver;FireDACCommon;FireDACCommonDriver;FireDACCommonODBC;FireDACDb2Driver;FireDACDBXDriver;FireDACDSDriver;FireDACIBDriver;FireDACInfxDriver;FireDACMongoDBDriver;FireDACMSAccDriver;FireDACMSSQLDriver;FireDACMySQLDriver;FireDACODBCDriver;FireDACOracleDriver;FireDACPgDriver;FireDACSqliteDriver;FireDACTDataDriver;fmx;fmxase;fmxdae;fmxFireDAC;fmxobj;IndyCore;IndyIPClient;IndyIPCommon;IndyIPServer;IndyProtocols;IndySystem;inet;inetdb;inetdbxpress;RESTBackendComponents;RESTComponents;rtl;Skia;soapmidas;soaprtl;soapserver;tethering;vcl;vclactnband;vcldb;vcldsnap;vcledge;vclFireDAC;vclie;vclimg;VCLRESTComponents;VclSmp;vcltouch;vclwinx;vclx;xmlrtl;$(PackageImports)</PackageImports>

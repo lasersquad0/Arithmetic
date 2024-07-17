@@ -71,7 +71,7 @@ uchar RangeCoder::InByte()
 void RangeCoder::OutByte(uchar c)
 {
     bytesPassed++; 
-    fout->put(c);
+	fout->put((char)c);
 }
 
 void RangeCoder::SaveState()
