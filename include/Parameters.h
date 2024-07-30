@@ -1,11 +1,14 @@
 #pragma once
 
 #include <string>
+#include "CommonFunctions.h"
+
 #ifdef LOG4CPP
 #include <log4cpp/Category.hh>
 #else
 #include "LogEngine.h"
 #endif
+
 
 #ifdef EXPORT_FOR_DELPHI
 #include "ParametersInterface.hpp"
@@ -41,21 +44,18 @@ private:
 };
 #endif
 
-enum class CoderType { NONE, HUFFMAN, AHUFFMAN, RLE, ARITHMETIC, ARITHMETIC32, ARITHMETIC64, AARITHMETIC, AARITHMETIC32, AARITHMETIC64, ABITARITHMETIC };
-enum class ModelType { UNKNOWN, O0, O1, O2, O3, MIXO3, FO1, BITO1 };
-
 class Parameters
 {
 public:
 	uint32_t THREADS = 1;
-	std::string OUTPUT_DIR = ".\\";
+	string_t OUTPUT_DIR = _T(".\\");
 	uint32_t BLOCK_SIZE = 1 << 16;
 	bool BLOCK_MODE = true;  // using block mode by default, to back to 'stream' mode use -sm cli option
 	bool VERBOSE = false;
 	ModelType MODEL_TYPE = ModelType::O2;
 	CoderType CODER_TYPE = CoderType::AARITHMETIC;
-	static const inline std::string CoderNames[] = { "NONE", "HUF", "AHUF", "RLE", "ARI", "ARI32", "ARI64", "AARI", "AARI32", "AARI64", "BITARI" };
-	static const inline std::string ModelTypeCode[] = { "UNKNOWN", "O0", "O1", "O2", "O3", "MIXO3", "FO1", "BITO1" };
+	static const inline string_t CoderNames[] = { _T("NONE"), _T("HUF"), _T("AHUF"), _T("RLE"), _T("ARI"), _T("ARI32"), _T("ARI64"), _T("AARI"), _T("AARI32"), _T("AARI64"), _T("BITARI") };
+	static const inline string_t ModelTypeCode[] = { _T("UNKNOWN"), _T("O0"), _T("O1"), _T("O2"), _T("O3"), _T("MIXO3"), _T("FO1"), _T("BITO1") };
 
 	uint32_t GetThreads() { return THREADS; }
 	void SetThreads(uint32_t thrds) { THREADS = thrds; }
@@ -71,7 +71,7 @@ public:
 	void SetBlockSize(uint32_t bsize) { BLOCK_SIZE = bsize; }
 
 #ifdef EXPORT_FOR_DELPHI
-	Parameters (){} // explicit default contructor needed because it is removed by compiler when constructor from TParametersInterface exists
+ 	Parameters (){} // explicit default contructor needed because it is removed by compiler when constructor from TParametersInterface exists
 
 	Parameters(TParametersInterface* other) // initialization from Delphi class
 	{
@@ -81,10 +81,7 @@ public:
 		VERBOSE = other->VERBOSE;
 		MODEL_TYPE = (ModelType)other->MODEL_TYPE;
 		CODER_TYPE = (CoderType)other->CODER_TYPE;
-
-		System::UnicodeString ustr = other->OUTPUT_DIR;
-		std::string str(ustr.begin(), ustr.end());
-		OUTPUT_DIR = str;
+		OUTPUT_DIR = other->OUTPUT_DIR.w_str();
 	}
 
 #endif
@@ -93,7 +90,8 @@ public:
 class Global
 {
 public:
-	static inline std::string APP_NAME = "SOME APP"; // initialized by argv[0] in function main
+    // std::string is intentionally here, for logging
+	static inline string_t APP_NAME = _T("SOME APP"); // initialized by argv[0] in function main
 #ifdef LOG4CPP
 	static log4cpp::Category& GetLogger()
 	{

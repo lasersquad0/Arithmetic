@@ -12,7 +12,7 @@ File record in archive - structure
 1. Original file size (uncompressed) — 8 bytes (uint64_t)
 2. CRC32 of original file to verify correctness of uncompressing — 8 bytes (uint64_t)
 3. Modified date of original file
-4. Compressed file size — 8 bytes (uint64_t) 
+4. Compressed file size — 8 bytes (uint64_t)
 5. Code of algorythm (codec) used for compressing - 1 byte (uint8_t)
 6. Model order number used to compress the file (shared the same byte with apgorythm code above)
 7. Number of blocks used by compressed file (zero for non-block algorythms)
@@ -25,9 +25,9 @@ class FileRecord
 {
 public:
 	// **** DO NOT FORGET to make changes in HashMap in case of adding more fields here!! *********
-	std::string fileName;
-	std::string origFilename;
-	std::string dirName; // for future extensions, not used now
+	string_t fileName;
+	string_t origFilename;
+   //	string_t dirName; // for future extensions, not used now
 	uint64_t fileSize = 0L;
 	uint64_t CRC32Value = 0L;
 	uint64_t modifiedDate = 0L;
@@ -51,7 +51,7 @@ public:
 
 		uint64_t len = fileName.length();
 		sout->write((char*)&len, sizeof(uint16_t));
-		sout->write(fileName.c_str(), fileName.length());  // NOTE! writes 2 bytes for each char
+		sout->write((char*)fileName.c_str(), fileName.length()* sizeof(string_t::value_type));  // NOTE! writes 2 bytes for each char
 	}
 
 	void load(std::ifstream* sin)
@@ -70,8 +70,8 @@ public:
 		uint16_t filenameSize;
 		sin->read((char*)&filenameSize, sizeof(uint16_t));
 
-		char buf[1024]; //MAX_PATH];
-		sin->read((char*)buf, filenameSize);
+		string_t::value_type buf[1024]; //MAX_PATH];
+		sin->read((char*)buf, filenameSize * sizeof(string_t::value_type)); // reading unicode string
 		fileName.append(buf, filenameSize);
 	}
 

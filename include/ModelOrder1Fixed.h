@@ -15,16 +15,16 @@ protected:
 	uint32or64 summFreq;
 
 public:
-	ModelOrder1Fixed(IBlockCoder&cr, std::string fileName): BasicModel(cr)
+	ModelOrder1Fixed(IBlockCoder&cr, string_t fileName): BasicModel(cr)
 	{
 		summFreq = 0;
 
 		std::ifstream fin(fileName, std::ios::in | std::ios::binary);
 		if (fin.fail())
 		{
-			throw file_error("Cannot open file '" + fileName + "' for reading.");
+			throw file_error("Cannot open file '" + convert_string<std::string::value_type>(fileName) + "' for reading.");
 		}
-		
+
 		memset(weights, 0, ALFABET_CNT);
 
 		while (true)
@@ -35,7 +35,7 @@ public:
 			weights[ch]++;
 			summFreq++;
 		}
-		
+
 		cumFreqs[0] = 0;
 		for (int i = 0; i < ALFABET_CNT; i++)
 		{
@@ -56,7 +56,7 @@ public:
 		//while (i < symbol)
 		//	LowCount += weights[i++];
 
-		
+
 		coder.EncodeByte(cumFreqs[sym], weights[sym], summFreq);
 
 		//UpdateStatistics(*sym);
@@ -64,7 +64,7 @@ public:
 
 	uchar DecodeSymbol(uchar*) override
 	{
-		uchar sym = 1; 
+		uchar sym = 1;
 		//uint32or64 HiCount = 0;
 		uint32or64 count = coder.GetCumFreq(summFreq); // changes coder.range
 

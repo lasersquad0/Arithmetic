@@ -1,8 +1,8 @@
 #include "Ticks.h" 
 #include <chrono>
 
-std::map<std::string, Ticks::timepoint> Ticks::s;
-std::map<std::string, Ticks::timepoint> Ticks::f;
+std::map<string_t, Ticks::timepoint> Ticks::s;
+std::map<string_t, Ticks::timepoint> Ticks::f;
 
 
 std::string millisecToStr(long long ms)

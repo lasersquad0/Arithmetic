@@ -28,7 +28,8 @@ char mytoupper(int c) // to eliminate compile warning "warning C4244: '=': conve
 	return (char)toupper(c);
 }
 
-void trimAndUpper(string& str) // TODO what if we have \t in the beginning (end) of string?
+// intentionally left std::string
+void trimAndUpper(string_t& str) // TODO what if we have \t in the beginning (end) of string?
 {
 	// remove any leading and traling spaces, just in case.
 	size_t strBegin = str.find_first_not_of(' ');
@@ -40,7 +41,7 @@ void trimAndUpper(string& str) // TODO what if we have \t in the beginning (end)
 	transform(str.begin(), str.end(), str.begin(), ::mytoupper);
 }
 
-uint32_t ParseBlockSize(string s)
+uint32_t ParseBlockSize(string_t s) // intentionally left std::string
 {
 	int factor = 1;
 	transform(s.begin(), s.end(), s.begin(), ::mytoupper); // to uppercase
@@ -60,7 +61,7 @@ uint32_t ParseBlockSize(string s)
 	return stoi(s) * factor;
 }
 
-ModelType ParseModelType(string mt)
+ModelType ParseModelType(string_t mt) // intentionally left std::string
 {
 	trimAndUpper(mt);
 
@@ -75,7 +76,7 @@ ModelType ParseModelType(string mt)
 
 }
 
-CoderType ParseCoderType(string ct)
+CoderType ParseCoderType(string_t ct)  // intentionally left std::string
 {
 	trimAndUpper(ct);
 
@@ -90,13 +91,14 @@ CoderType ParseCoderType(string ct)
 
 }
 
-// converts native datetime value into string
-string DateTimeToString(time_t t)
+// converts native datetime value into string_t
+string_t DateTimeToString(time_t t)
 {
 	struct tm ttm;
 	localtime_s(&ttm, &t);
-	char ss[50];
-	strftime(ss, 50, "%F %T", &ttm);
+	string_t::value_type ss[100];
+   //	strftime(ss, 100, _T("%F %T"), &ttm);
+    wcsftime(ss, 100, _T("%F %T"), &ttm);
 
 	return ss;
 }
@@ -110,7 +112,7 @@ void SaveToFile(string fileName, char* buf, unsigned int len)
 	FILE* f;
 	dir.append(fileName);
 	errno_t err = fopen_s(&f, dir.c_str(), "w");
-	if (err != 0) 
+	if (err != 0)
 	{
 		cout << " ***** cannot open file for writing *****" << endl;
 		return;

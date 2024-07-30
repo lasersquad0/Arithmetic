@@ -3,6 +3,7 @@
 #include <string>
 #include <chrono>
 #include <iostream>
+#include "CommonFunctions.h"
 
 std::string millisecToStr(long long ms);
 
@@ -12,21 +13,21 @@ public:
 	typedef std::chrono::steady_clock::time_point timepoint;
 
 private:
-	static std::map<std::string, timepoint> s;
-	static std::map<std::string, timepoint> f;
+	static std::map<string_t, timepoint> s;
+	static std::map<string_t, timepoint> f;
 
 public:
 
-	static void Start(std::string& tickName)
+	static void Start(string_t& tickName)
 	{
 		s[tickName] = std::chrono::steady_clock::now();
 	}
-	static long long Finish(std::string& tickName)
+	static long long Finish(string_t& tickName)
 	{
 		f[tickName] = std::chrono::steady_clock::now();
 		return GetTick(tickName);
 	}
-	static long long GetTick(std::string& tickName)
+	static long long GetTick(string_t& tickName)
 	{
 		timepoint fin = f.at(tickName);
 		return std::chrono::duration_cast<std::chrono::milliseconds>(fin - s.at(tickName)).count();
@@ -35,7 +36,7 @@ public:
 	{
 		for (auto& item : f)
 		{
-			std::cout << item.first << "=" << std::chrono::duration_cast<std::chrono::milliseconds>(item.second - s.at(item.first)).count() / factor << std::endl;
+			std::wcout << item.first << _T("=") << std::chrono::duration_cast<std::chrono::milliseconds>(item.second - s.at(item.first)).count() / factor << std::endl;
 		}
 	}
 };

@@ -10,7 +10,7 @@
             <Dependencies/>
         </Projects>
         <Projects Include="ArithmeticGUI\ArithmeticGUI.dproj">
-            <Dependencies/>
+            <Dependencies>ArithmeticBPL\ArithmeticBPL.cbproj</Dependencies>
         </Projects>
     </ItemGroup>
     <ProjectExtensions>
@@ -38,13 +38,13 @@
     <Target Name="ArithmeticBPL:Make">
         <MSBuild Projects="ArithmeticBPL\ArithmeticBPL.cbproj" Targets="Make"/>
     </Target>
-    <Target Name="ArithmeticGUI">
+    <Target Name="ArithmeticGUI" DependsOnTargets="ArithmeticBPL">
         <MSBuild Projects="ArithmeticGUI\ArithmeticGUI.dproj"/>
     </Target>
-    <Target Name="ArithmeticGUI:Clean">
+    <Target Name="ArithmeticGUI:Clean" DependsOnTargets="ArithmeticBPL:Clean">
         <MSBuild Projects="ArithmeticGUI\ArithmeticGUI.dproj" Targets="Clean"/>
     </Target>
-    <Target Name="ArithmeticGUI:Make">
+    <Target Name="ArithmeticGUI:Make" DependsOnTargets="ArithmeticBPL:Make">
         <MSBuild Projects="ArithmeticGUI\ArithmeticGUI.dproj" Targets="Make"/>
     </Target>
     <Target Name="Build">

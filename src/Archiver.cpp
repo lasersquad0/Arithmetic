@@ -16,8 +16,7 @@
 
 using namespace std;
 
-#define ARC_EXT ".ar"
-//#define ARC_EXTW L".ar"
+#define ARC_EXT _T(".ar")
 
 #define SHOW_PROGRESS_AFTER 1000
 #define SHOWP (fr.fileSize > SHOW_PROGRESS_AFTER)
@@ -43,15 +42,15 @@ void Archiver::RemoveCallback(ICallback* cb)
 // if ArchiveFileName does not have '.ar' extension it will be added
 // if ArchiveFileName exists - it will be overwritten
 // if ArchiveFileName does not exist it will be created
-void Archiver::CompressFile(string ArchiveFileName, const string& FileName, Parameters& params)
+void Archiver::CompressFile(string_t ArchiveFileName, const string_t& FileName, Parameters& params)
 {
-	vector_string_t files;
+	vect_string_t files;
 
 	files.push_back(FileName);
 	CompressFiles(ArchiveFileName, files, params);
 }
 
-void Archiver::CompressFiles(string ArchiveFileName, const vector_string_t& files, Parameters& params)
+void Archiver::CompressFiles(string_t ArchiveFileName, const vect_string_t& files, Parameters& params)
 {
 	//ConsoleProgressCallback ccb;
 	//cbmanager.AddCallback(&ccb);
@@ -66,15 +65,15 @@ void Archiver::CompressFiles(string ArchiveFileName, const vector_string_t& file
 	logger.info("------------------------------");
 #elif defined(__BORLANDC__)
 	LogEngine::Logger& logger = Global::GetLogger();
-	logger.LogFmt(LogEngine::Levels::llInfo, "Creating archive '%s'.", ArchiveFileName.c_str());
+	logger.LogFmt(LogEngine::Levels::llInfo, "Creating archive '%ls'.", ArchiveFileName.c_str());
 	PrintCompressionStart(params);
-	logger.LogFmt(LogEngine::Levels::llInfo, "Adding %d file%s to archive.", files.size() - 1, files.size() > 2 ? "s" : "");
+	logger.LogFmt(LogEngine::Levels::llInfo, "Adding %d file%s to archive.", files.size(), files.size() > 1 ? "s" : "");
 	logger.Info("------------------------------");
 #else
 	LogEngine::Logger& logger = Global::GetLogger();
 	logger.LogFmt(LogEngine::Levels::llInfo, "Creating archive '{}'.", ArchiveFileName.c_str());
 	PrintCompressionStart(params);
-	logger.LogFmt(LogEngine::Levels::llInfo, "Adding {} file{} to archive.", files.size() - 1, files.size() > 2 ? "s" : "");
+	logger.LogFmt(LogEngine::Levels::llInfo, "Adding {} file{} to archive.", files.size(), files.size() > 1 ? "s" : "");
 	logger.Info("------------------------------");
 
 #endif
@@ -82,10 +81,10 @@ void Archiver::CompressFiles(string ArchiveFileName, const vector_string_t& file
 	ofstream fout;
 	fout.open(ArchiveFileName, ios::out | ios::binary, _SH_DENYWR);
 	if (fout.fail())
-		throw file_error("Cannot open file '" + ArchiveFileName + "' for writing. Check file permissions.");
+		throw file_error("Cannot open file '" + convert_string<std::string::value_type>(ArchiveFileName) + "' for writing. Check file permissions.");
 
 	ArchiveHeader hd;
-	vector_fr_t& frs = hd.fillFileRecs(files, params);
+	vect_fr_t& frs = hd.fillFileRecs(files, params);
 	hd.saveHeader(&fout);
 
 	bool aborted = false;
@@ -96,7 +95,7 @@ void Archiver::CompressFiles(string ArchiveFileName, const vector_string_t& file
 		FileRecord& fr = frs[i];
 		ifstream fin(fr.origFilename, ios::in | ios::binary);
 		if (fin.fail())
-			throw file_error("Cannot open file '" + fr.origFilename + "' for reading.");
+			throw file_error("Cannot open file '" + convert_string<std::string::value_type>(fr.origFilename) + "' for reading.");
 
 		int result;
 		if (params.BLOCK_MODE)
@@ -440,7 +439,7 @@ int Archiver::CompressFileBlock(ofstream* fout, ifstream* fin, FileRecord& fr, I
 }
 
 
-void Archiver::UncompressFiles(const string& ArchiveFileName, Parameters& params)
+void Archiver::UncompressFiles(const string_t& ArchiveFileName, Parameters& params)
 {
 #ifdef LOG4CPP
 	log4cpp::Category& logger = Global::GetLogger();
@@ -450,7 +449,7 @@ void Archiver::UncompressFiles(const string& ArchiveFileName, Parameters& params
 
 	ifstream fin(ArchiveFileName, ios::in | ios::binary);
 	if (fin.fail())
-		throw file_error("Cannot open archive file " + ArchiveFileName + "for reading. Exiting.");
+		throw file_error("Cannot open archive file " + convert_string<std::string::value_type>(ArchiveFileName) + "for reading. Exiting.");
 
 	//ConsoleProgressCallback ccb;
 	//cbmanager.AddCallback(&ccb);
@@ -462,11 +461,11 @@ void Archiver::UncompressFiles(const string& ArchiveFileName, Parameters& params
 	for (size_t i = 0; i < files.size(); i++)
 	{
 		IModel* model = ModelCoderFactory::GetModelAndCoder(files[i]);
-		string temp = params.OUTPUT_DIR;
-		string realFileName = params.OUTPUT_DIR + "\\" + files[i].fileName;
+		string_t temp = params.OUTPUT_DIR;
+		string_t realFileName = params.OUTPUT_DIR + _T("\\") + files[i].fileName;
 		ofstream fout(realFileName, ios::out | ios::binary, _SH_DENYWR);
 		if (fout.fail())
-			throw file_error("Cannot open file '" + realFileName + "' for writing.");
+			throw file_error("Cannot open file '" + convert_string<std::string::value_type>(realFileName) + "' for writing.");
 
 		PrintUncompressionStart(files[i], params);
 
@@ -695,14 +694,14 @@ int Archiver::UncompressFileBlock(ifstream* fin, ofstream *fout, FileRecord& fr,
 
 // ArchiveFileName should be fully qualified file name with extension (.ar)
 // Archive extension will NOT be added automatically in contrast to CompressFile(s) methods
-void Archiver::ExtractFiles(const string& ArchiveFileName, const vector_string_t& FilesToExtract, const string& ExtractDir)
+void Archiver::ExtractFiles(const string_t& ArchiveFileName, const vect_string_t& FilesToExtract, const string_t& ExtractDir)
 {
 	Parameters params;
 	params.OUTPUT_DIR = ExtractDir;
 	ExtractFiles(ArchiveFileName, FilesToExtract, params);
 }
 
-void Archiver::ExtractFiles(const string& ArchiveFileName, const vector_string_t& FilesToExtract, Parameters& params)
+void Archiver::ExtractFiles(const string_t& ArchiveFileName, const vect_string_t& FilesToExtract, Parameters& params)
 {
 	for (auto fl: FilesToExtract)
 	{
@@ -710,14 +709,14 @@ void Archiver::ExtractFiles(const string& ArchiveFileName, const vector_string_t
 	}
 }
 
-void Archiver::ExtractFile(const string& ArchiveFileName, const string& FileToExtract, const string& ExtractDir)
+void Archiver::ExtractFile(const string_t& ArchiveFileName, const string_t& FileToExtract, const string_t& ExtractDir)
 {
 	Parameters params;
 	params.OUTPUT_DIR = ExtractDir;
 	ExtractFile(ArchiveFileName, FileToExtract, params);
 }
 
-void Archiver::ExtractFile(const string& ArchiveFileName, const string& FileToExtract, Parameters& params)
+void Archiver::ExtractFile(const string_t& ArchiveFileName, const string_t& FileToExtract, Parameters& params)
 {
 #ifdef LOG4CPP
 	log4cpp::Category& logger = Global::GetLogger();
@@ -727,7 +726,7 @@ void Archiver::ExtractFile(const string& ArchiveFileName, const string& FileToEx
 
 	ifstream fin(ArchiveFileName, ios::in | ios::binary);
 	if (fin.fail())
-		throw file_error("Cannot open archive file '" + ArchiveFileName + "' for reading. Exiting.");
+		throw file_error("Cannot open archive file '" + convert_string<std::string::value_type>(ArchiveFileName) + "' for reading. Exiting.");
 
 	ArchiveHeader ah;
 	auto files = ah.loadHeader(&fin);
@@ -745,7 +744,7 @@ void Archiver::ExtractFile(const string& ArchiveFileName, const string& FileToEx
 	}
 
 	if (!found)
-		throw file_error("File '" + FileToExtract + "' absent in archive. Cannot extract.");
+		throw file_error("File '" + convert_string<std::string::value_type>(FileToExtract) + "' absent in archive. Cannot extract.");
 
 	for (size_t i = 0; i < files.size(); i++)
 	{
@@ -759,11 +758,11 @@ void Archiver::ExtractFile(const string& ArchiveFileName, const string& FileToEx
 		}
 	}
 
-	string realFileName = params.OUTPUT_DIR + "\\" + FileToExtract;
+	string_t realFileName = params.OUTPUT_DIR + _T("\\") + FileToExtract;
 
 	ofstream fout(realFileName, ios::out | ios::binary, _SH_DENYWR);
 	if (fout.fail())
-		throw file_error("Cannot open file '" + realFileName + "' for writing.");
+		throw file_error("Cannot open file '" + convert_string<std::string::value_type>(realFileName) + "' for writing.");
 
 	PrintUncompressionStart(fr, params);
 
@@ -930,26 +929,26 @@ bool Archiver::CopyFileData(ifstream* fin, ofstream* fout, const FileRecord& fr)
 
 // ArchiveFileName should be fully qualified file name with extension (.ar)
 // Archive extension will NOT be added automatically in contrast to CompressFile(s) methods
-void Archiver::RemoveFile(const string& ArchiveFileName, const string& FileToDelete)
+void Archiver::RemoveFile(const string_t& ArchiveFileName, const string_t& FileToDelete)
 {
 #ifdef LOG4CPP
     log4cpp::Category& logger = Global::GetLogger();
 #else
     LogEngine::Logger& logger = Global::GetLogger();
 #endif
-    
+
     ifstream fin(ArchiveFileName, ios::in | ios::binary);
     if (fin.fail())
-        throw file_error("Cannot open archive file '" + ArchiveFileName + "' for reading. Exiting.");
+        throw file_error("Cannot open archive file '" + convert_string<std::string::value_type>(ArchiveFileName) + "' for reading. Exiting.");
 
     ArchiveHeader ah;
-    vector_fr_t& files = ah.loadHeader(&fin);
+    vect_fr_t& files = ah.loadHeader(&fin);
 
-    vector_fr_t filesOLD = files;
+    vect_fr_t filesOLD = files;
 
     if (!ah.FileInList(FileToDelete)) //incorrect file name
     {
-        throw invalid_argument("File '" + FileToDelete + "' cannot be found in archive '" + ArchiveFileName + "'.");
+        throw invalid_argument("File '" + convert_string<std::string::value_type>(FileToDelete) + "' cannot be found in archive '" + convert_string<std::string::value_type>(ArchiveFileName) + "'.");
     }
 #ifdef LOG4CPP
     logger.info("Deleting file '%s' from archive '%s'", FileToDelete.c_str(), ArchiveFile.c_str());
@@ -961,12 +960,12 @@ void Archiver::RemoveFile(const string& ArchiveFileName, const string& FileToDel
 
     ah.RemoveFileFromList(FileToDelete);
 
-    // TODO add handling of removing last files from archive.
-    
-    string newArchiveFile = ArchiveFileName + ".tmp";
+    // TODO: add handling of removing last files from archive.
+
+    string_t newArchiveFile = ArchiveFileName + _T(".tmp");
     ofstream fout(newArchiveFile, ios::out | ios::binary, _SH_DENYWR);
     if (fout.fail())
-        throw file_error("Cannot open file '" + newArchiveFile + "' for writing.");
+        throw file_error("Cannot open file '" + convert_string<std::string::value_type>(newArchiveFile) + "' for writing.");
 
     ah.saveHeader(&fout); // saving header without deleted file in the list
 
@@ -988,18 +987,18 @@ void Archiver::RemoveFile(const string& ArchiveFileName, const string& FileToDel
 
     if (fin.fail())
     {
-        std::remove(newArchiveFile.c_str());
-        throw file_error("Error reading archive file '" + ArchiveFileName + "'.");
+        std::remove(convert_string<std::string::value_type>(newArchiveFile).c_str());
+        throw file_error("Error reading archive file '" + convert_string<std::string::value_type>(ArchiveFileName) + "'.");
     }
 
     if (fout.fail())
     {
-        std::remove(newArchiveFile.c_str());
-        throw file_error("Error writing archive file '" + newArchiveFile + "'.");
+        std::remove(convert_string<std::string::value_type>(newArchiveFile).c_str());
+        throw file_error("Error writing archive file '" + convert_string<std::string::value_type>(newArchiveFile) + "'.");
     }
 
-    std::remove(ArchiveFileName.c_str());
-    std::rename(newArchiveFile.c_str(), ArchiveFileName.c_str());
+    std::remove(convert_string<std::string::value_type>(ArchiveFileName).c_str());
+    std::rename(convert_string<std::string::value_type>(newArchiveFile).c_str(), convert_string<std::string::value_type>(ArchiveFileName).c_str());
 #ifdef LOG4CPP
     logger.info("Deleted successfully");
 #else
@@ -1009,7 +1008,7 @@ void Archiver::RemoveFile(const string& ArchiveFileName, const string& FileToDel
 
 // ArchiveFileName should be fully qualified file name with extension (.ar)
 // Archive extension will NOT be added automatically in contrast to CompressFile(s) methods
-void Archiver::RemoveFiles(const string& ArchiveFileName, const vector_string_t& flist)
+void Archiver::RemoveFiles(const string_t& ArchiveFileName, const vect_string_t& flist)
 {
     if (flist.size() == 0) return;
 
@@ -1021,12 +1020,12 @@ void Archiver::RemoveFiles(const string& ArchiveFileName, const vector_string_t&
 
     ifstream fin(ArchiveFileName, ios::in | ios::binary);
     if (!fin)
-        throw file_error("Cannot open archive file '" + ArchiveFileName + "' for reading. Exiting.");
+        throw file_error("Cannot open archive file '" + convert_string<std::string::value_type>(ArchiveFileName) + "' for reading. Exiting.");
 
     ArchiveHeader ah;
-    vector_fr_t& files = ah.loadHeader(&fin);
+    vect_fr_t& files = ah.loadHeader(&fin);
 
-    vector_fr_t filesOLD = files;
+    vect_fr_t filesOLD = files;
 
     //if (!ah.FileInList(FileToDelete)) //incorrect file name
     //{
@@ -1039,21 +1038,21 @@ void Archiver::RemoveFiles(const string& ArchiveFileName, const vector_string_t&
 #else
     logger.LogFmt(LogEngine::Levels::llInfo, "Deleting files from archive '{}'", ArchiveFileName.c_str());
 #endif
-    
+
     ah.RemoveFilesFromList(flist);
 
     // TODO add handling of removing last file from archive.
 
-    string newArchiveFile = ArchiveFileName + ".tmp";
+    string_t newArchiveFile = ArchiveFileName + _T(".tmp");
     ofstream fout(newArchiveFile, ios::out | ios::binary, _SH_DENYWR);
     if (fout.fail())
-        throw file_error("Cannot open file '" + newArchiveFile + "' for writing.");
+        throw file_error("Cannot open file '" + convert_string<std::string::value_type>(newArchiveFile) + "' for writing.");
 
     ah.saveHeader(&fout); // saving header without deleted file in the list
 
 
     //for (size_t i = 0; i < filesOLD.size(); i++)
-    for (vector_fr_t::iterator iter = filesOLD.begin(); iter != filesOLD.end(); iter++)
+    for (vect_fr_t::iterator iter = filesOLD.begin(); iter != filesOLD.end(); iter++)
     {
         auto result = std::find(flist.begin(), flist.end(), iter->fileName);
 
@@ -1066,29 +1065,29 @@ void Archiver::RemoveFiles(const string& ArchiveFileName, const vector_string_t&
     if (fin.fail())
     {
         fin.close();
-        std::remove(newArchiveFile.c_str());
-        throw file_error("Error reading archive file '" + ArchiveFileName + "'.");
+        std::remove(convert_string<std::string::value_type>(newArchiveFile).c_str());
+        throw file_error("Error reading archive file '" + convert_string<std::string::value_type>(ArchiveFileName) + "'.");
     }
 
     if (fout.fail())
     {
         fout.close();
-        std::remove(newArchiveFile.c_str());
-        throw file_error("Error writing archive file '" + newArchiveFile + "'.");
+        std::remove(convert_string<std::string::value_type>(newArchiveFile).c_str());
+        throw file_error("Error writing archive file '" + convert_string<std::string::value_type>(newArchiveFile) + "'.");
     }
 
     fin.close();
     fout.close();
-    
-    std::remove(ArchiveFileName.c_str());
-    std::rename(newArchiveFile.c_str(), ArchiveFileName.c_str());
+
+    std::remove(convert_string<std::string::value_type>(ArchiveFileName).c_str());
+    std::rename(convert_string<std::string::value_type>(newArchiveFile).c_str(), convert_string<std::string::value_type>(ArchiveFileName).c_str());
 
 #ifdef LOG4CPP
     logger.info("Deleted successfully");
 #else
     logger.Info("Deleted successfully");
 #endif
-    
+
 }
 
 void Archiver::PrintCompressionStart(Parameters& params)
@@ -1110,7 +1109,7 @@ void Archiver::PrintCompressionStart(Parameters& params)
     logger.LogFmt(LogEngine::Levels::llInfo, "%-19s %s", "Use model type:", Parameters::ModelTypeCode[(uint8_t)params.MODEL_TYPE].c_str());
 	logger.LogFmt(LogEngine::Levels::llInfo, "%-19s %s", "Block mode:", params.BLOCK_MODE ? "YES" : "NO");
     if (params.BLOCK_MODE)
-        logger.LogFmt(LogEngine::Levels::llInfo, "%-19s %s bytes", "Block size:", toStringSep(params.BLOCK_SIZE).c_str());
+        logger.LogFmt(LogEngine::Levels::llInfo, "%-19s %ls bytes", "Block size:", toStringSep(params.BLOCK_SIZE).c_str());
     logger.LogFmt(LogEngine::Levels::llInfo, "%-19s %u", "Threads count:", params.THREADS);
     logger.LogFmt(LogEngine::Levels::llInfo, "%-19s %s", "Verbose:", params.VERBOSE ? "true" : "false");
 #else
@@ -1133,12 +1132,12 @@ void Archiver::PrintUncompressionStart(const FileRecord& fr, Parameters& params)
     log4cpp::Category& logger = Global::GetLogger();
 
     //logger.info("Using Arithmetic Range compressor.");
-    logger.info("%-19s %s", "Extracting file:", fr.fileName.c_str());
-    logger.info("%-19s %s", "Extracting to:", params.OUTPUT_DIR.c_str());
+    logger.info("%-19s %ls", "Extracting file:", fr.fileName.c_str());
+    logger.info("%-19s %ls", "Extracting to:", params.OUTPUT_DIR.c_str());
     logger.info("%-19s %s", "Compression coder:", Parameters::CoderNames[fr.alg].c_str());
     logger.info("%-19s %s", "Model type:", Parameters::ModelTypeCode[fr.modelOrder].c_str());
     logger.info("%-19s %s", "Block mode:", fr.blockCount > 0 ? "YES" : "NO");
-    logger.info("%-19s %s bytes", "Block size:", toStringSep(fr.blockSize).c_str());
+    logger.info("%-19s %ls bytes", "Block size:", toStringSep(fr.blockSize).c_str());
     logger.info("%-19s %u", "Threads count:", params.THREADS);
     logger.info("%-19s %s", "Verbose:", params.VERBOSE ? "true" : "false");
     //logger.info("------------------------------");
@@ -1146,12 +1145,12 @@ void Archiver::PrintUncompressionStart(const FileRecord& fr, Parameters& params)
     LogEngine::Logger& logger = Global::GetLogger();
     //logger.info("Using Arithmetic Range compressor.");
 
-    logger.LogFmt(LogEngine::Levels::llInfo, "%-19s %s", "Extracting file:", fr.fileName.c_str());
-    logger.LogFmt(LogEngine::Levels::llInfo, "%-19s %s", "Extracting to:", params.OUTPUT_DIR.c_str());
+    logger.LogFmt(LogEngine::Levels::llInfo, "%-19s %ls", "Extracting file:", fr.fileName.c_str());
+    logger.LogFmt(LogEngine::Levels::llInfo, "%-19s %ls", "Extracting to:", params.OUTPUT_DIR.c_str());
     logger.LogFmt(LogEngine::Levels::llInfo, "%-19s %s", "Compression coder:", Parameters::CoderNames[fr.alg].c_str());
     logger.LogFmt(LogEngine::Levels::llInfo, "%-19s %s", "Model type:", Parameters::ModelTypeCode[fr.modelOrder].c_str());
     logger.LogFmt(LogEngine::Levels::llInfo, "%-19s %s", "Block mode:", fr.blockCount > 0 ? "YES" : "NO");
-    logger.LogFmt(LogEngine::Levels::llInfo, "%-19s %s bytes", "Block size:", toStringSep(fr.blockSize).c_str());
+    logger.LogFmt(LogEngine::Levels::llInfo, "%-19s %ls bytes", "Block size:", toStringSep(fr.blockSize).c_str());
     logger.LogFmt(LogEngine::Levels::llInfo, "%-19s %u", "Threads count:", params.THREADS);
     logger.LogFmt(LogEngine::Levels::llInfo, "%-19s %s", "Verbose:", params.VERBOSE ? "true" : "false");
     //logger.info("------------------------------");
@@ -1185,11 +1184,11 @@ void Archiver::PrintFileCompressionDone(const FileRecord& fr)
 #elif defined(__BORLANDC__)
 	LogEngine::Logger& logger = Global::GetLogger();
 	logger.Info("Done compression.");
-	logger.LogFmt(LogEngine::Levels::llInfo, "%-16s '%s'", "File name:", fr.origFilename.c_str());
-	logger.LogFmt(LogEngine::Levels::llInfo, "%-16s %s bytes", "File size:", toStringSep(fr.fileSize).c_str());
-	logger.LogFmt(LogEngine::Levels::llInfo, "%-16s %s bytes", "Compressed size:", toStringSep(fr.compressedSize).c_str());
+	logger.LogFmt(LogEngine::Levels::llInfo, "%-16s '%ls'", "File name:", fr.origFilename.c_str());
+	logger.LogFmt(LogEngine::Levels::llInfo, "%-16s %ls bytes", "File size:", toStringSep(fr.fileSize).c_str());
+	logger.LogFmt(LogEngine::Levels::llInfo, "%-16s %ls bytes", "Compressed size:", toStringSep(fr.compressedSize).c_str());
 	logger.LogFmt(LogEngine::Levels::llInfo, "%-16s %.2f", "Ratio:", (float)fr.fileSize / (float)fr.compressedSize);
-	logger.LogFmt(LogEngine::Levels::llInfo, "%-16s %s", "Blocks:", toStringSep(fr.blockCount).c_str());
+	logger.LogFmt(LogEngine::Levels::llInfo, "%-16s %ls", "Blocks:", toStringSep(fr.blockCount).c_str());
 #else
 	LogEngine::Logger& logger = Global::GetLogger();
 	logger.Info("Done compression.");
@@ -1205,11 +1204,12 @@ void Archiver::PrintFileCompressionDone(const FileRecord& fr)
 void Archiver::PrintFileCompressionAborted(const FileRecord& fr)
 {
 #ifdef LOG4CPP
+
 #elif defined(__BORLANDC__)
 	LogEngine::Logger& logger = Global::GetLogger();
 	logger.Warn("Compression aborted by user.");
-	logger.LogFmt(LogEngine::Levels::llInfo, "%-16s '%s'", "File name:", fr.origFilename.c_str());
-	logger.LogFmt(LogEngine::Levels::llInfo, "%-16s %s bytes", "File size:", toStringSep(fr.fileSize).c_str());
+	logger.LogFmt(LogEngine::Levels::llInfo, "%-16s '%ls'", "File name:", fr.origFilename.c_str());
+	logger.LogFmt(LogEngine::Levels::llInfo, "%-16s %ls bytes", "File size:", toStringSep(fr.fileSize).c_str());
 #else
 	LogEngine::Logger& logger = Global::GetLogger();
 	logger.Info("Compression aborted by user.");

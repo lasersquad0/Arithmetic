@@ -19,84 +19,81 @@ extern "C" __declspec(dllexport) TParametersInterface* __stdcall CreateParames()
 
 void ArchiverExt::InitLogger(const System::UnicodeString LogCfgFile)
 {
-	std::string cfg(LogCfgFile.begin(), LogCfgFile.end());
+	std::string cfg = convert_string<std::string::value_type>(LogCfgFile.w_str());
 	LogEngine::InitFromFile(cfg);
 }
 
 void ArchiverExt::CompressFiles(const System::UnicodeString ArchiveFileName, const System::UnicodeString FilesToCompress,
 									TParametersInterface* paramsp)
 {
-	std::string aFileName(ArchiveFileName.begin(), ArchiveFileName.end());
-
 	Parameters params(paramsp);
 
-	std::string files(FilesToCompress.begin(), FilesToCompress.end());
-	vector_string_t arr;
+	string_t files = FilesToCompress.w_str();
+	vect_string_t arr;
 	StringToArray(files, arr, '|');
 
-	FArchiver.CompressFiles(aFileName, arr, params);
+	FArchiver.CompressFiles(ArchiveFileName.w_str(), arr, params);
 }
 
 void ArchiverExt::CompressFile(const System::UnicodeString ArchiveFileName, const System::UnicodeString FileName,
 								TParametersInterface* paramsp)
 {
 	Parameters params(paramsp);
-	vector_string_t files;
-	std::string tmpFileName(FileName.begin(), FileName.end());
-	files.push_back(tmpFileName);
-	std::string tmpAFileName(ArchiveFileName.begin(), ArchiveFileName.end());
-	FArchiver.CompressFiles(tmpAFileName, files, params);
+	vect_string_t files;
+   //	string_t tmpFileName = FileName.w_str();
+	files.push_back(FileName.w_str());
+	FArchiver.CompressFiles(ArchiveFileName.w_str(), files, params);
 }
 
 void ArchiverExt::ExtractFile(const System::UnicodeString ArchiveFileName, const System::UnicodeString FileToExtract,
 							  const System::UnicodeString ExtractDir)
 {
-	std::string tmp1(ArchiveFileName.begin(), ArchiveFileName.end());
-	std::string tmp2(FileToExtract.begin(), FileToExtract.end());
-	std::string tmp3(ExtractDir.begin(), ExtractDir.end());
+	//std::string tmp1(ArchiveFileName.begin(), ArchiveFileName.end());
+	//std::string tmp2(FileToExtract.begin(), FileToExtract.end());
+	//std::string tmp3(ExtractDir.begin(), ExtractDir.end());
 	Parameters params;
-	params.OUTPUT_DIR = tmp3;
-	FArchiver.ExtractFile(tmp1, tmp2, params);
+	params.OUTPUT_DIR = ExtractDir.w_str();
+	FArchiver.ExtractFile(ArchiveFileName.w_str(), FileToExtract.w_str(), params);
 }
 
 void ArchiverExt::ExtractFiles(const System::UnicodeString ArchiveFileName, const System::UnicodeString FilesToExtract,
 							  const System::UnicodeString ExtractDir)
 {
-	std::string aFileName(ArchiveFileName.begin(), ArchiveFileName.end());
-	std::string oDir(ExtractDir.begin(), ExtractDir.end());
+	//std::string aFileName(ArchiveFileName.begin(), ArchiveFileName.end());
+	//std::string oDir(ExtractDir.begin(), ExtractDir.end());
 
 	Parameters params;
-	params.OUTPUT_DIR = oDir;
+	params.OUTPUT_DIR = ExtractDir.w_str();
 
-	vector_string_t arr;
-	std::string files(FilesToExtract.begin(), FilesToExtract.end());
-	StringToArray(files, arr, '|');
+	vect_string_t arr;
+	//std::string files(FilesToExtract.begin(), FilesToExtract.end());
+	StringToArray<string_t>(FilesToExtract.w_str(), arr, L'|');
 
-	FArchiver.ExtractFiles(aFileName, arr, params);
+	FArchiver.ExtractFiles(ArchiveFileName.w_str(), arr, params);
 }
 
 void ArchiverExt::UncompressFiles(const System::UnicodeString ArchiveFileName, TParametersInterface* paramsp)
 {
-	std::string aFileName(ArchiveFileName.begin(), ArchiveFileName.end());
+   //	std::string aFileName(ArchiveFileName.begin(), ArchiveFileName.end());
 	Parameters params(paramsp);
-	FArchiver.UncompressFiles(aFileName, params);
+	FArchiver.UncompressFiles(ArchiveFileName.w_str(), params);
 }
 
 void ArchiverExt::RemoveFile(const System::UnicodeString ArchiveFileName, const System::UnicodeString FileToRemove)
 {
-	std::string tmp1(ArchiveFileName.begin(), ArchiveFileName.end());
-	std::string tmp2(FileToRemove.begin(), FileToRemove.end());
-	FArchiver.RemoveFile(tmp1, tmp2);
+	//std::string tmp1(ArchiveFileName.begin(), ArchiveFileName.end());
+	//std::string tmp2(FileToRemove.begin(), FileToRemove.end());
+	FArchiver.RemoveFile(ArchiveFileName.w_str(), FileToRemove.w_str());
 }
 
 void ArchiverExt::RemoveFiles(const System::UnicodeString ArchiveFileName, const System::UnicodeString FilesToRemove)
 {
 
-	std::string aFileName(ArchiveFileName.begin(), ArchiveFileName.end());
-	std::string rFiles(FilesToRemove.begin(), FilesToRemove.end());
-	vector_string_t arr;
-	StringToArray(rFiles, arr, '|');
-	FArchiver.RemoveFiles(aFileName, arr);
+	//std::string aFileName(ArchiveFileName.begin(), ArchiveFileName.end());
+	//std::string rFiles(FilesToRemove.begin(), FilesToRemove.end());
+	vect_string_t arr;
+	StringToArray<string_t>(FilesToRemove.w_str(), arr, '|');
+	FArchiver.RemoveFiles(ArchiveFileName.w_str(), arr);
 }
 
 class DelphiCallback: public ICallback

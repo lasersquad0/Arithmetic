@@ -12,9 +12,9 @@
 
 #define myassert(_) if(!(_)) throw bad_file_format("Format of archive is incorrect.");
 
-typedef std::vector<FileRecord> vector_fr_t;
-typedef std::vector<std::string> vector_string_t;
-typedef std::vector<std::wstring> vector_wstring_t;
+typedef std::vector<FileRecord> vect_fr_t;
+typedef std::vector<string_t> vect_string_t;
+//typedef std::vector<std::wstring> vector_wstring_t;
 
 class ArchiveHeader
 {
@@ -23,7 +23,7 @@ class ArchiveHeader
 	1. Signature of the archive file — 4 bytes "ROMA"
 	2. Version of file format — 2 bytes - '00', '01'
 	3. Number of files in archive. 2 bytes, up to 65535 files in archive. Needed for proper reading list of files from archive
-	4. Table with file names, file sizes and other file fields 
+	4. Table with file names, file sizes and other file fields
 	5. Size of table of Huffman codes for first file if required (2 bytes)
 	6. Table of Huffman codes  — 6 * (number of codes) bytes [triples: symbol (byte) — code(int) - length(byte)]
 	7. Compressed data, size of compressed data for each file is stored in Table of files (see above)
@@ -32,13 +32,13 @@ class ArchiveHeader
 
 private:
 	//inline static log4cpp::Category& logger = log4cpp::Category::getInstance(ParametersG::LOGGER_NAME);
-	
+
 	const uint32_t FILE_SIGNATURE_LEN = 4;
 	const uint32_t FILE_VERSION_LEN = 2;
-	
-	char fileSignature[4] = {'R', 'O', 'M', 'A'};
+
+	char fileSignature[4] = {'R', 'O', 'M', 'A'}; // TODO: shall it be wchar type?
 	char fileVersion[2] = {'0', '1'};
-	vector_fr_t files;
+	vect_fr_t files;
 
 	void checkHeaderData()
 	{
@@ -54,9 +54,9 @@ private:
 	}
 
 public:
-	void listContent(const std::string& arcFilename, bool verbose);
+	void listContent(const string_t& arcFilename, bool verbose);
 
-	bool CheckSignature(const std::string& ArchiveName)
+	bool CheckSignature(const string_t& ArchiveName)
 	{
 		std::ifstream fin(ArchiveName, std::ios::in | std::ios::binary);
 		if (fin.fail()) return false; // return false even in case we cannot open file, either file does not exist or we do not have permissions
@@ -76,7 +76,7 @@ public:
 
 	}
 
-	bool FileInList(const std::string& FileName)
+	bool FileInList(const string_t& FileName)
 	{
 		for (auto item: files)
 			if (item.fileName == FileName)
@@ -84,9 +84,9 @@ public:
 		return false;
 	}
 
-	void RemoveFileFromList(const std::string& FileName)
+	void RemoveFileFromList(const string_t& FileName)
 	{
-		for (vector_fr_t::iterator iter = files.begin(); iter != files.end(); iter++)
+		for (vect_fr_t::iterator iter = files.begin(); iter != files.end(); iter++)
 		{
 			if (iter->fileName == FileName)
 			{
@@ -96,24 +96,24 @@ public:
 		}
 	}
 
-	void RemoveFilesFromList(const vector_string_t& FileList)
+	void RemoveFilesFromList(const vect_string_t& FileList)
 	{
-		for (vector_fr_t::iterator iter = files.begin(); iter != files.end(); )
+		for (vect_fr_t::iterator iter = files.begin(); iter != files.end(); )
 		{
 			auto result = std::find(FileList.begin(), FileList.end(), iter->fileName);
 
 			if (result != FileList.end())
 				iter = files.erase(iter);
-			else 
+			else
 				iter++;
 		}
 	}
 
-	vector_fr_t& loadHeader(std::ifstream* sin)
+	vect_fr_t& loadHeader(std::ifstream* sin)
 	{
 		sin->read(fileSignature, 4);
 		sin->read(fileVersion, 2);
-		
+
 		if (sin->fail())
 			throw bad_file_format("Wrong file format.");
 
@@ -121,7 +121,7 @@ public:
 
 		uint16_t filesCount = 0;
 		sin->read((char*)&filesCount, sizeof(uint16_t)); // up to 65535 files in archive
-		
+
 		for (uint16_t i = 0; i < filesCount; i++)
 		{
 			FileRecord fr;
@@ -143,7 +143,7 @@ public:
 
 		uint16_t sz = (uint16_t)files.size();
 		sout->write((char*)&sz, sizeof(uint16_t)); // assumed archive will have less than 65535 files in it
-		
+
 		for (FileRecord fr : files)
 		{
 			fr.save(sout);
@@ -154,18 +154,18 @@ public:
 	 * Adds filenames into vector of FileRecord together with file lengths and modified attributes
 	 * @param filenames list of files (as strings) to compress.
 	 */
-	vector_fr_t& fillFileRecs(const vector_string_t& filenames, Parameters& params);
+	vect_fr_t& fillFileRecs(const vect_string_t& filenames, Parameters& params);
 
 	/**
 	 * Update existing archive with information about sizes of compressed files in it (in bytes)
 	 * @param arcFilename Name of the archive
 	 * @throws IOException if something goes wrong
 	 */
-	void updateHeaders(const std::string& arcFilename);
+	void updateHeaders(const string_t& arcFilename);
 
-	std::string truncate(const std::string& str, uint len)
+	string_t truncate(const string_t& str, uint len)
 	{
-		return (str.length() > len) ? str.substr(0, len - 3) + "..." : str;
+		return (str.length() > len) ? str.substr(0, len - 3) + _T("...") : str;
 	}
 
 

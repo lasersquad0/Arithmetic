@@ -1,12 +1,33 @@
 #pragma once
 
 #include <string>
+#include <filesystem>
 #include <iostream>
-#include "Parameters.h"
+#include <vector>
+#include <sstream>
+//#include "Parameters.h"
 
 
 typedef unsigned char uchar;
 typedef unsigned int uint;
+
+#if defined(UNICODE) || defined(_UNICODE)
+
+typedef std::wstring string_t;
+typedef std::wstringstream stringstream_t;
+#define to_string_t std::to_wstring
+
+#else
+
+typedef std::string string_t;
+typedef std::stringstream stringstream_t;
+#define to_string_t std::to_string
+
+#endif
+
+enum class CoderType { NONE, HUFFMAN, AHUFFMAN, RLE, ARITHMETIC, ARITHMETIC32, ARITHMETIC64, AARITHMETIC, AARITHMETIC32, AARITHMETIC64, ABITARITHMETIC };
+enum class ModelType { UNKNOWN, O0, O1, O2, O3, MIXO3, FO1, BITO1 };
+
 
 struct MyGroupSeparator : std::numpunct<char>
 {
@@ -16,21 +37,21 @@ struct MyGroupSeparator : std::numpunct<char>
 
 void SetImbue(std::ostream& stream);
 
-uint32_t ParseBlockSize(std::string s);
-ModelType ParseModelType(std::string s);
-CoderType ParseCoderType(std::string ct);
+uint32_t ParseBlockSize(string_t s);  // intentionally left std::string
+ModelType ParseModelType(string_t s); // intentionally left std::string
+CoderType ParseCoderType(string_t ct); // intentionally left std::string
 
 // converts native datetime value into std::string
-std::string DateTimeToString(time_t t);
+string_t DateTimeToString(time_t t);
 
-void SaveToFile(std::string fileName, char* buf, unsigned int len);
-void LoadFromFile(std::string fileName, char* buf, unsigned int len);
-void SaveTo(std::string fileName, uint8_t* buf, int len);
+//void SaveToFile(std::string fileName, char* buf, uint len);
+//void LoadFromFile(std::string fileName, char* buf, uint len);
+//void SaveTo(std::string fileName, uint8_t* buf, int len);
 
 template<typename IntType>
-std::string toStringSep(IntType v) 
+string_t toStringSep(IntType v)
 {
-	std::stringstream ss;
+	stringstream_t ss;
 	ss.imbue(std::locale(ss.getloc(), new MyGroupSeparator()));
 
 	//SetImbue(&ss);
@@ -91,5 +112,24 @@ void StringToArrayAccum(const STRING& str, std::vector<STRING>& arr, const typen
 
     if (s.length() > 0)
         arr.push_back(s);
+}
+
+template<typename T>
+constexpr std::basic_string<T> convert_string(const std::filesystem::path& str)
+{
+    if constexpr(std::is_same_v<T, char>)
+    {
+        return str.string();
+    }
+    else if (std::is_same_v<T, wchar_t>)
+    {
+        return str.wstring();
+    }
+    /*else if (std::is_same_v<T, char16_t>) {
+        return str.u16string();
+    }
+    else if (std::is_same_v<T, char32_t>) {
+        return str.u32string();
+    } */
 }
 
