@@ -14,7 +14,6 @@
 
 typedef std::vector<FileRecord> vect_fr_t;
 typedef std::vector<string_t> vect_string_t;
-//typedef std::vector<std::wstring> vector_wstring_t;
 
 class ArchiveHeader
 {
@@ -49,8 +48,6 @@ private:
 
 		myassert((fileVersion[0] >= '0') && (fileVersion[0] <= '9'));
 		myassert((fileVersion[1] >= '0') && (fileVersion[1] <= '9'));
-
-		//myassert(files.size() > 0);
 	}
 
 public:
@@ -114,6 +111,8 @@ public:
 		sin->read(fileSignature, 4);
 		sin->read(fileVersion, 2);
 
+		checkHeaderData();
+
 		if (sin->fail())
 			throw bad_file_format("Wrong file format.");
 
@@ -130,10 +129,14 @@ public:
 			files.push_back(fr);
 		}
 
-		checkHeaderData();
 		return files;
 	}
 
+	/**
+	 * Saves header data into output stream (usually it is a file). Header data includes: signature (4 bytes), archive format version (2 bytes), 
+	 * list of file names in archive together with other fields (modified date, file size, CRC, etc.) 
+	 * @param sout stream to write header data to (usually file stream).
+	 */
 	void saveHeader(std::ofstream* sout)
 	{
 		checkHeaderData();
@@ -151,8 +154,8 @@ public:
 	}
 
 	/**
-	 * Adds filenames into vector of FileRecord together with file lengths and modified attributes
-	 * @param filenames list of files (as strings) to compress.
+	 * Adds filenames into vector of FileRecord together with file lengths and modified datetime attributes
+	 * @param filenames list of files (as strings).
 	 */
 	vect_fr_t& fillFileRecs(const vect_string_t& filenames, Parameters& params);
 
@@ -163,7 +166,8 @@ public:
 	 */
 	void updateHeaders(const string_t& arcFilename);
 
-	string_t truncate(const string_t& str, uint len)
+	
+	string_t ellipsis(const string_t& str, uint len)
 	{
 		return (str.length() > len) ? str.substr(0, len - 3) + _T("...") : str;
 	}

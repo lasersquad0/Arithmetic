@@ -5,26 +5,31 @@ void ArchiveHeader::listContent(const string_t& arcFilename, bool verbose)
 {
 	std::ifstream fin(arcFilename, std::ios::in | std::ios::binary);
 	if (fin.fail())
-		throw file_error("Cannot open file '" + convert_string<typename std::string::value_type>(arcFilename) + "' for reading.");
+		throw file_error("Cannot open file '" + convert_string<char>(arcFilename) + "' for reading.");
 
 	loadHeader(&fin);
 
-	printf("%-46s %18s %15s %6s %10s %6s %7s %7s %-19s %13s\n", "File name", "File size", "Compressed",
+	LogEngine::Logger& logger = Global::GetLogger();
+	logger.InfoFmt("{:<46} {:>18} {:>15} {:>6} {:>10} {:>6} {:>7} {:>7} {:<19} {:>13}", "File name", "File size", "Compressed",
 		"Blocks", "Block size", "Alg", "Model", "Ratio", "Modified", "CRC32");
+	//printf("%-46s %18s %15s %6s %10s %6s %7s %7s %-19s %13s\n", "File name", "File size", "Compressed",
+	//	"Blocks", "Block size", "Alg", "Model", "Ratio", "Modified", "CRC32");
 
 	for (int i = 0; i < files.size(); i++)
 	{
 		FileRecord fr = files[i];
 
-		string_t fileModified = DateTimeToString(fr.GetModifiedDateAsTimeT());
-
-		string_t algName = convert_string<string_t::value_type>(Parameters::CoderNames[fr.alg]); // fr.alg here does not contain model order already
-		string_t modelName = convert_string<string_t::value_type>(Parameters::ModelTypeCode[fr.modelOrder]);
+		std::string fileModified = DateTimeToStringA(fr.GetModifiedDateAsTimeT());
+		std::string algName = convert_string<char>(Parameters::CoderNames[fr.alg]); // fr.alg here does not contain model order already
+		std::string modelName = convert_string<char>(Parameters::ModelTypeCode[fr.modelOrder]);
 
 		float ratio = (float)fr.fileSize / (float)fr.compressedSize;
-		printf("%-46ls %18ls %15ls %6ls %10ls %6ls %6ls %7.2f  %19ls %13llu\n",
-			truncate(fr.fileName, 46).c_str(), toStringSep(fr.fileSize).c_str(), toStringSep(fr.compressedSize).c_str(), toStringSep(fr.blockCount).c_str(),
-			toStringSep(fr.blockSize).c_str(), algName.c_str(), modelName.c_str(), ratio, fileModified.c_str(), fr.CRC32Value);
+		logger.InfoFmt("{:<46} {:>18} {:>15} {:>6} {:>10} {:>6} {:>6} {:7.2f}  {:>19} {:>13}",
+			convert_string<char>(ellipsis(fr.fileName, 46)), toStringSepA(fr.fileSize), toStringSepA(fr.compressedSize), toStringSepA(fr.blockCount),
+			toStringSepA(fr.blockSize), algName, modelName, ratio, fileModified, fr.CRC32Value);
+		//printf("%-46ls %18ls %15ls %6ls %10ls %6ls %6ls %7.2f  %19ls %13llu\n",
+		//	ellipsis(fr.fileName, 46).c_str(), toStringSep(fr.fileSize).c_str(), toStringSep(fr.compressedSize).c_str(), toStringSep(fr.blockCount).c_str(),
+		//	toStringSep(fr.blockSize).c_str(), algName.c_str(), modelName.c_str(), ratio, fileModified.c_str(), fr.CRC32Value);
 	}
 
 	if (verbose)
@@ -32,8 +37,10 @@ void ArchiveHeader::listContent(const string_t& arcFilename, bool verbose)
 		for (int i = 0; i < files.size(); i++)
 		{
 			FileRecord fr = files[i];
-			printf("\n---------- List of blocks for '%ls' ----------\n", fr.fileName.c_str());
-			printf("%-4s %10s %12s %7s %13s %7s\n", "#", "Compressed", "Uncompressed", "Ratio", "BWT Line", "Flags");
+			logger.InfoFmt("\n---------- List of blocks for '{}' ----------\n", convert_string<char>(fr.fileName));
+			logger.InfoFmt("{:<4} {:>10} {:>12} {:>7} {:>13} {:>7}\n", "#", "Compressed", "Uncompressed", "Ratio", "BWT Line", "Flags");
+			//printf("\n---------- List of blocks for '%ls' ----------\n", fr.fileName.c_str());
+			//printf("%-4s %10s %12s %7s %13s %7s\n", "#", "Compressed", "Uncompressed", "Ratio", "BWT Line", "Flags");
 
 			for (uint32_t j = 0; j < fr.blockCount; j++)
 			{
@@ -51,11 +58,14 @@ void ArchiveHeader::listContent(const string_t& arcFilename, bool verbose)
 
 				fin.ignore(cBlockSize);
 				float ratio = (float)uBlockSize / (float)cBlockSize;
-				printf("%-4u %10ls %12ls %7.2f %13ls %7u\n",
-					j, toStringSep(cBlockSize).c_str(), toStringSep(uBlockSize).c_str(), ratio, toStringSep(bwtLineNum).c_str(), (uint32_t)bflags);
+				logger.InfoFmt("{:<4} {:>10} {:>12} {:>7.2f} {:>13} {:>7}",
+					j, toStringSepA(cBlockSize), toStringSepA(uBlockSize), ratio, toStringSepA(bwtLineNum), (uint32_t)bflags);
+				//printf("%-4u %10ls %12ls %7.2f %13ls %7u\n",
+				//	j, toStringSep(cBlockSize).c_str(), toStringSep(uBlockSize).c_str(), ratio, toStringSep(bwtLineNum).c_str(), (uint32_t)bflags);
 			}
 		}
-		printf("\n");
+		logger.Info(""); // just CRLF
+		//printf("\n");
 	}
 
 	fin.close();
@@ -94,9 +104,9 @@ vect_fr_t& ArchiveHeader::fillFileRecs(const vect_string_t& filenames, Parameter
 		else
 		{
 #if defined (__BORLANDC__)
-			std::string mess = "Cannot read file '" + convert_string<std::string::value_type>(filenames[i]) + "'."; // TODO: need to finish this
+			std::string mess = "Cannot read file '" + convert_string<char>(filenames[i]) + "'.";
 #else
-			std::string mess = std::format("Cannot read file '{}'.", filenames[i]);
+			std::string mess = std::format("Cannot read file '{}'.", convert_string<char>(filenames[i]));
 #endif
 			throw std::invalid_argument(mess);
 			//	logger.warn("File '%s' cannot be found, pass on it.", filenames[i].c_str());
@@ -120,13 +130,13 @@ void ArchiveHeader::updateHeaders(const string_t& arcFilename)
 	//raf.exceptions(ios_base::failbit | ios_base::badbit);
 	raf.open(arcFilename, std::ios::in | std::ios::out | std::ios::binary);
 	if (raf.fail())
-		throw file_error("Cannot open file '" + convert_string<std::string::value_type>(arcFilename) + "' for writing.");
+		throw file_error("Cannot open file '" + convert_string<char>(arcFilename) + "' for writing.");
 
 	uint32_t InitialOffset = FILE_SIGNATURE_LEN + FILE_VERSION_LEN + sizeof(uint16_t); // start of files table in an archive
 	constexpr uint32_t CRC32ValueOffset = sizeof(uint64_t);
-	constexpr uint32_t CompressedSizeOffset = 3 * sizeof(uint64_t);
-	constexpr uint32_t BlockCountOffset = 4 * sizeof(uint64_t) + sizeof(uint8_t);
-	constexpr uint32_t FileRecSize = 4 * sizeof(uint64_t) + 2 * sizeof(uint32_t) + sizeof(uint8_t) + sizeof(uint16_t);  // Short.BYTES - this is for saving filename length
+	constexpr uint32_t CompressedSizeOffset = 3 * sizeof(uint64_t); // filesize + crc32 + modifieddate
+	constexpr uint32_t BlockCountOffset = 4 * sizeof(uint64_t) + sizeof(uint8_t); // uint8_t is for alg_mo
+	constexpr uint32_t FileRecSize = 4 * sizeof(uint64_t) + 2 * sizeof(uint32_t) + sizeof(uint8_t) + sizeof(uint16_t);  // uint16_t - this is for saving filename length
 
 	uint32_t pos = InitialOffset;
 
@@ -142,7 +152,7 @@ void ArchiveHeader::updateHeaders(const string_t& arcFilename)
 		raf.seekp(pos + BlockCountOffset, std::ios_base::beg);
 		raf.write((char*)&fr.blockCount, sizeof(uint32_t));
 
-		pos = pos + FileRecSize + (uint32_t)fr.fileName.length(); // length()*2 because writeChars() saves each char as 2 bytes
+		pos = pos + FileRecSize + (uint32_t)fr.fileName.length()*sizeof(char_t); // length()*2 because writeChars() saves each char as 2 bytes
 	}
 
 	raf.close();
