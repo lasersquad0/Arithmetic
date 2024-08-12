@@ -24,6 +24,7 @@
     <ProjectGuid>{e714a23c-d5e3-400e-92ba-b85bf31f5a6b}</ProjectGuid>
     <RootNamespace>Arithmetic</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>ArithmeticConsole</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">

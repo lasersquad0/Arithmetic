@@ -51,7 +51,7 @@ public:
 
 		uint64_t len = fileName.length();
 		sout->write((char*)&len, sizeof(uint16_t));
-		sout->write((char*)fileName.c_str(), fileName.length()* sizeof(string_t::value_type));  // NOTE! writes 2 bytes for each char
+		sout->write((char*)fileName.data(), len * sizeof(char_t));  // NOTE! char_t can be either char or wchar_t (2 bytes for each symbol)
 	}
 
 	void load(std::ifstream* sin)
@@ -67,12 +67,12 @@ public:
 		modelOrder = alg >> MODEL_SHIFT; // extract model type
 		alg = alg & CODER_MASK; // clear model type bits, but leave alg bits
 
-		uint16_t filenameSize;
-		sin->read((char*)&filenameSize, sizeof(uint16_t));
+		uint16_t filenameLen; // length in symbols (not bytes)
+		sin->read((char*)&filenameLen, sizeof(uint16_t));
 
-		string_t::value_type buf[1024]; //MAX_PATH];
-		sin->read((char*)buf, filenameSize * sizeof(string_t::value_type)); // reading unicode string
-		fileName.append(buf, filenameSize);
+		char_t buf[1024]; //MAX_PATH];
+		sin->read((char*)buf, filenameLen * sizeof(char_t)); // reading string either ANSI or UNICODE
+		fileName.append(buf, filenameLen);
 	}
 
 	time_t GetModifiedDateAsTimeT()

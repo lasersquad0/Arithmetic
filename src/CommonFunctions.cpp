@@ -96,10 +96,25 @@ string_t DateTimeToString(time_t t)
 {
 	struct tm ttm;
 	localtime_s(&ttm, &t);
-	string_t::value_type ss[100];
-   //	strftime(ss, 100, _T("%F %T"), &ttm);
-    wcsftime(ss, 100, _T("%F %T"), &ttm);
+	char_t ss[100];
 
+#if defined(UNICODE) || defined(_UNICODE)
+	wcsftime(ss, 100, _T("%F %T"), &ttm);
+#else
+	strftime(ss, 100, _T("%F %T"), &ttm);
+#endif
+
+	return ss;
+}
+
+// converts native datetime value into std::string
+std::string DateTimeToStringA(time_t t)
+{
+	struct tm ttm;
+	localtime_s(&ttm, &t);
+	char ss[100];
+
+	strftime(ss, 100, "%F %T", &ttm);
 	return ss;
 }
 

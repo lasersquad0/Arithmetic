@@ -22,7 +22,7 @@ public:
 		std::ifstream fin(fileName, std::ios::in | std::ios::binary);
 		if (fin.fail())
 		{
-			throw file_error("Cannot open file '" + convert_string<std::string::value_type>(fileName) + "' for reading.");
+			throw file_error("Cannot open file '" + convert_string<char>(fileName) + "' for reading.");
 		}
 
 		memset(weights, 0, ALFABET_CNT);

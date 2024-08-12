@@ -90,7 +90,7 @@ public:
 class Global
 {
 public:
-    // std::string is intentionally here, for logging
+    // this name used in PrintUsage function as for now
 	static inline string_t APP_NAME = _T("SOME APP"); // initialized by argv[0] in function main
 #ifdef LOG4CPP
 	static log4cpp::Category& GetLogger()
