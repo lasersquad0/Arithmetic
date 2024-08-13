@@ -1,0 +1,37 @@
+ARPacker plugin v.1.1 for Total Commander.
+Copyright (c) 2024 Andrey Romanchenko <lasersquad@gmail.com>
+
+This plugin allows you to compress and decompress files with the
+highly efficient PPM algorithm. Usually compression is better than zip 
+and bzip2 compressors.
+
+LICENSE AGREEMENT
+
+Please read carefully the following license agreement. This agreement
+is a binding legal agreement between the author of the plugin and the
+users of this software. Installation of this software implies
+your full acceptance of the terms of this license agreement.
+
+TERMS OF USAGE
+
+You are hereby licensed to use this software without charge for
+commercial, non-commercial, or educational purposes. You agree not
+to modify or reverse engineer the software. If you need to modify the software you
+must get author's approval.
+
+DISTRIBUTION
+
+This software may be freely distributed, provided that:
+
+  Such distribution includes only the original files. You may not alter,
+  delete or add any files in the distribution archive.
+
+  The person receiving the software is not charged beyond reasonable cost
+  of handling.
+
+DISCLAIMER
+
+This software and any accompanying files are provided "as is" without
+warranties to performance or merchantability or any other warranties whether
+expressed or implied.
+

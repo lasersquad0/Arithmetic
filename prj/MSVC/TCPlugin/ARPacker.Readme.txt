@@ -1,0 +1,127 @@
+ArPacker.wcx64
+==============
+
+Author : Andrey Romanchenko
+eMail  : lasersquad@gmail.com
+Date   : 2024-08-14
+
+Version: 1.0
+
+This is a plugin for the very popular Total Commander (www.ghisler.com)
+using Arithmetic as compression method. Archives are usually smaller than BZip, GZip,
+or other. Try and decide yourself!
+
+Archive contains up to 65535 files.
+Paths and directories are not stored in archive in version 1.0
+Files can have non-English names.
+
+The original code is based on PPMd variant H by Dmitry Shkarin (available at
+ftp://ftp.nsk.su/.3/windows/compress/ppmde.zip).
+
+Automatic installation
+======================
+1. Double click on the plugin archive install/ARPacker.zip in Total Commander.
+2. Follow the instructions fom Total Commander
+
+If you build your own ARPacker version from sources just replace file ARPacker.wcx64 in ARPacker.zip and follow steps above again. 
+
+
+Using the Plugin
+================
+
+If you click on "Configure" you can set some packing setting.
+To show Configure dialog go to Files/PackFiles. On 'Pack Files' dialog select 'ar' extension in Packer combo box and then press button Configure.
+
+Settings below are applied only to newly created archives (via Files/PackvFiles in Total Commander).
+
+ARPacker settings:
+
+a) Stream Mode
+ARPacker can create archives in two modes: Stream and Blocks.
+In Stream mode each file is considered as sequence of bytes and that sequence is 
+processed by Arithmetic encoder.
+In Block mode each file is divided into blocks of bytes. Each block has Block Size size.
+Each such block is preprocessed by BWT and MTF transformations before processing by Arithmetic encoder.
+That significantly increases total compression ratio.
+
+b) Block Size 
+Size of each block for when ARPacker works in block mode.
+Optimal block size range is 64K - 1M.
+For some file types smaller block may work better.
+Block size is the same for all files in archive.
+
+c) Model
+
+Roughly spoken, model defines 'order number' for ARPacker.
+The order numer is the number of characters which are remembered to
+predict the upcoming character (see "Theoretical Background" at the end of the
+file for more). A higher value increases the chance that the character can be
+"guessed" which means it can be compressed. On the other hand there is an 
+overhead with every order so that higher orders may or may not lead to higher
+compression. Also, more memory is required for (de)compression.
+
+Models O2 and O3 are a good starting point, just play around with the models to get
+a feeling for it. For files with many equal letters or files with very fixed
+structures (XML, HTML) it is useful to use very high orders!
+
+d) Coder
+
+Encoding algorith that will be used for compression.
+
+e) Threads
+
+Number of threads used for doing compression.
+Can increase compression speed on CPU with several CPU cores.
+
+f) Log File
+
+File name where logs will be written. 
+if empty - default name ARPackerX.log will be used.
+
+
+Theoretical Background
+======================
+
+(from Unbounded length contexts for PPM by John G. Cleary, W. J. Teahan, 
+Ian H. Witten )
+
+
+Prediction by partial matching, or PPM, is a finite context statistical 
+modeling technique that can be viewed as blending together several fixed order
+context models to predict the next character in the input sequence. Prediction
+probabilities for each context in the model are calculated from frequency 
+counts which are updated adaptively; and the symbol that actually occurs is 
+encoded relative to its predicted distribution using arithmetic coding. The 
+maximum context length is a fixed constant, and it has been found that 
+increasing it beyond about six or so does not generally improve compression. 
+
+The basic idea of PPM is to use the last few characters in the input stream 
+to predict the upcoming one. Models that condition their predictions on a few 
+immediately preceding symbols are called finite context models of order k, 
+where k is the number of preceding symbols used. PPM employs a suite of 
+fixed order context models with different values of k, from 0 up to some 
+pre determined maximum, to predict upcoming characters. 
+
+For each model, a note is kept of all characters that have followed every 
+length k subsequence observed so far in the input, and the number of times 
+that each has occurred. Prediction probabilities are calculated from these 
+counts. The probabilities associated with each character that has followed the
+last k characters in the past are used to predict the upcoming character. 
+Thus from each model, a separate predicted probability distribution is 
+obtained. 
+
+These distributions are effectively combined into a single one, and arithmetic 
+coding is used to encode the character that actually occurs, relative to that 
+distribution. The combination is achieved through the use of escape 
+probabilities. Recall that each model has a different value of k. The model 
+with the largest k is, by default, the one used for coding. However, if a novel
+character is encountered in this context, which means that the context cannot 
+be used for encoding it, an escape symbol is transmitted to signal the decoder
+to switch to the model with the next smaller value of k. The process continues 
+until a model is reached in which the character is not novel, at which point it 
+is encoded with respect to the distribution predicted by that model. To ensure 
+that the process terminates, a model is assumed to be present below the lowest 
+level, containing all characters in the coding alphabet. This mechanism 
+effectively blends the different order models together in a proportion that 
+depends on the values actually used for escape probabilities. 
+
