@@ -64,15 +64,17 @@ public:
     int progress(uint64_t progress) override
     {
         LogEngine::Logger& logger = LogEngine::GetLogger(LOGGER_NAME);
-        LOG_DEBUG2("[TCCallbackW] progress: {}%", progress);
- 
+       
         // is first parameter of FProgressDataProc is null then Progress TC window shows from and two paths correctly.
         // is first parameter of FProgressDataProc is name of the being copied file then Progress TC window shows just this filename that look bad.
-        if (CALLBACK_ABORT == FProgressDataProc((char_t*)FFilename.c_str(), -(int)progress))
+        int res = FProgressDataProc((char_t*)FFilename.c_str(), -(int)progress);
+        if (CALLBACK_ABORT == res)
         {
             LOG_INFO2("[TCCallbackW] User cancelled operation at {}%.", progress);
             return CALLBACK_ABORT;
         }
+
+        LOG_DEBUG2("[TCCallbackW] progress: {}%", progress);
         return CALLBACK_OK;
     }
 

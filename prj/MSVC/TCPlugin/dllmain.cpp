@@ -315,7 +315,7 @@ int __stdcall ProcessFileW(int hArcData, int Operation, WCHAR* DestPath, WCHAR* 
                 arch.ExtractFile(ArchiveList[hArcData].ArchiveNameW, fr.fileName, dirW, true); //extract file to "/dev/null"
                 arch.RemoveCallback(&cb);
             }
-            catch (runtime_error& e)
+            catch (exception& e)
             {
                 logger.Error(FUNC + e.what());
                 return E_EREAD;
@@ -325,9 +325,8 @@ int __stdcall ProcessFileW(int hArcData, int Operation, WCHAR* DestPath, WCHAR* 
                 logger.Error(FUNC + " UNKNOWN ERROR");
                 return E_EREAD;
             }
-        }
-        
-        if (Operation == PK_EXTRACT && DestName != nullptr)
+        } 
+        else if (Operation == PK_EXTRACT && DestName != nullptr)
         {
             //char buf[MAX_PATH];
             //WCHARtoChar(buf, DestName);
@@ -353,7 +352,7 @@ int __stdcall ProcessFileW(int hArcData, int Operation, WCHAR* DestPath, WCHAR* 
                 arch.ExtractFile(ArchiveList[hArcData].ArchiveNameW, filenameW, dirW);
                 arch.RemoveCallback(&cb);
             }
-            catch (runtime_error& e)
+            catch (exception& e)
             {
                 logger.Error(FUNC + e.what());
                 return E_EREAD;

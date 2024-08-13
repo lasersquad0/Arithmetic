@@ -46,7 +46,7 @@ typedef std::string::value_type char_t;
 #define LOG_ERROR(_) logger.Error(_)
 #define LOG_DEBUG(_) logger.Debug(_)
 #define LOG_DEBUG2(_1,_2) logger.LogFmt(LogEngine::Levels::llDebug, _1, _2)
-
+#define LOG_DEBUG3(_1,_2,_3) logger.LogFmt(LogEngine::Levels::llDebug, _1, _2, _3)
 #endif
 
 

@@ -13,7 +13,7 @@ or other. Try and decide yourself!
 
 Archive contains up to 65535 files.
 Paths and directories are not stored in archive in version 1.0
-Files can have non-English names.
+Files are stored in Unicode format and can have non-English names.
 
 The original code is based on PPMd variant H by Dmitry Shkarin (available at
 ftp://ftp.nsk.su/.3/windows/compress/ppmde.zip).
