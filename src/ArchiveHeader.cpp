@@ -9,11 +9,14 @@ void ArchiveHeader::listContent(const string_t& arcFilename, bool verbose)
 
 	LoadHeader(&fin);
 
+#if defined(__BORLANDC__)
+	printf("%-46s %18s %15s %6s %10s %6s %7s %7s %-19s %13s\n", "File name", "File size", "Compressed",
+		"Blocks", "Block size", "Alg", "Model", "Ratio", "Modified", "CRC32");
+#else
 	LogEngine::Logger& logger = Global::GetLogger();
 	logger.InfoFmt("{:<46} {:>18} {:>15} {:>6} {:>10} {:>6} {:>7} {:>7} {:<19} {:>13}", "File name", "File size", "Compressed",
 		"Blocks", "Block size", "Alg", "Model", "Ratio", "Modified", "CRC32");
-	//printf("%-46s %18s %15s %6s %10s %6s %7s %7s %-19s %13s\n", "File name", "File size", "Compressed",
-	//	"Blocks", "Block size", "Alg", "Model", "Ratio", "Modified", "CRC32");
+#endif
 
 	for (int i = 0; i < files.size(); i++)
 	{
@@ -24,12 +27,15 @@ void ArchiveHeader::listContent(const string_t& arcFilename, bool verbose)
 		std::string modelName = convert_string<char>(Parameters::ModelTypeCode[fr.modelOrder]);
 
 		float ratio = (float)fr.fileSize / (float)fr.compressedSize;
+#if defined(__BORLANDC__)
+		printf("%-46ls %18ls %15ls %6ls %10ls %6s %6s %7.2f  %19s %13llu\n",
+			ellipsis(fr.fileName, 46).c_str(), toStringSep(fr.fileSize).c_str(), toStringSep(fr.compressedSize).c_str(), toStringSep(fr.blockCount).c_str(),
+			toStringSep(fr.blockSize).c_str(), algName.c_str(), modelName.c_str(), ratio, fileModified.c_str(), fr.CRC32Value);
+#else
 		logger.InfoFmt("{:<46} {:>18} {:>15} {:>6} {:>10} {:>6} {:>6} {:7.2f}  {:>19} {:>13}",
 			convert_string<char>(ellipsis(fr.fileName, 46)), toStringSepA(fr.fileSize), toStringSepA(fr.compressedSize), toStringSepA(fr.blockCount),
 			toStringSepA(fr.blockSize), algName, modelName, ratio, fileModified, fr.CRC32Value);
-		//printf("%-46ls %18ls %15ls %6ls %10ls %6ls %6ls %7.2f  %19ls %13llu\n",
-		//	ellipsis(fr.fileName, 46).c_str(), toStringSep(fr.fileSize).c_str(), toStringSep(fr.compressedSize).c_str(), toStringSep(fr.blockCount).c_str(),
-		//	toStringSep(fr.blockSize).c_str(), algName.c_str(), modelName.c_str(), ratio, fileModified.c_str(), fr.CRC32Value);
+#endif
 	}
 
 	if (verbose)
@@ -37,11 +43,13 @@ void ArchiveHeader::listContent(const string_t& arcFilename, bool verbose)
 		for (int i = 0; i < files.size(); i++)
 		{
 			FileRecord fr = files[i];
+#if defined(__BORLANDC__)
+		 	printf("\n---------- List of blocks for '%ls' ----------\n", fr.fileName.c_str());
+		 	printf("%-4s %10s %12s %7s %13s %7s\n", "#", "Compressed", "Uncompressed", "Ratio", "BWT Line", "Flags");
+#else
 			logger.InfoFmt("\n---------- List of blocks for '{}' ----------\n", convert_string<char>(fr.fileName));
 			logger.InfoFmt("{:<4} {:>10} {:>12} {:>7} {:>13} {:>7}\n", "#", "Compressed", "Uncompressed", "Ratio", "BWT Line", "Flags");
-			//printf("\n---------- List of blocks for '%ls' ----------\n", fr.fileName.c_str());
-			//printf("%-4s %10s %12s %7s %13s %7s\n", "#", "Compressed", "Uncompressed", "Ratio", "BWT Line", "Flags");
-
+#endif
 			for (uint32_t j = 0; j < fr.blockCount; j++)
 			{
 				uint32_t cBlockSize;
@@ -58,16 +66,20 @@ void ArchiveHeader::listContent(const string_t& arcFilename, bool verbose)
 
 				fin.ignore(cBlockSize);
 				float ratio = (float)uBlockSize / (float)cBlockSize;
+#if defined(__BORLANDC__)
+				printf("%-4u %10ls %12ls %7.2f %13ls %7u\n",
+					j, toStringSep(cBlockSize).c_str(), toStringSep(uBlockSize).c_str(), ratio, toStringSep(bwtLineNum).c_str(), (uint32_t)bflags);
+			}
+		}
+        printf("\n");
+#else
 				logger.InfoFmt("{:<4} {:>10} {:>12} {:>7.2f} {:>13} {:>7}",
-					j, toStringSepA(cBlockSize), toStringSepA(uBlockSize), ratio, toStringSepA(bwtLineNum), (uint32_t)bflags);
-				//printf("%-4u %10ls %12ls %7.2f %13ls %7u\n",
-				//	j, toStringSep(cBlockSize).c_str(), toStringSep(uBlockSize).c_str(), ratio, toStringSep(bwtLineNum).c_str(), (uint32_t)bflags);
+						j, toStringSepA(cBlockSize), toStringSepA(uBlockSize), ratio, toStringSepA(bwtLineNum), (uint32_t)bflags);
 			}
 		}
 		logger.Info(""); // just CRLF
-		//printf("\n");
+#endif
 	}
-
 	fin.close();
 }
 

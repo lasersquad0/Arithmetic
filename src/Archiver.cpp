@@ -651,6 +651,7 @@ int Archiver::ExtractFile(const string_t& ArchiveFileName, const string_t& FileT
 
 	if (justTest)
 	{
+		//fout.setstate(std::ios_base::badbit);
 		// here is a trick.
 		// fout is not opened while archive testing, nothing is written there when we write
 	}
