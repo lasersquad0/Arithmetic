@@ -70,6 +70,8 @@ CoderType ParseCoderType(string_t ct);
 string_t DateTimeToString(time_t t);
 std::string DateTimeToStringA(time_t t);
 
+std::string toOEM(const string_t& str);
+
 //void SaveToFile(std::string fileName, char* buf, uint len);
 //void LoadFromFile(std::string fileName, char* buf, uint len);
 //void SaveTo(std::string fileName, uint8_t* buf, int len);

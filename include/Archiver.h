@@ -23,8 +23,8 @@ private:
 	int UncompressFile(std::ifstream* fin, std::ofstream* fout, FileRecord& fr, IModel* model);
 	int UncompressFileBlock(std::ifstream* fin, std::ofstream* fout, FileRecord& fr, IModel* model);
 
-	void PrintCompressionStart(Parameters& params);
-	void PrintUncompressionStart(const FileRecord& fr, Parameters& params);
+	void PrintCompressionStart(const Parameters& params);
+	void PrintUncompressionStart(const FileRecord& fr, const Parameters& params);
 	void PrintFileCompressionDone(const FileRecord& fr);
 	void PrintFileCompressionAborted(const FileRecord& fr);
 
@@ -35,18 +35,15 @@ public:
 	void AddCallback(ICallback* cb);
 	void RemoveCallback(ICallback* cb);
 
-	int CompressFiles(string_t ArchiveFileName, const vect_string_t& files, Parameters& params); // ArchiveFileName intentionally passed "by value" here
- //	void CompressFilesW(const vector_wstring_t& files, std::wstring ArchiveFileName, Parameters& params);
-
-	int CompressFile(string_t ArchiveFileName, const string_t& FileName, Parameters& params); // ArchiveFileName intentionally passed "by value" here
-	//void CompressFileW(const std::wstring& FileName, std::wstring ArchiveFileName, Parameters& params);
+	int CompressFiles(string_t ArchiveFileName, const vect_string_t& files, const Parameters& params); // ArchiveFileName intentionally passed "by value" here 
+	int CompressFile(string_t ArchiveFileName, const string_t& FileName, const Parameters& params); // ArchiveFileName intentionally passed "by value" here
 
 	// Extracts (uncompresses) ALL files from archive into params.OUTPUT_DIR directory
-	int UncompressFiles(const string_t& ArchiveFileName, Parameters& params);
+	int UncompressFiles(const string_t& ArchiveFileName, const Parameters& params);
 
-	int ExtractFiles(const string_t& ArchiveFileName, const vect_string_t& FilesToExtract, Parameters& params, bool justTest = false);
+	int ExtractFiles(const string_t& ArchiveFileName, const vect_string_t& FilesToExtract, const Parameters& params, bool justTest = false);
 	int ExtractFiles(const string_t& ArchiveFileName, const vect_string_t& FilesToExtract, const string_t& ExtractDir, bool justTest = false);
-	int ExtractFile(const string_t& ArchiveFileName, const string_t& FileToExtract, Parameters& params, bool justTest = false);
+	int ExtractFile(const string_t& ArchiveFileName, const string_t& FileToExtract, const Parameters& params, bool justTest = false);
 	int ExtractFile(const string_t& ArchiveFileName, const string_t& FileToExtract, const string_t& ExtractDir, bool justTest = false);
 
 	void RemoveFiles(const string_t& ArchiveFileName, const vect_string_t& flist);

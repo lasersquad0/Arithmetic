@@ -106,7 +106,7 @@ public:
 		}
 	}
 
-	vect_fr_t& loadHeader(std::ifstream* sin)
+	vect_fr_t& LoadHeader(std::ifstream* sin)
 	{
 		sin->read(fileSignature, 4);
 		sin->read(fileVersion, 2);
@@ -137,7 +137,7 @@ public:
 	 * list of file names in archive together with other fields (modified date, file size, CRC, etc.) 
 	 * @param sout stream to write header data to (usually file stream).
 	 */
-	void saveHeader(std::ofstream* sout)
+	void SaveHeader(std::ofstream* sout)
 	{
 		checkHeaderData();
 
@@ -157,7 +157,7 @@ public:
 	 * Adds filenames into vector of FileRecord together with file lengths and modified datetime attributes
 	 * @param filenames list of files (as strings).
 	 */
-	vect_fr_t& fillFileRecs(const vect_string_t& filenames, Parameters& params);
+	vect_fr_t& FillFileRecs(const vect_string_t& filenames, const Parameters& params);
 
 	/**
 	 * Update existing archive with information about sizes of compressed files in it (in bytes)

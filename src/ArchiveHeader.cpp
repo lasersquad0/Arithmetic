@@ -7,7 +7,7 @@ void ArchiveHeader::listContent(const string_t& arcFilename, bool verbose)
 	if (fin.fail())
 		throw file_error("Cannot open file '" + convert_string<char>(arcFilename) + "' for reading.");
 
-	loadHeader(&fin);
+	LoadHeader(&fin);
 
 	LogEngine::Logger& logger = Global::GetLogger();
 	logger.InfoFmt("{:<46} {:>18} {:>15} {:>6} {:>10} {:>6} {:>7} {:>7} {:<19} {:>13}", "File name", "File size", "Compressed",
@@ -75,7 +75,7 @@ void ArchiveHeader::listContent(const string_t& arcFilename, bool verbose)
  * Adds filenames into vector of FileRecord together with file lengths and modified attributes
  * @param filenames list of files (as strings) to compress.
  */
-vect_fr_t& ArchiveHeader::fillFileRecs(const vect_string_t& filenames, Parameters& params)
+vect_fr_t& ArchiveHeader::FillFileRecs(const vect_string_t& filenames, const Parameters& params)
 {
 	files.clear();
 
