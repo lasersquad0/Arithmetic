@@ -17,7 +17,6 @@
 
 using namespace std;
 
-
 void SetImbue(ostream& stream)
 {
 	stream.imbue(locale(stream.getloc(), new MyGroupSeparator()));
@@ -116,6 +115,14 @@ std::string DateTimeToStringA(time_t t)
 
 	strftime(ss, 100, "%F %T", &ttm);
 	return ss;
+}
+
+std::string toOEM(const string_t& str)
+{
+	std::string tmp;
+	tmp.resize(str.size());
+	CharToOemBuffW(str.data(), tmp.data(), str.size());
+	return tmp;
 }
 
 /*
