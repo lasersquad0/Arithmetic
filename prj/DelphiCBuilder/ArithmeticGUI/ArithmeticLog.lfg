@@ -1,0 +1,36 @@
+[logger.Arithmetic]
+loglevel = debug
+sink=FileSink
+sink = RotatingSi
+asyncmode=false
+
+[SINK.FileSink]
+# there are 5 sink types: Stdout, Stderr, String, File, RotatingFile.
+# they may contain different parameters. 
+# for example FileName parameter is valid for File, RotatingFile only. 
+Type=File
+
+FileName = ArithmeticLog.log
+loglevel = trace
+
+[sink.RotatingSi]
+Type=RotatingFile
+FileName = ArithmeticLogfile.log
+ 
+# Rotating strategy. can be one of the following values
+#   None - no rotating. logs are written into specified log file without any rotating. In that case RotatingFile is fully equal to FileSink
+#   Single - only one .bak file is created when log file reaches MaxLogfileSize. Old .bak file is deleted.
+#   TimeStamp - .bak files are created with TimeStamp in the name. Unlimited number of such files can be created.
+#   Numbers - when log file reaches MaxLogfileSize, log file is renamed to <logfilename>.1.bak, existing <logfilename>.1.bak is renamed to <logfilename>.2.bak and so on.
+#   maximum number of numerated .bak files is MaxBackupIndex. Extra files are deleted.
+Strategy = Numbers
+
+# Maximum log file size when new file will be started.
+# Value can contain suffixes K, M, G that means kilobytes, megabytes and gigabytes
+MaxLogfileSize = 500K
+# Maximum number of "backup" files. Older files will be deleted
+MaxBackupIndex = 5
+
+# this is pattern for all log message levels
+# use it when you do not need separate pattern for each log level.
+PatternAll = !WOW! %TIME% #%THREAD% : %MSG%

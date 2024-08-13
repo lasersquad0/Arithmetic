@@ -22,11 +22,10 @@
 using namespace std;
 
 // *************** TODO *********************
-// ??????? ??? ?? model order 4 ?? ??? ??????? ??????
-// ??????????? ? ???????? ??? Loadblock, SaveBlock ??? ?? ?? ?????????? ???????
-// ???????? TMemoryStream.
-// ???????????????
-// 
+// optimize model order 4 to use less memory
+// check memory allocations for buffers in Loadblock, SaveBlock to avoid allocating extra memory
+// finish TMemoryStream class.
+// work on multithreading
 
 
 void PrintWindowsErrorMessage(const TCHAR* lpszFunction)
@@ -105,10 +104,9 @@ static void PrintUsage(COptionsList& options)
 #ifdef LOG4CPP
     Global::GetLogger().info(CHelpFormatter::Format(Global::APP_NAME, &options));
 #else
-    Global::GetLogger().Info(convert_string<std::string::value_type>(CHelpFormatter::Format(Global::APP_NAME, &options)));
+    Global::GetLogger().Info(convert_string<char>(CHelpFormatter::Format(Global::APP_NAME, &options)));
 #endif
 }
-
 
 static void DefineOptions(COptionsList& options)
 {    
@@ -134,17 +132,6 @@ static void DefineOptions(COptionsList& options)
     options.AddOption(_T("sm"), _T("stream-mode"), _T("Use stream mode (oposite to block mode). No BWT, no MTB in this mode."), 0);
     options.AddOption(_T("o"), _T("output-dir"), _T("Specifies directory where uncompressed files will be placed. Valid with -x option only."), 1);
 }
-
-//vect_string_t convert_vector(const vector_string_t& vec)
-//{
-//    vect_string_t result;
-//    for (auto item: vec)
-//    {
-//        result.push_back(convert_string<string_t::value_type>(item));
-//    }
-//
-//    return result;
-//}
 
 #ifdef LOG4CPP
 #define TRYCATCH(_,__) try {(_);}catch(...){logger.warn(__);}
@@ -194,25 +181,15 @@ int _tmain(int argc, _TCHAR* argv[])
 
     if (argc < 2)
     {
-#ifdef LOG4CPP
-        logger.error("Error: No command line arguments found.");
-#else
-        logger.Error("Error: No command line arguments found.");
-#endif
+        LOG_ERROR("Error: No command line arguments found.");
         PrintUsage(options);
-
         return 1;
     }
 
     if (!defaultParser.Parse(&options, &cmd, argv, argc))
     {
-#ifdef LOG4CPP
-        logger.error(convert_string<std::string::value_type>(defaultParser.GetLastError()));
-#else
-        logger.Error(convert_string<std::string::value_type>(defaultParser.GetLastError()));
-#endif
+        LOG_ERROR(convert_string<char>(defaultParser.GetLastError()));
         PrintUsage(options);
-
         return 1;
     }
 
@@ -261,9 +238,8 @@ int _tmain(int argc, _TCHAR* argv[])
 #elif defined (__BORLANDC__)
 			logger.LogFmt(LogEngine::Levels::llInfo, "CLI param: %s", argv[i]);
 #else
-			logger.LogFmt(LogEngine::Levels::llInfo, "CLI param: {}", argv[i]);
+			logger.InfoFmt("CLI param: {}", convert_string<char>(argv[i]));
 #endif
-
 	}
 
 
@@ -285,7 +261,10 @@ int _tmain(int argc, _TCHAR* argv[])
 
 			//copy(files1.begin()++, files1.end(), files2.begin());
 			Archiver comp;
+			ConsoleProgressCallback ccb;
+			comp.AddCallback(&ccb);
 			comp.CompressFiles(files1[0], files2, params);
+			comp.RemoveCallback(&ccb);
 		}
 		else if (cmd.HasOption(_T("x")))
 		{
@@ -295,11 +274,7 @@ int _tmain(int argc, _TCHAR* argv[])
 				if (err != 0)
 					if (errno != EEXIST) // EEXIST is a valid error here
 					{
-#ifdef LOG4CPP
-						logger.error("Output directory is not valid. Cannot move on to uncompress file(s). Exiting.");
-#else
-						logger.Error("Output directory is not valid. Cannot move on to uncompress file(s). Exiting.");
-#endif
+						LOG_ERROR("Output directory is not valid. Cannot move on to uncompress file(s). Exiting.");
 						return 1;
 					}
 			}
@@ -310,18 +285,23 @@ int _tmain(int argc, _TCHAR* argv[])
 			if (values.size() > 1)
 			{
 				Archiver comp;  // extract certain files from archive
+				ConsoleProgressCallback ccb;
+				comp.AddCallback(&ccb);
 
 				for (size_t i = 1; i < values.size(); i++) // first item is archive name
 				{
 					comp.ExtractFile(arcFile, values[i], params.OUTPUT_DIR);
 				}
+				comp.RemoveCallback(&ccb);
 			}
 			else // uncompress ALL files from archive
 			{
 				Archiver comp;
+				ConsoleProgressCallback ccb;
+				comp.AddCallback(&ccb);
 				comp.UncompressFiles(arcFile, params);
+				comp.RemoveCallback(&ccb);
 			}
-
 		}
 		else if (cmd.HasOption(_T("d")))
 		{
@@ -337,48 +317,28 @@ int _tmain(int argc, _TCHAR* argv[])
 		}
 		else
 		{
-#ifdef LOG4CPP
-			logger.warn("Incorrect command line parameters.");
-#else
-			logger.Warn("Incorrect command line parameters.");
-#endif
+
+			LOG_WARN("Incorrect command line parameters.");
 			PrintUsage(options);
 			return 1;
 		}
 	}
 	catch (runtime_error& e)
 	{
-#ifdef LOG4CPP
-		logger.error(e.what());
-#else
-		logger.Error(e.what());
-#endif
+		LOG_ERROR(e.what());
 		return 1;
 	}
 	catch (exception& e)
 	{
-#ifdef LOG4CPP
-		logger.error(e.what());
-#else
-		logger.Error(e.what());
-#endif
+		LOG_ERROR(e.what());
 		return 1;
 	}
 	catch (...)
 	{
-#ifdef LOG4CPP
-		logger.error("Unknown error has been caught.");
-#else
-		logger.Error("Unknown error has been caught.");
-#endif
+		LOG_ERROR("Unknown error has been caught.");
 		return 1;
 	}
 
-#ifdef LOG4CPP
-	logger.info("Arithmetic coder finished.");
-#else
-	logger.Info("Arithmetic coder finished.");
-#endif
-
+	LOG_INFO("Arithmetic coder finished.");
 	return 0;
 }
