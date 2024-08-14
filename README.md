@@ -101,19 +101,10 @@ This option is intended for experimental purposes for example for adding new com
 
 `-h` - shows help.
 
-Улучшения:
-- не хранить bytes length [#b804d614](https://github.com/scrat98/data-compressor/commit/b804d614)
-- использовать примитивные типы вместо wrapped типов. дает прирост в ~3 раза [#c7a57abc](https://github.com/scrat98/data-compressor/commit/c7a57abc)
-- был написан [suffix array за O(n * log n)](https://github.com/scrat98/data-compressor/commit/f10a8cb9), но на практике дает мало преимуществ, 
-так как до этого RLE сожмет повторяющиеся символы и сравнение строк будет почти за O(1) в реализации на qsort(которая в теории работает за n^2 * log n), 
-так как быстро встретится первый неповторяющийся символ
-
 Источники:
 - https://www.youtube.com/watch?v=4n7NPk5lwbI
 - https://www.quora.com/Algorithms/How-can-I-optimize-burrows-wheeler-transform-and-inverse-transform-to-work-in-O-n-time-O-n-space
-- https://neerc.ifmo.ru/wiki/index.php?title=%D0%9F%D1%80%D0%B5%D0%BE%D0%B1%D1%80%D0%B0%D0%B7%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D0%B5_%D0%91%D0%B0%D1%80%D1%80%D0%BE%D1%83%D0%B7%D0%B0-%D0%A3%D0%B8%D0%BB%D0%B5%D1%80%D0%B0
-- https://compression.ru/book/pdf/compression_methods_part1_5-7.pdf
-- http://mf.grsu.by/UchProc/livak/po/comprsite/theory_bwt.html
+
 
 
 # Performance test results
