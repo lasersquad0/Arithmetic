@@ -44,7 +44,7 @@ ArithmeticConsole.exe usage:
 There are four commands: ` -a, -x, -l, -d`, all the other switches are options.
 All options should be specified **before** any command.
 
-## Commands
+### Commands
 `-a <archive> <inputfiles...>` - add files <inputfiles> to archive <archive>. Name of the archive should go first after `-a` command. After archive name can be 1 or more files to compress.
 Input files can contain paths (either full or relative). If input file does not contain path it is loaded from current directory.
 Paths are not stored into archive at the moment, if two files have the same names they will be added in archive as two separate entities, but will overwrite each other during uncompression. Be carefull.
@@ -63,25 +63,21 @@ If option `-v` is used together with command `-l` then list of blocks is shown o
 <files to delete> should contain at least one filename.
 if <files to delete> contains file names which are NOT present in archive, they are ignored.
 
-## Switches
-
-### Compression methods
-Compression method specified in command line is applied to all files being compressed.
+### Switches
 
 `-huf` and `-ahuf` - Huffman compression method (either original or adaptive) will be used for compression of specified files. 
 With `-huf` each file will be passed two times. First time is for collecting frequency statistics and second time for actual compression using this statistics. 
 Statistics table will be stored together with compressed data.
 With `-ahuf` option Adaptive Huffman compression method will be used that does not require storing separate table with frequencies.
-Both methods have similar compresssion ratio.
+Both methods have similar compresssion ratio. Compression method is applied to all files being compressed.
 
 `-ari`, `-aari`, `-bitari` - use Arithmetic encoding for compression. Algorithms are the same, they differ by bitness of calculations.
 Due to this they produce different compressed output, but have similar compression ratio.
+Compression method is applied to all files being compressed.
 
-### Models
 `-m` - specifies model to use for compression. Model is stored into archive so you do not need to specify model during decompression.
 Valid models: o1, o2, o3, o4, fo1, bito1. Model o4 may use much memory, be carefull with it.
 
-### Other switches
 `-b` - specifies block size to use. Blocks are required for BWT and MTF transformations which provide better compression. 
 Each input file is divided into blocks of specified size and each block will be compressed separately.
 Block size can be specified in bytes, kilobytes (K) or megabytes (M).
