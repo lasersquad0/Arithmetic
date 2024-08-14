@@ -19,9 +19,9 @@ This is a project the implements different compression techniques such as:
 
 ## How to use
 
-### Command Line application
-Command line compressor is written on C++.
-You do not need any additional software installed to run command line ARPack archiver
+### Command line application
+Command line application has name ArithmeticConsole.exe.
+You do not need any additional software installed to run ARPack archiver
 
 If you run ArithmeticConsole.exe without parameters it will show you list of command line parameters it accepts. 
 
@@ -41,12 +41,11 @@ ArithmeticConsole.exe usage:
 -o, --output-dir   <arg>                                  Specifies directory where uncompressed files will be placed. Valid with -x option only.
 ```
 
-# Command line parameters
 There are four commands: ` -a, -x, -l, -d`, all the other switches are options.
 All options should be specified **before** any command.
 
 ## Commands
-`-a <archive> <inputfiles...>` - add files <inputfiles> to archive <archive>.
+`-a <archive> <inputfiles...>` - add files <inputfiles> to archive <archive>. Name of the archive should go first after `-a` command. After archive name can be 1 or more files to compress.
 Input files can contain paths (either full or relative). If input file does not contain path it is loaded from current directory.
 Paths are not stored into archive at the moment, if two files have the same names they will be added in archive as two separate entities, but will overwrite each other during uncompression. Be carefull.
 <inputfiles> should contain at least one file.
