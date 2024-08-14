@@ -1,7 +1,7 @@
 # ARPack - fast and convenient Arithmetic archiver
 
 
-## About
+## Functions
 
 This is a project the implements different compression techniques such as:
 - Arithmetic encoding. Four implementations - 32bit, 64 bit, byte-wise, bit-wise. Each of them can be either ordinary or adaptive.
