@@ -23,11 +23,6 @@
         <CfgParent>Base</CfgParent>
         <Base>true</Base>
     </PropertyGroup>
-    <PropertyGroup Condition="('$(Platform)'=='Win64x' and '$(Base)'=='true') or '$(Base_Win64x)'!=''">
-        <Base_Win64x>true</Base_Win64x>
-        <CfgParent>Base</CfgParent>
-        <Base>true</Base>
-    </PropertyGroup>
     <PropertyGroup Condition="'$(Config)'=='Debug' or '$(Cfg_1)'!=''">
         <Cfg_1>true</Cfg_1>
         <CfgParent>Base</CfgParent>
@@ -97,14 +92,7 @@
         <BT_BuildType>Debug</BT_BuildType>
         <Manifest_File>(None)</Manifest_File>
         <AppDPIAwarenessMode>none</AppDPIAwarenessMode>
-        <ILINK_LibraryPath>C:\Users\Andrey\Documents\Embarcadero\Studio\Projects\Arithmetic\prj\DelphiCBuilder\ArithmeticConsole\;C:\Users\IEUser\Documents\Embarcadero\Studio\Projects\ConsolePrj\;$(ILINK_LibraryPath)</ILINK_LibraryPath>
-    </PropertyGroup>
-    <PropertyGroup Condition="'$(Base_Win64x)'!=''">
-        <DCC_Namespace>Winapi;System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;$(DCC_Namespace)</DCC_Namespace>
-        <BT_BuildType>Debug</BT_BuildType>
-        <UWP_CppLogo44>$(BDS)\bin\Artwork\Windows\UWP\cppreg_UwpDefault_44.png</UWP_CppLogo44>
-        <UWP_CppLogo150>$(BDS)\bin\Artwork\Windows\UWP\cppreg_UwpDefault_150.png</UWP_CppLogo150>
-        <BCC_PCHName_Clang>ModelOrderMixed.h</BCC_PCHName_Clang>
+        <ILINK_LibraryPath>C:\Users\User\source\repos\LogEngine2\lib\;C:\Users\Andrey\Documents\Embarcadero\Studio\Projects\Arithmetic\prj\DelphiCBuilder\ArithmeticConsole\;C:\Users\IEUser\Documents\Embarcadero\Studio\Projects\ConsolePrj\;$(ILINK_LibraryPath)</ILINK_LibraryPath>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1)'!=''">
         <BCC_OptimizeForSpeed>false</BCC_OptimizeForSpeed>
@@ -148,113 +136,109 @@
     </PropertyGroup>
     <ItemGroup>
         <None Include="..\..\..\include\ArchiveHeader.h">
-            <BuildOrder>12</BuildOrder>
+            <BuildOrder>38</BuildOrder>
         </None>
         <None Include="..\..\..\include\Archiver.h">
-            <BuildOrder>13</BuildOrder>
+            <BuildOrder>38</BuildOrder>
         </None>
         <None Include="..\..\..\include\ARIExceptions.h">
-            <BuildOrder>14</BuildOrder>
+            <BuildOrder>39</BuildOrder>
         </None>
         <None Include="..\..\..\include\BasicModel.h">
-            <BuildOrder>15</BuildOrder>
+            <BuildOrder>39</BuildOrder>
         </None>
         <None Include="..\..\..\include\BitCoder.h">
-            <BuildOrder>16</BuildOrder>
+            <BuildOrder>39</BuildOrder>
         </None>
         <None Include="..\..\..\include\Callback.h">
-            <BuildOrder>17</BuildOrder>
+            <BuildOrder>39</BuildOrder>
         </None>
         <None Include="..\..\..\include\CommonFunctions.h">
-            <BuildOrder>18</BuildOrder>
+            <BuildOrder>39</BuildOrder>
         </None>
         <None Include="..\..\..\include\Context.h">
-            <BuildOrder>19</BuildOrder>
+            <BuildOrder>39</BuildOrder>
         </None>
         <None Include="..\..\..\include\Factories.h">
-            <BuildOrder>20</BuildOrder>
+            <BuildOrder>39</BuildOrder>
         </None>
         <None Include="..\..\..\include\FileRecord.h">
-            <BuildOrder>21</BuildOrder>
+            <BuildOrder>39</BuildOrder>
         </None>
         <None Include="..\..\..\include\fpaq0.h">
-            <BuildOrder>22</BuildOrder>
+            <BuildOrder>39</BuildOrder>
         </None>
         <None Include="..\..\..\include\ICoder.h">
-            <BuildOrder>23</BuildOrder>
-        </None>
-        <None Include="..\..\..\include\ModelOO1.h">
-            <BuildOrder>24</BuildOrder>
+            <BuildOrder>38</BuildOrder>
         </None>
         <None Include="..\..\..\include\ModelOrder0.h">
-            <BuildOrder>25</BuildOrder>
+            <BuildOrder>39</BuildOrder>
         </None>
-        <None Include="..\..\..\include\ModelOrder1Fixed.h">
-            <BuildOrder>26</BuildOrder>
+        <None Include="..\..\..\include\ModelOrder0Fixed.h">
+            <BuildOrder>40</BuildOrder>
+        </None>
+        <None Include="..\..\..\include\ModelOrder0Pair.h">
+            <BuildOrder>41</BuildOrder>
+        </None>
+        <None Include="..\..\..\include\ModelOrder0Sort.h">
+            <BuildOrder>42</BuildOrder>
         </None>
         <None Include="..\..\..\include\ModelOrderMixed.h">
-            <BuildOrder>27</BuildOrder>
+            <BuildOrder>43</BuildOrder>
         </None>
         <None Include="..\..\..\include\ModelOrderN.h">
-            <BuildOrder>28</BuildOrder>
-        </None>
-        <None Include="..\..\..\include\ModelSortOrder1.h">
-            <BuildOrder>29</BuildOrder>
+            <BuildOrder>43</BuildOrder>
         </None>
         <None Include="..\..\..\include\MTF.h">
-            <BuildOrder>30</BuildOrder>
+            <BuildOrder>43</BuildOrder>
         </None>
         <None Include="..\..\..\include\Parameters.h">
-            <BuildOrder>31</BuildOrder>
+            <BuildOrder>43</BuildOrder>
         </None>
         <None Include="..\..\..\include\RangeCoder.h">
-            <BuildOrder>32</BuildOrder>
+            <BuildOrder>43</BuildOrder>
         </None>
         <None Include="..\..\..\include\Ticks.h">
-            <BuildOrder>33</BuildOrder>
+            <BuildOrder>43</BuildOrder>
         </None>
-        <LibFiles Include="LogEngined64-bcb.a" Condition="'$(Platform)'=='Win64'">
-            <BuildOrder>36</BuildOrder>
-            <IgnorePath>true</IgnorePath>
-        </LibFiles>
         <CppCompile Include="main.cpp">
             <BuildOrder>37</BuildOrder>
         </CppCompile>
         <CppCompile Include="..\..\..\src\ArchiveHeader.cpp">
-            <BuildOrder>0</BuildOrder>
+            <BuildOrder>41</BuildOrder>
         </CppCompile>
         <CppCompile Include="..\..\..\src\Archiver.cpp">
-            <BuildOrder>1</BuildOrder>
+            <BuildOrder>41</BuildOrder>
         </CppCompile>
         <CppCompile Include="..\..\..\src\BitCoder.cpp">
-            <BuildOrder>2</BuildOrder>
+            <BuildOrder>41</BuildOrder>
         </CppCompile>
         <CppCompile Include="..\..\..\src\CommonFunctions.cpp">
-            <BuildOrder>3</BuildOrder>
+            <BuildOrder>41</BuildOrder>
         </CppCompile>
         <CppCompile Include="..\..\..\src\Context.cpp">
-            <BuildOrder>4</BuildOrder>
+            <BuildOrder>41</BuildOrder>
         </CppCompile>
         <CppCompile Include="..\..\..\src\fpaq0.cpp">
-            <BuildOrder>5</BuildOrder>
+            <BuildOrder>41</BuildOrder>
         </CppCompile>
         <CppCompile Include="..\..\..\src\ModelOrder0.cpp">
-            <BuildOrder>6</BuildOrder>
+            <BuildOrder>41</BuildOrder>
         </CppCompile>
-        <CppCompile Include="..\..\..\src\ModelSortOrder1.cpp">
-            <BuildOrder>7</BuildOrder>
+        <CppCompile Include="..\..\..\src\ModelOrder0Sort.cpp">
+            <BuildOrder>42</BuildOrder>
         </CppCompile>
         <CppCompile Include="..\..\..\src\MTF.cpp">
-            <BuildOrder>8</BuildOrder>
+            <BuildOrder>42</BuildOrder>
         </CppCompile>
         <CppCompile Include="..\..\..\src\Parameters.cpp">
-            <BuildOrder>9</BuildOrder>
+            <BuildOrder>42</BuildOrder>
         </CppCompile>
         <CppCompile Include="..\..\..\src\RangeCoder.cpp">
-            <BuildOrder>10</BuildOrder>
+            <BuildOrder>42</BuildOrder>
         </CppCompile>
         <CppCompile Include="..\..\..\src\Ticks.cpp">
-            <BuildOrder>11</BuildOrder>
+            <BuildOrder>42</BuildOrder>
         </CppCompile>
         <CppCompile Include="..\..\..\..\command-line-argument-parser\cli\CommandLine.cpp">
             <BuildOrder>38</BuildOrder>
@@ -277,6 +261,10 @@
         <CppCompile Include="..\..\..\..\libsais\src\libsais64.c">
             <BuildOrder>36</BuildOrder>
         </CppCompile>
+        <LibFiles Include="..\..\..\..\LogEngine2\lib\LogEngine64_bcb.a" Condition="'$(Platform)'=='Win64'">
+            <BuildOrder>42</BuildOrder>
+            <IgnorePath>true</IgnorePath>
+        </LibFiles>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
@@ -409,6 +397,12 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
+                <DeployFile LocalName="..\..\..\..\LogEngine2\lib\LogEngine64_bcb.a" Configuration="Debug" Class="ProjectFile">
+                    <Platform Name="Win64">
+                        <RemoteDir>.\</RemoteDir>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
                 <DeployFile LocalName=".\Win32\Debug\ArithmeticConsole.exe" Configuration="Debug" Class="ProjectOutput">
                     <Platform Name="Win32">
                         <RemoteName>ArithmeticConsole.exe</RemoteName>
@@ -418,12 +412,6 @@
                 <DeployFile LocalName=".\Win64\Debug\ArithmeticConsole.exe" Configuration="Debug" Class="ProjectOutput">
                     <Platform Name="Win64">
                         <RemoteName>ArithmeticConsole.exe</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="LogEngined64-bcb.a" Configuration="Debug" Class="ProjectFile">
-                    <Platform Name="Win64">
-                        <RemoteDir>.\</RemoteDir>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
@@ -1020,9 +1008,6 @@
                     <Platform Name="Win64">
                         <Operation>1</Operation>
                     </Platform>
-                    <Platform Name="Win64x">
-                        <Operation>1</Operation>
-                    </Platform>
                 </DeployClass>
                 <DeployClass Name="ProjectiOSDeviceDebug">
                     <Platform Name="iOSDevice32">
@@ -1061,10 +1046,6 @@
                         <RemoteDir>Assets</RemoteDir>
                         <Operation>1</Operation>
                     </Platform>
-                    <Platform Name="Win64x">
-                        <RemoteDir>Assets</RemoteDir>
-                        <Operation>1</Operation>
-                    </Platform>
                 </DeployClass>
                 <DeployClass Name="UWP_CppLogo44">
                     <Platform Name="Win32">
@@ -1072,10 +1053,6 @@
                         <Operation>1</Operation>
                     </Platform>
                     <Platform Name="Win64">
-                        <RemoteDir>Assets</RemoteDir>
-                        <Operation>1</Operation>
-                    </Platform>
-                    <Platform Name="Win64x">
                         <RemoteDir>Assets</RemoteDir>
                         <Operation>1</Operation>
                     </Platform>
@@ -1296,7 +1273,6 @@
             <Platforms>
                 <Platform value="Win32">True</Platform>
                 <Platform value="Win64">True</Platform>
-                <Platform value="Win64x">False</Platform>
             </Platforms>
         </BorlandProject>
         <ProjectFileVersion>12</ProjectFileVersion>

@@ -79,7 +79,7 @@
         <BCC_PCHUsage>None</BCC_PCHUsage>
         <BCC_UseClassicCompiler>false</BCC_UseClassicCompiler>
         <FinalOutputDir>.\$(Platform)\$(Config)</FinalOutputDir>
-        <ILINK_LibraryPath>..\..\..\..\libsais\src\;..\..\..\src\;..\..\..\include\;$(ILINK_LibraryPath)</ILINK_LibraryPath>
+        <ILINK_LibraryPath>..\..\..\src\;..\..\..\..\libsais\src\;..\..\..\include\;..\..\..\..\LogEngine2\lib;$(ILINK_LibraryPath)</ILINK_LibraryPath>
         <BCC_Defines>EXPORT_FOR_DELPHI;$(BCC_Defines)</BCC_Defines>
         <DynamicRTL>true</DynamicRTL>
         <BCC_wamb>true</BCC_wamb>
@@ -119,7 +119,7 @@
         <DCC_Namespace>Winapi;System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;$(DCC_Namespace)</DCC_Namespace>
         <BT_BuildType>Debug</BT_BuildType>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
-        <ILINK_LibraryPath>C:\Users\Andrey\source\repos\Arithmetic\prj\DelphiCBuilder\ArithmeticBPL\;C:\Users\Andrey\Documents\Embarcadero\Studio\Projects\Arithmetic\prj\DelphiCBuilder\ArithmeticBPL\;C:\Users\IEUser\Documents\Embarcadero\Studio\Projects\ConsolePrj\;$(ILINK_LibraryPath)</ILINK_LibraryPath>
+        <ILINK_LibraryPath>C:\Users\User\source\repos\LogEngine2\lib\;C:\Users\Andrey\source\repos\Arithmetic\prj\DelphiCBuilder\ArithmeticBPL\;C:\Users\Andrey\Documents\Embarcadero\Studio\Projects\Arithmetic\prj\DelphiCBuilder\ArithmeticBPL\;C:\Users\IEUser\Documents\Embarcadero\Studio\Projects\ConsolePrj\;$(ILINK_LibraryPath)</ILINK_LibraryPath>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1)'!=''">
         <BCC_OptimizeForSpeed>false</BCC_OptimizeForSpeed>
@@ -142,6 +142,7 @@
         <CLANG_UnwindTables>true</CLANG_UnwindTables>
         <ILINK_LibraryPath>$(BDSLIB)\$(PLATFORM)\debug;$(ILINK_LibraryPath)</ILINK_LibraryPath>
         <ILINK_TranslatedLibraryPath>$(BDSLIB)\$(PLATFORM)\debug\$(LANGDIR);$(ILINK_TranslatedLibraryPath)</ILINK_TranslatedLibraryPath>
+        <ILINK_AdditionalLinkerFiles>LogEngined64-bcb.a;$(ILINK_AdditionalLinkerFiles)</ILINK_AdditionalLinkerFiles>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1_Win32)'!=''">
         <BCC_UseClassicCompiler>false</BCC_UseClassicCompiler>
@@ -166,131 +167,127 @@
     </PropertyGroup>
     <ItemGroup>
         <None Include="..\..\..\include\ArchiveHeader.h">
-            <BuildOrder>14</BuildOrder>
+            <BuildOrder>39</BuildOrder>
         </None>
         <None Include="..\..\..\include\Archiver.h">
-            <BuildOrder>15</BuildOrder>
+            <BuildOrder>39</BuildOrder>
         </None>
         <None Include="..\..\..\include\ArchiverExt.h">
             <BuildOrder>42</BuildOrder>
         </None>
         <None Include="..\..\..\include\ARIExceptions.h">
-            <BuildOrder>16</BuildOrder>
+            <BuildOrder>39</BuildOrder>
         </None>
         <None Include="..\..\..\include\BasicModel.h">
-            <BuildOrder>17</BuildOrder>
+            <BuildOrder>39</BuildOrder>
         </None>
         <None Include="..\..\..\include\BitCoder.h">
-            <BuildOrder>18</BuildOrder>
+            <BuildOrder>39</BuildOrder>
         </None>
         <None Include="..\..\..\include\Callback.h">
-            <BuildOrder>19</BuildOrder>
+            <BuildOrder>39</BuildOrder>
         </None>
         <None Include="..\..\..\include\CommonFunctions.h">
-            <BuildOrder>20</BuildOrder>
+            <BuildOrder>39</BuildOrder>
         </None>
         <None Include="..\..\..\include\Context.h">
-            <BuildOrder>21</BuildOrder>
+            <BuildOrder>39</BuildOrder>
         </None>
         <None Include="..\..\..\include\Factories.h">
-            <BuildOrder>22</BuildOrder>
+            <BuildOrder>39</BuildOrder>
         </None>
         <None Include="..\..\..\include\FileRecord.h">
-            <BuildOrder>23</BuildOrder>
+            <BuildOrder>39</BuildOrder>
         </None>
         <None Include="..\..\..\include\fpaq0.h">
-            <BuildOrder>24</BuildOrder>
+            <BuildOrder>39</BuildOrder>
         </None>
         <None Include="..\..\..\include\ICoder.h">
-            <BuildOrder>25</BuildOrder>
-        </None>
-        <None Include="..\..\..\include\ModelOO1.h">
-            <BuildOrder>26</BuildOrder>
+            <BuildOrder>39</BuildOrder>
         </None>
         <None Include="..\..\..\include\ModelOrder0.h">
-            <BuildOrder>27</BuildOrder>
+            <BuildOrder>39</BuildOrder>
         </None>
-        <None Include="..\..\..\include\ModelOrder1Fixed.h">
-            <BuildOrder>28</BuildOrder>
+        <None Include="..\..\..\include\ModelOrder0Fixed.h">
+            <BuildOrder>40</BuildOrder>
+        </None>
+        <None Include="..\..\..\include\ModelOrder0Pair.h">
+            <BuildOrder>41</BuildOrder>
+        </None>
+        <None Include="..\..\..\include\ModelOrder0Sort.h">
+            <BuildOrder>42</BuildOrder>
         </None>
         <None Include="..\..\..\include\ModelOrderMixed.h">
-            <BuildOrder>29</BuildOrder>
+            <BuildOrder>43</BuildOrder>
         </None>
         <None Include="..\..\..\include\ModelOrderN.h">
-            <BuildOrder>30</BuildOrder>
-        </None>
-        <None Include="..\..\..\include\ModelSortOrder1.h">
-            <BuildOrder>31</BuildOrder>
+            <BuildOrder>43</BuildOrder>
         </None>
         <None Include="..\..\..\include\MTF.h">
-            <BuildOrder>32</BuildOrder>
+            <BuildOrder>43</BuildOrder>
         </None>
         <None Include="..\..\..\include\Parameters.h">
-            <BuildOrder>33</BuildOrder>
+            <BuildOrder>43</BuildOrder>
         </None>
         <None Include="..\..\..\include\RangeCoder.h">
-            <BuildOrder>34</BuildOrder>
+            <BuildOrder>43</BuildOrder>
         </None>
         <None Include="..\..\..\include\Ticks.h">
-            <BuildOrder>35</BuildOrder>
+            <BuildOrder>43</BuildOrder>
         </None>
         <CppCompile Include="ArithmeticBPL.cpp">
             <BuildOrder>0</BuildOrder>
         </CppCompile>
-        <LibFiles Include="LogEngined64bcb.a" Condition="'$(Platform)'=='Win64'">
-            <BuildOrder>43</BuildOrder>
-            <IgnorePath>true</IgnorePath>
-        </LibFiles>
         <PackageImport Include="rtl.bpi">
             <BuildOrder>1</BuildOrder>
         </PackageImport>
         <CppCompile Include="..\..\..\src\ArchiveHeader.cpp">
-            <BuildOrder>2</BuildOrder>
+            <BuildOrder>42</BuildOrder>
         </CppCompile>
         <CppCompile Include="..\..\..\src\Archiver.cpp">
-            <BuildOrder>3</BuildOrder>
+            <BuildOrder>42</BuildOrder>
         </CppCompile>
         <CppCompile Include="..\..\..\src\ArchiverExt.cpp">
-            <BuildOrder>43</BuildOrder>
+            <BuildOrder>42</BuildOrder>
         </CppCompile>
         <DelphiCompile Include="..\..\..\src\ArchiverInterface.pas">
             <BuildOrder>38</BuildOrder>
         </DelphiCompile>
         <CppCompile Include="..\..\..\src\BitCoder.cpp">
-            <BuildOrder>4</BuildOrder>
+            <BuildOrder>42</BuildOrder>
         </CppCompile>
         <CppCompile Include="..\..\..\src\CommonFunctions.cpp">
-            <BuildOrder>5</BuildOrder>
+            <BuildOrder>42</BuildOrder>
         </CppCompile>
         <CppCompile Include="..\..\..\src\Context.cpp">
-            <BuildOrder>6</BuildOrder>
+            <BuildOrder>42</BuildOrder>
         </CppCompile>
         <CppCompile Include="..\..\..\src\fpaq0.cpp">
-            <BuildOrder>7</BuildOrder>
+            <BuildOrder>42</BuildOrder>
         </CppCompile>
         <DelphiCompile Include="..\..\..\src\ICallback.pas">
             <BuildOrder>41</BuildOrder>
         </DelphiCompile>
         <CppCompile Include="..\..\..\src\ModelOrder0.cpp">
-            <BuildOrder>8</BuildOrder>
+            <BuildOrder>42</BuildOrder>
         </CppCompile>
-        <CppCompile Include="..\..\..\src\ModelSortOrder1.cpp">
-            <BuildOrder>9</BuildOrder>
+        <CppCompile Include="..\..\..\src\ModelOrder0Sort.cpp">
+            <BuildOrder>43</BuildOrder>
         </CppCompile>
         <CppCompile Include="..\..\..\src\MTF.cpp">
-            <BuildOrder>10</BuildOrder>
+            <BuildOrder>43</BuildOrder>
         </CppCompile>
         <CppCompile Include="..\..\..\src\Parameters.cpp">
-            <BuildOrder>11</BuildOrder>
+            <BuildOrder>43</BuildOrder>
         </CppCompile>
         <DelphiCompile Include="..\..\..\src\ParametersInterface.pas">
             <BuildOrder>39</BuildOrder>
         </DelphiCompile>
         <CppCompile Include="..\..\..\src\RangeCoder.cpp">
-            <BuildOrder>12</BuildOrder>
+            <BuildOrder>43</BuildOrder>
         </CppCompile>
         <CppCompile Include="..\..\..\src\Ticks.cpp">
-            <BuildOrder>13</BuildOrder>
+            <BuildOrder>43</BuildOrder>
         </CppCompile>
         <CppCompile Include="..\..\..\..\libsais\src\libsais.c">
             <BuildOrder>36</BuildOrder>
@@ -298,6 +295,10 @@
         <CppCompile Include="..\..\..\..\libsais\src\libsais64.c">
             <BuildOrder>37</BuildOrder>
         </CppCompile>
+        <LibFiles Include="..\..\..\..\LogEngine2\lib\LogEngine64_bcb.a" Condition="'$(Platform)'=='Win64'">
+            <BuildOrder>43</BuildOrder>
+            <IgnorePath>true</IgnorePath>
+        </LibFiles>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
@@ -325,12 +326,6 @@
                     <Source Name="MainSource">ArithmeticBPL.cpp</Source>
                 </Source>
                 <Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\DataExplorerFireDACPlugin290.bpl">FireDAC Data Explorer Integration</Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dclFireDAC290.bpl">Embarcadero FireDAC Components</Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dclBindCompFireDAC290.bpl">LiveBinding Expression Components FireDac</Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dclFMXFireDAC290.bpl">Embarcadero FMX FireDAC Components</Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dclVclFireDAC290.bpl">Embarcadero VCL FireDAC Components</Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dclFireDACEnt290.bpl">Embarcadero FireDAC C\S Components</Excluded_Packages>
                     <Excluded_Packages Name="$(BDSBIN)\bcboffice2k290.bpl">Embarcadero C++Builder Office 2000 Servers Package</Excluded_Packages>
                     <Excluded_Packages Name="$(BDSBIN)\bcbofficexp290.bpl">Embarcadero C++Builder Office XP Servers Package</Excluded_Packages>
                     <Excluded_Packages Name="$(BDSBIN)\dcloffice2k290.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
@@ -1038,9 +1033,6 @@
                     <Platform Name="Win64">
                         <Operation>1</Operation>
                     </Platform>
-                    <Platform Name="Win64x">
-                        <Operation>1</Operation>
-                    </Platform>
                 </DeployClass>
                 <DeployClass Name="ProjectiOSDeviceDebug">
                     <Platform Name="iOSDevice32">
@@ -1079,10 +1071,6 @@
                         <RemoteDir>Assets</RemoteDir>
                         <Operation>1</Operation>
                     </Platform>
-                    <Platform Name="Win64x">
-                        <RemoteDir>Assets</RemoteDir>
-                        <Operation>1</Operation>
-                    </Platform>
                 </DeployClass>
                 <DeployClass Name="UWP_CppLogo44">
                     <Platform Name="Win32">
@@ -1090,10 +1078,6 @@
                         <Operation>1</Operation>
                     </Platform>
                     <Platform Name="Win64">
-                        <RemoteDir>Assets</RemoteDir>
-                        <Operation>1</Operation>
-                    </Platform>
-                    <Platform Name="Win64x">
                         <RemoteDir>Assets</RemoteDir>
                         <Operation>1</Operation>
                     </Platform>
