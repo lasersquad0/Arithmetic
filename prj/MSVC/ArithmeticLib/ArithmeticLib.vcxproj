@@ -181,7 +181,7 @@
     <ClCompile Include="..\..\..\src\Context.cpp" />
     <ClCompile Include="..\..\..\src\fpaq0.cpp" />
     <ClCompile Include="..\..\..\src\ModelOrder0.cpp" />
-    <ClCompile Include="..\..\..\src\ModelSortOrder1.cpp" />
+    <ClCompile Include="..\..\..\src\ModelOrder0Sort.cpp" />
     <ClCompile Include="..\..\..\src\MTF.cpp" />
     <ClCompile Include="..\..\..\src\Parameters.cpp" />
     <ClCompile Include="..\..\..\src\RangeCoder.cpp" />
@@ -200,12 +200,12 @@
     <ClInclude Include="..\..\..\include\FileRecord.h" />
     <ClInclude Include="..\..\..\include\fpaq0.h" />
     <ClInclude Include="..\..\..\include\ICoder.h" />
-    <ClInclude Include="..\..\..\include\ModelOO1.h" />
     <ClInclude Include="..\..\..\include\ModelOrder0.h" />
-    <ClInclude Include="..\..\..\include\ModelOrder1Fixed.h" />
+    <ClInclude Include="..\..\..\include\ModelOrder0Fixed.h" />
+    <ClInclude Include="..\..\..\include\ModelOrder0Pair.h" />
+    <ClInclude Include="..\..\..\include\ModelOrder0Sort.h" />
     <ClInclude Include="..\..\..\include\ModelOrderMixed.h" />
     <ClInclude Include="..\..\..\include\ModelOrderN.h" />
-    <ClInclude Include="..\..\..\include\ModelSortOrder1.h" />
     <ClInclude Include="..\..\..\include\MTF.h" />
     <ClInclude Include="..\..\..\include\Parameters.h" />
     <ClInclude Include="..\..\..\include\RangeCoder.h" />

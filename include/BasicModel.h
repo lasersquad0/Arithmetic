@@ -52,7 +52,7 @@ public:
 	{
 		coder.FinishBlockDecode();
 	}
-	void BeginEncode(std::ostream* f, std::istream* fi = nullptr) override
+	void BeginEncode(std::ostream* f, std::istream*) override
 	{
 		coder.StartEncode(f);
 	}

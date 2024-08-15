@@ -113,7 +113,7 @@ public:
 
 		//UpdateStatistics(sym);
 
-		return sym;
+		return (uchar)(sym - 1);
 	}
 
 	void UpdateStatistics(uchar*, uchar) override

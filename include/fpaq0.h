@@ -168,7 +168,7 @@ void fpaqBitCoder<UINT>::Init()
 }
 
 template<class UINT>
-void fpaqBitCoder<UINT>::BeginEncode(std::ostream* f, std::istream* fi)
+void fpaqBitCoder<UINT>::BeginEncode(std::ostream* f, std::istream*)
 {
     fout = f;
     Init();
