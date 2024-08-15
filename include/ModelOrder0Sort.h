@@ -5,25 +5,25 @@
 // special End-Of-File symbol
 //#define EOF_SYMBOL    (NO_OF_CHARS + 1)
 
-
-class ModelSortOrder1 : public BasicModel
+template<class UINT>
+class ModelOrder0Sort : public BasicModel<UINT>
 {
 protected:
 	// number of alphabet symbols
-	static const uint32or64 NO_OF_CHARS = 256;
+	static const UINT NO_OF_CHARS = 256;
 	// total number of symbols in model
-	static const uint32or64 NO_OF_SYMBOLS = NO_OF_CHARS + 1; // 257
+	static const UINT NO_OF_SYMBOLS = NO_OF_CHARS + 1; // 257
 	
 	// transcoding tables
 	uchar index_to_char[NO_OF_SYMBOLS]; //257
-	uint32or64 char_to_index[NO_OF_CHARS]; //256
+	UINT char_to_index[NO_OF_CHARS]; //256
 
-	// frequancies tables
-	uint32or64 cum_freq[NO_OF_SYMBOLS + 1]; // 258 ??? why
-	uint32or64     freq[NO_OF_SYMBOLS + 1]; // 258 ???? why
+	// frequencies tables
+	UINT cum_freq[NO_OF_SYMBOLS + 1]; // 258 ??? why
+	UINT     freq[NO_OF_SYMBOLS + 1]; // 258 ???? why
 
 public:
-	ModelSortOrder1(IBlockCoder& cr) :BasicModel(cr)
+	ModelOrder0Sort(IBlockCoder<UINT>& cr): BasicModel<UINT>(cr)
 	{
 		ResetModel();
 
@@ -34,12 +34,12 @@ public:
 	void ResetModel()
 	{
 		int i;
-		for (i = 0; i < NO_OF_CHARS; i++)
+		for (i = 0; i < NO_OF_CHARS; i++) // 256
 		{
 			char_to_index[i] = i + 1;
 			index_to_char[i + 1] = (uchar)i; // TODO index_to_char[0] left uninitialised?
 		}
-		for (i = 0; i <= NO_OF_SYMBOLS; i++)
+		for (i = 0; i <= NO_OF_SYMBOLS; i++)  //258 (!)
 		{
 			freq[i] = 1;
 			cum_freq[i] = NO_OF_SYMBOLS - i; // c_f[0]=257, c_f[1]=256 ... c_f[256]=1, c_f[257]=0
@@ -49,18 +49,18 @@ public:
 
 	void EncodeSymbol(uchar*, uchar sym) override
 	{
-		uint32or64 index = char_to_index[sym];
+		UINT index = char_to_index[sym];
 
-		coder.EncodeByte(cum_freq[index], freq[index], cum_freq[0]);
+		this->coder.EncodeByte(cum_freq[index], freq[index], cum_freq[0]); // TODO shall instead of cum_freq[index] be something cum_freq[NO_OF_SYMBOLS- index] ? 
 
 		updateStatistics(index);
 	}
 
 	uchar DecodeSymbol(uchar*) override
 	{
-		uint32or64 ind;
+		UINT ind;
 		//uint32or64 HiCount = 0;
-		uint32or64 cum = coder.GetCumFreq(cum_freq[0]); // меняет coder.range
+		UINT cum = this->coder.GetCumFreq(cum_freq[0]); // меняет coder.range
 
 		// look for needed symbol in frequencies table 
 		for (ind = 1; cum_freq[ind] > cum; ind++);
@@ -73,7 +73,7 @@ public:
 
 		uchar sym = index_to_char[ind];
 
-		coder.DecodeByte(cum_freq[ind], freq[ind], cum_freq[0]); //recalculates low, range and code
+		this->coder.DecodeByte(cum_freq[ind], freq[ind], cum_freq[0]); //recalculates low, range and code
 
 		updateStatistics(ind);
 
@@ -81,27 +81,26 @@ public:
 	}
 
 
-	void UpdateStatistics(uchar* , uchar ) override
+	void UpdateStatistics(uchar* , uchar) override
 	{
-		// nothing
+		// nothing, see another updateStatistics() method
 	}
 
-	void updateStatistics(const uint32or64 index)
+	void updateStatistics(const UINT index)
 	{
 		//weights[c]++;
 		//summFreq++;
 		//if (summFreq > coder.GetIntParam("BOTTOM")) Rescale();
 
-		int i;
 		uchar ch_i, ch_symbol;
-		uint32or64 cum;
+		UINT cum;
 
 		// check if freq counter needs scaling 
-		if (cum_freq[0] == coder.GetIntParam("MAX_FREQ")) //MAX_FREQUENCY)
+		if (cum_freq[0] == this->coder.GetIntParam("MAX_FREQ")) //MAX_FREQUENCY)
 		{
 			cum = 0;
 			// scale frequencies 
-			for (i = NO_OF_SYMBOLS; i >= 0; i--)
+			for (int i = NO_OF_SYMBOLS; i >= 0; i--)
 			{
 				freq[i] = (freq[i] + 1) / 2;
 				cum_freq[i] = cum;
@@ -109,6 +108,7 @@ public:
 			}
 		}
 
+		UINT i; // int i; TODO may be introduced bug here.....
 		for (i = index; freq[i] == freq[i - 1]; i--); // look back for index where two successive freqs differ from each other 
 
 		if (i < index)
@@ -122,7 +122,7 @@ public:
 		}
 
 		// refresh values in freq tables
-		freq[i]++;
+		freq[i]++; // now being encoded symbol has index i instead of index.
 		while (i > 0)
 		{
 			i--;
@@ -130,19 +130,18 @@ public:
 		}
 	}
 
-	void BeginEncode(std::ostream* f) override
+	void BeginEncode(std::ostream* fo, std::istream* fi = nullptr) override
 	{
-		//ResetModel(); // the same model can be used for encoding-decoding different files sduring one session. it need to be reset to original state each time.
-		BasicModel::BeginEncode(f);
+		//ResetModel(); // the same model can be used for encoding-decoding different files during one session. it need to be reset to original state each time.
+		BasicModel<UINT>::BeginEncode(fo, fi);
 	}
-
 
 	void BeginDecode(std::istream* f) override
 	{
 		//ResetModel();
-		BasicModel::BeginDecode(f);
+		BasicModel<UINT>::BeginDecode(f);
 	}
-
 };
 
-
+using ModelOrder0Sort32 = ModelOrder0Sort<uint32_t>;
+using ModelOrder0Sort64 = ModelOrder0Sort<uint64_t>;

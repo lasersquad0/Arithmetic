@@ -4,18 +4,22 @@
 #include "BasicModel.h"
 #include "ModelOrder0.h"
 #include "ModelOrderN.h"
-//#include "DynamicArrays.h"
 
-class ModelOrderMixed : public BasicModel
+template<class UINT>
+class ModelOrderMixed : public BasicModel<UINT>
 {
 private:
-	ModelOrder0 model0; // init this model with '1' default freqs
+	using ModelOrder1 = ModelOrderN<ModelOrder0<UINT>, 1>;
+	using ModelOrder2 = ModelOrderN<ModelOrder1, 2>;
+	using ModelOrder3 = ModelOrderN<ModelOrder2, 3>;
+
+	ModelOrder0<UINT> model0; // init this model with '1' default freqs
 	ModelOrder1 model1; // init this and others models with '0' default freqs
 	ModelOrder2 model2;
 	ModelOrder3 model3;
 public:
 	
-	ModelOrderMixed(IBlockCoder& cr) : BasicModel(cr), model0(cr, false), model1(cr, true), model2(cr, true), model3(cr, true)
+	ModelOrderMixed(IBlockCoder<UINT>& cr) : BasicModel<UINT>(cr), model0(cr, false), model1(cr, true), model2(cr, true), model3(cr, true)
 	{
 	}
 
@@ -65,21 +69,24 @@ public:
 		//nothing
 	}
 
-	uchar DecodeSymbol(uchar* ctx) override
+	uchar DecodeSymbol(uchar*) override
 	{
 		return 0;
 	}
 
-	void BeginEncode(std::ostream* f) override
+	void BeginEncode(std::ostream* fo, std::istream* fi = nullptr) override
 	{
 		ResetModel(); // the same model can be used for encoding-decoding different files during one session. it needs to be reset to original state each time.
-		BasicModel::BeginEncode(f);
+		BasicModel<UINT>::BeginEncode(fo, fi);
 	}
 
 
 	void BeginDecode(std::istream* f) override
 	{
 		ResetModel();
-		BasicModel::BeginDecode(f);
+		BasicModel<UINT>::BeginDecode(f);
 	}
 };
+
+using ModelOrderMixed32 = ModelOrderMixed<uint32_t>;
+using ModelOrderMixed64 = ModelOrderMixed<uint64_t>;

@@ -57,7 +57,7 @@
     <ClCompile Include="..\..\..\src\ModelOrder0.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\ModelSortOrder1.cpp">
+    <ClCompile Include="..\..\..\src\ModelOrder0Sort.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\MTF.cpp">
@@ -124,13 +124,13 @@
     <ClInclude Include="..\..\..\include\ICoder.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\include\ModelOO1.h">
+    <ClInclude Include="..\..\..\include\ModelOrder0Pair.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\include\ModelOrder0.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\include\ModelOrder1Fixed.h">
+    <ClInclude Include="..\..\..\include\ModelOrder0Fixed.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\include\ModelOrderMixed.h">
@@ -139,7 +139,7 @@
     <ClInclude Include="..\..\..\include\ModelOrderN.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\include\ModelSortOrder1.h">
+    <ClInclude Include="..\..\..\include\ModelOrder0Sort.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\include\MTF.h">

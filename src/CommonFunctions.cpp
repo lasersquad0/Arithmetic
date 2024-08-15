@@ -40,7 +40,7 @@ void trimAndUpper(string_t& str) // TODO what if we have \t in the beginning (en
 	transform(str.begin(), str.end(), str.begin(), ::mytoupper);
 }
 
-uint32_t ParseBlockSize(string_t s) // intentionally left std::string
+uint32_t ParseBlockSize(string_t s) // intentionally by value
 {
 	int factor = 1;
 	transform(s.begin(), s.end(), s.begin(), ::mytoupper); // to uppercase
@@ -60,7 +60,7 @@ uint32_t ParseBlockSize(string_t s) // intentionally left std::string
 	return stoi(s) * factor;
 }
 
-ModelType ParseModelType(string_t mt) // intentionally left std::string
+ModelType ParseModelType(string_t mt) // intentionally by value
 {
 	trimAndUpper(mt);
 
@@ -72,10 +72,9 @@ ModelType ParseModelType(string_t mt) // intentionally left std::string
 	}
 
 	throw invalid_argument("Specified model type is not recognised.");
-
 }
 
-CoderType ParseCoderType(string_t ct)  // intentionally left std::string
+CoderType ParseCoderType(string_t ct)  
 {
 	trimAndUpper(ct);
 
@@ -121,7 +120,7 @@ std::string toOEM(const string_t& str)
 {
 	std::string tmp;
 	tmp.resize(str.size());
-	CharToOemBuffW(str.data(), tmp.data(), str.size());
+	CharToOemBuffW(str.data(), tmp.data(), (DWORD)str.size());
 	return tmp;
 }
 

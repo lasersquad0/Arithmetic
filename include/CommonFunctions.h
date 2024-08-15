@@ -50,9 +50,8 @@ typedef std::string::value_type char_t;
 #endif
 
 
-enum class CoderType { NONE, HUFFMAN, AHUFFMAN, RLE, ARITHMETIC, ARITHMETIC32, ARITHMETIC64, AARITHMETIC, AARITHMETIC32, AARITHMETIC64, ABITARITHMETIC };
-enum class ModelType { UNKNOWN, O0, O1, O2, O3, MIXO3, FO1, BITO1 };
-
+enum class CoderType { NONE, HUFFMAN, AHUFFMAN, RLE, ARITHMETIC, ARITHMETIC32, ARITHMETIC64, BITARITHMETIC, FPAQARITHMETIC };
+enum class ModelType { UNKNOWN, O0, O1, O2, O3, O0FIX, O0SORT, O0PAIR, O3MIX, O1FPAQ };
 
 struct MyGroupSeparator : std::numpunct<char_t>
 {

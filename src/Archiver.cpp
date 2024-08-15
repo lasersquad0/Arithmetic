@@ -127,7 +127,6 @@ int Archiver::CompressFiles(string_t ArchiveFileName, const vect_string_t& files
 	return result;
 }
 
-
 int Archiver::CompressFile(ofstream* fout, ifstream* fin, FileRecord& fr, IModel* model)
 {
 	GET_LOGGER();
@@ -144,7 +143,7 @@ int Archiver::CompressFile(ofstream* fout, ifstream* fin, FileRecord& fr, IModel
    // IModel* model = ModelsFactory::GetModel();
    // CallBack cb;
 
-	uint64_t delta = fr.fileSize / 100;
+	uint64_t delta = fr.fileSize / 100ull;
 	uint64_t threshold = 0;
 	uint64_t cntRead = 0;
 
@@ -157,7 +156,7 @@ int Archiver::CompressFile(ofstream* fout, ifstream* fin, FileRecord& fr, IModel
 	bool showprogress = SHOWP;
 	if (showprogress) cbmanager.Start();
 
-	model->BeginEncode(fout);
+	model->BeginEncode(fout, fin);
 	int RESULT = CALLBACK_OK;
 	Context ctx;
 
@@ -186,7 +185,7 @@ int Archiver::CompressFile(ofstream* fout, ifstream* fin, FileRecord& fr, IModel
 	model->StopEncode();
 	if (showprogress) cbmanager.Finish();
 
-	fr.compressedSize = model->GetCoder().GetBytesPassed(); // TODO makes sense do it better and more convenient
+	fr.compressedSize = model->GetBytesPassed(); // TODO makes sense do it better and more convenient
 
 	if (RESULT == CALLBACK_ABORT)
 		PrintFileCompressionAborted(fr);
@@ -261,7 +260,7 @@ int Archiver::CompressFileBlock(ofstream* fout, ifstream* fin, FileRecord& fr, I
 	if (showprogress) cbmanager.Start();
 
 	ostringstream fblock;
-	model->BeginEncode(&fblock);
+	model->BeginEncode(&fblock, fin);
 
 	Context ctx;
 	uint32_t i = 0;
@@ -293,7 +292,7 @@ int Archiver::CompressFileBlock(ofstream* fout, ifstream* fin, FileRecord& fr, I
 		//fn = "bwtbufencode";
 		//SaveToFile(fn + to_string(cntBlocks), (char*)bwtbuf, cntRead);
 
-		model->GetCoder().StartBlockEncode();
+		model->BeginBlockEncode();
 
 		for (i = 0; i < cntRead; i++)
 		{
@@ -301,7 +300,7 @@ int Archiver::CompressFileBlock(ofstream* fout, ifstream* fin, FileRecord& fr, I
 			ctx.add((uchar)buf[i]);
 		}
 
-		model->GetCoder().FinishBlockEncode(); // save 'last 4 bytes' into block.
+		model->StopBlockEncode(); // save 'last 4 bytes' into block.
 
 		SaveBlock(fblock, fout, i, (uint32_t)lineNum);
 
@@ -327,7 +326,7 @@ int Archiver::CompressFileBlock(ofstream* fout, ifstream* fin, FileRecord& fr, I
 	delete [] bwtbuf;
 	delete [] temp;
 
-	fr.compressedSize = model->GetCoder().GetBytesPassed(); // TODO makes sense do it better and more convenient
+	fr.compressedSize = model->GetBytesPassed(); // TODO makes sense do it better and more convenient
 	fr.blockCount = cntBlocks;
 
 	if (RESULT == CALLBACK_ABORT)
@@ -514,7 +513,7 @@ int Archiver::UncompressFileBlock(ifstream* fin, ofstream *fout, FileRecord& fr,
 		if (decodedBytes > 0) // first block is loaded already, bypass loading first block here
 		{
 			LoadBlock(fblock, fin, uBlockSize, cBlockSize, lineNum);
-			model->GetCoder().StartBlockDecode();
+			model->BeginBlockDecode();
 		}
 
 		try
@@ -533,7 +532,7 @@ int Archiver::UncompressFileBlock(ifstream* fin, ofstream *fout, FileRecord& fr,
 			throw;
 		}
 
-		model->GetCoder().FinishBlockDecode();
+		model->StopBlockDecode();
 
 		//uint32or64 compressedBytes = rc.GetBytesPassed();
 		cntBlocks++;
@@ -842,7 +841,7 @@ void Archiver::RemoveFile(const string_t& ArchiveFileName, const string_t& FileT
 		throw invalid_argument("File '" + convert_string<char>(FileToDelete) + "' cannot be found in archive '" + convert_string<char>(ArchiveFileName) + "'.");
 	}
 #ifdef LOG4CPP
-	logger.info("Deleting file '%s' from archive '%s'", FileToDelete.c_str(), ArchiveFile.c_str());
+	logger.info("Deleting file '%s' from archive '%s'", toOEM(FileToDelete).c_str(), toOEM(ArchiveFileName).c_str());
 #elif defined(__BORLANDC__)
 	logger.LogFmt(LogEngine::Levels::llInfo, "Deleting file '%s' from archive '%s'", convert_string<char>(FileToDelete).c_str(), convert_string<char>(ArchiveFileName).c_str());
 #else
@@ -916,7 +915,7 @@ void Archiver::RemoveFiles(const string_t& ArchiveFileName, const vect_string_t&
     //    throw invalid_argument("File '" + FileToDelete + "' cannot be found in archive '" + ArchiveFile + "'.");
     //}
 #ifdef LOG4CPP
-    logger.info("Deleting files from archive '%s'", ArchiveFile.c_str());
+    logger.info("Deleting files from archive '%s'", ArchiveFileName.c_str());
 #elif defined(__BORLANDC__)
 	logger.LogFmt(LogEngine::Levels::llInfo, "Deleting files from archive '%s'", convert_string<char>(ArchiveFileName).c_str());
 #else

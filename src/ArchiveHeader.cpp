@@ -9,7 +9,7 @@ void ArchiveHeader::listContent(const string_t& arcFilename, bool verbose)
 
 	LoadHeader(&fin);
 
-#if defined(__BORLANDC__)
+#if defined(LOG4CPP) || defined(__BORLANDC__)
 	printf("%-46s %18s %15s %6s %10s %6s %7s %7s %-19s %13s\n", "File name", "File size", "Compressed",
 		"Blocks", "Block size", "Alg", "Model", "Ratio", "Modified", "CRC32");
 #else
@@ -27,7 +27,7 @@ void ArchiveHeader::listContent(const string_t& arcFilename, bool verbose)
 		std::string modelName = convert_string<char>(Parameters::ModelTypeCode[fr.modelOrder]);
 
 		float ratio = (float)fr.fileSize / (float)fr.compressedSize;
-#if defined(__BORLANDC__)
+#if defined(LOG4CPP) || defined(__BORLANDC__)
 		printf("%-46ls %18ls %15ls %6ls %10ls %6s %6s %7.2f  %19s %13llu\n",
 			ellipsis(fr.fileName, 46).c_str(), toStringSep(fr.fileSize).c_str(), toStringSep(fr.compressedSize).c_str(), toStringSep(fr.blockCount).c_str(),
 			toStringSep(fr.blockSize).c_str(), algName.c_str(), modelName.c_str(), ratio, fileModified.c_str(), fr.CRC32Value);
@@ -43,7 +43,7 @@ void ArchiveHeader::listContent(const string_t& arcFilename, bool verbose)
 		for (int i = 0; i < files.size(); i++)
 		{
 			FileRecord fr = files[i];
-#if defined(__BORLANDC__)
+#if defined(LOG4CPP) || defined(__BORLANDC__)
 		 	printf("\n---------- List of blocks for '%ls' ----------\n", fr.fileName.c_str());
 		 	printf("%-4s %10s %12s %7s %13s %7s\n", "#", "Compressed", "Uncompressed", "Ratio", "BWT Line", "Flags");
 #else
@@ -66,7 +66,7 @@ void ArchiveHeader::listContent(const string_t& arcFilename, bool verbose)
 
 				fin.ignore(cBlockSize);
 				float ratio = (float)uBlockSize / (float)cBlockSize;
-#if defined(__BORLANDC__)
+#if defined(LOG4CPP) || defined(__BORLANDC__)
 				printf("%-4u %10ls %12ls %7.2f %13ls %7u\n",
 					j, toStringSep(cBlockSize).c_str(), toStringSep(uBlockSize).c_str(), ratio, toStringSep(bwtLineNum).c_str(), (uint32_t)bflags);
 			}

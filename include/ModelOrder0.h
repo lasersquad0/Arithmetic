@@ -6,15 +6,18 @@
 #include "BasicModel.h"
 #include "Parameters.h"
 
-class ModelOrder0: public BasicModel
+template<class UINT>
+class ModelOrder0: public BasicModel<UINT>
 {
 protected:
-	static const uint32or64 UCHAR_CNT = 256;
-	uint32or64 weights[UCHAR_CNT];
-	uint32or64 summFreq;
+	static const UINT UCHAR_CNT = 256;
+	UINT weights[UCHAR_CNT];
+	UINT summFreq;
 	bool zeroInit;
 public:
-	ModelOrder0(IBlockCoder& cr, bool zInit = false):BasicModel(cr)
+	using uint_type = typename UINT;
+
+	ModelOrder0(IBlockCoder<UINT>& cr, bool zInit = false): BasicModel<UINT>(cr)
 	{
 		zeroInit = zInit;
 		ResetModel();
@@ -24,7 +27,7 @@ public:
 	{
 		summFreq = 0;
 		for (int i = 0; i < UCHAR_CNT; i++) 
-			summFreq += (weights[i] = static_cast<uint32or64>(zeroInit?0:1));
+			summFreq += (weights[i] = static_cast<UINT>(zeroInit?0:1));
 		
 			//summFreq = 0;
 		//for (int i = 0; i < UCHAR_CNT; i++)
@@ -33,14 +36,14 @@ public:
 
 	void EncodeSymbol(uchar* ctx, uchar sym) override
 	{
-		uint32or64 i = 0;
-		uint32or64 LowFreq = 0;
+		uchar i = 0;
+		UINT LowFreq = 0;
 		//uint32or64 symbol = *sym;
 
 		while(i < sym)
 			LowFreq += weights[i++];
 
-		coder.EncodeByte(LowFreq, weights[i], summFreq);
+		this->coder.EncodeByte(LowFreq, weights[i], summFreq);
 
 		UpdateStatistics(ctx, sym);
 	}
@@ -48,8 +51,8 @@ public:
 	uchar DecodeSymbol(uchar* ctx) override
 	{
 		uchar sym;
-		uint32or64 HiCount = 0;
-		uint32or64 count = coder.GetCumFreq(summFreq); // changes coder.range
+		UINT HiCount = 0;
+		UINT count = this->coder.GetCumFreq(summFreq); // changes coder.range
 
 		for (sym = 0; ; sym++)
 		{
@@ -57,14 +60,14 @@ public:
 			if (HiCount > count) break;
 		}
 
-		coder.DecodeByte(HiCount - weights[sym], weights[sym], summFreq); //changes low, range and code
+		this->coder.DecodeByte(HiCount - weights[sym], weights[sym], summFreq); //changes low, range and code
 
 		UpdateStatistics(ctx, sym);
 
 		return sym;
 	}
 
-	uint32or64 GetWeight(uchar*, uchar sym) override
+	UINT GetWeight(uchar*, uchar sym) override
 	{
 		return weights[sym];
 	}
@@ -74,7 +77,7 @@ public:
 		//uchar c = *ctx;
 		weights[sym]++;
 		summFreq++;
-		if (summFreq > coder.GetIntParam("MAX_FREQ")) Rescale();
+		if (summFreq > this->coder.GetIntParam("MAX_FREQ")) Rescale();
 	}
 
 	void Rescale()
@@ -88,18 +91,18 @@ public:
 			summFreq += (weights[i] -= (weights[i] >> 1));
 	}
 
-	void BeginEncode(std::ostream* f) override
+	void BeginEncode(std::ostream* fo, std::istream* fi = nullptr) override
 	{
 		ResetModel(); // the same model can be used for encoding-decoding different files sduring one session. it need to be reset to original state each time.
-		BasicModel::BeginEncode(f);
+		BasicModel<UINT>::BeginEncode(fo, fi);
 	}
-
 	
 	void BeginDecode(std::istream* f) override
 	{
 		ResetModel();
-		BasicModel::BeginDecode(f);
+		BasicModel<UINT>::BeginDecode(f);
 	}
-
 };
 
+typedef ModelOrder0<uint32_t> ModelOrder032;
+typedef ModelOrder0<uint64_t> ModelOrder064;

@@ -53,9 +53,11 @@ public:
 	bool BLOCK_MODE = true;  // using block mode by default, to back to 'stream' mode use -sm cli option
 	bool VERBOSE = false;
 	ModelType MODEL_TYPE = ModelType::O2;
-	CoderType CODER_TYPE = CoderType::AARITHMETIC;
-	static const inline string_t CoderNames[] = { _T("NONE"), _T("HUF"), _T("AHUF"), _T("RLE"), _T("ARI"), _T("ARI32"), _T("ARI64"), _T("AARI"), _T("AARI32"), _T("AARI64"), _T("BITARI") };
-	static const inline string_t ModelTypeCode[] = { _T("UNKNOWN"), _T("O0"), _T("O1"), _T("O2"), _T("O3"), _T("MIXO3"), _T("FO1"), _T("BITO1") };
+	CoderType CODER_TYPE = CoderType::ARITHMETIC;
+	static const inline string_t CoderNames[] = { _T("NONE"),_T("HUF"),_T("AHUF"),_T("RLE"),_T("ARI"),_T("ARI32"),_T("ARI64"),_T("BITARI") };
+	static const inline bool IsCoder64bit[]   = {   false,      true,      true,     true,    false,     false,      true,        false    };
+	static const inline string_t ModelTypeCode[] = { _T("UNKNOWN"),_T("O0"),_T("O1"),_T("O2"),_T("O3"),_T("O0FIX"),_T("O0SORT"),_T("O0PAIR"),_T("O3MIX"),_T("O1FPAQ") };
+
 
 	uint32_t GetThreads() { return THREADS; }
 	void SetThreads(uint32_t thrds) { THREADS = thrds; }

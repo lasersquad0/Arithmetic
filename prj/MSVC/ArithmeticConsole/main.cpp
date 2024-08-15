@@ -32,7 +32,8 @@ void PrintWindowsErrorMessage(const TCHAR* lpszFunction)
 {
     LPVOID lpMsgBuf;
     DWORD err = GetLastError();
-    FormatMessage(
+    
+	FormatMessage(
         FORMAT_MESSAGE_ALLOCATE_BUFFER |
         FORMAT_MESSAGE_FROM_SYSTEM |
         FORMAT_MESSAGE_IGNORE_INSERTS,
@@ -56,7 +57,7 @@ void PrintWindowsErrorMessage(const TCHAR* lpszFunction)
 
     LocalFree(lpDisplayBuf);
 
-    cout << "Error opening 'log4cpp.properties' resource! Error code:" << err << endl;
+    //cout << "Error opening 'log4cpp.properties' resource! Error code:" << err << endl;
 
 }
 
@@ -102,7 +103,7 @@ bool SaveLog4cppConfigurationFile()
 static void PrintUsage(COptionsList& options)
 {
 #ifdef LOG4CPP
-    Global::GetLogger().info(CHelpFormatter::Format(Global::APP_NAME, &options));
+    Global::GetLogger().info(toOEM(CHelpFormatter::Format(Global::APP_NAME, &options)));
 #else
     Global::GetLogger().Info(convert_string<char>(CHelpFormatter::Format(Global::APP_NAME, &options)));
 #endif
@@ -117,7 +118,7 @@ static void PrintUsage(COptionsList& options)
 #define OPT_M _T("m")
 #define OPT_O _T("o")
 #define OPT_SM _T("sm")
-#define OPT_T _T("T")
+#define OPT_T _T("t")
 #define OPT_V _T("v")
 #define OPT_X _T("x")
 
@@ -139,8 +140,8 @@ static void DefineOptions(COptionsList& options)
     options.AddOption(OPT_L, _T("list"), _T("List content of archive"), 1);
     options.AddOption(OPT_T, _T("threads"), _T("Use specified number of threads during operation"), 1);
     options.AddOption(OPT_H, _T("help"), _T("Show help"), 0);
-    options.AddOption(OPT_M, _T("model-type"), _T("Use model of specified order. Valid model types: o1, o2, o3, o4, fo1, bito1."), 1);
-    options.AddOption(OPT_C, _T("coder-type"), _T("Use specified coder. Valid coders: huf, ahuf, ari, aari, bitari."), 1);
+    options.AddOption(OPT_M, _T("model-type"), _T("Use model of specified order. Valid model types: O0, O1, O2, O3, O0FIX, O0SORT, O0PAIR, O3MIX, O1FPAQ."), 1);
+    options.AddOption(OPT_C, _T("coder-type"), _T("Use specified coder. Valid coders: huf, ahuf, ari, ari32, ari64, bitari."), 1);
     options.AddOption(OPT_V, _T("verbose"), _T("Print more detailed (verbose) information to screen."), 0);
     options.AddOption(OPT_SM, _T("stream-mode"), _T("Use stream mode (oposite to block mode). No BWT, no MTB in this mode."), 0);
     options.AddOption(OPT_O, _T("output-dir"), _T("Specifies directory where uncompressed files will be placed. Valid with -x option only."), 1);
@@ -161,7 +162,7 @@ int _tmain(int argc, _TCHAR* argv[])
 
     try
     {
-        log2cpp::PropertyConfigurator::configure("log4cpp.properties");
+        log4cpp::PropertyConfigurator::configure("log4cpp.properties");
     }
     catch (exception& e)
     {
@@ -170,7 +171,7 @@ int _tmain(int argc, _TCHAR* argv[])
         return 1;
     }
 
-    log2cpp::Category& logger = Global::GetLogger(); //Category::getInstance("sub1"); // getRoot();
+    log4cpp::Category& logger = Global::GetLogger(); //Category::getInstance("sub1"); // getRoot();
     //ParametersG::logger = Category::getInstance("sub1");
 
     logger.info("Arithmetic coder start");
