@@ -17,3 +17,9 @@ public:
 	file_error(const std::string& what_arg) : std::runtime_error(what_arg) {}
 };
 
+
+class convert_error : public std::runtime_error
+{
+public:
+	convert_error(const std::string& what_arg) : std::runtime_error(what_arg) {}
+};
