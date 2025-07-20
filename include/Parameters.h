@@ -54,7 +54,7 @@ public:
 	bool VERBOSE = false;
 	ModelType MODEL_TYPE = ModelType::O2;
 	CoderType CODER_TYPE = CoderType::ARITHMETIC;
-	static const inline string_t CoderNames[] = { _T("NONE"),_T("HUF"),_T("AHUF"),_T("RLE"),_T("ARI"),_T("ARI32"),_T("ARI64"),_T("BITARI") };
+	static const inline string_t CoderNames[] = { _T("NONE"),_T("HUF"),_T("AHUF"),_T("RLE"),_T("ARI"),_T("ARI32"),_T("ARI64"),_T("BITARI"), _T("ARIFPAQ") };
 	static const inline bool IsCoder64bit[]   = {   false,      true,      true,     true,    false,     false,      true,        false    };
 	static const inline string_t ModelTypeCode[] = { _T("UNKNOWN"),_T("O0"),_T("O1"),_T("O2"),_T("O3"),_T("O0FIX"),_T("O0SORT"),_T("O0PAIR"),_T("O3MIX"),_T("O1FPAQ") };
 
@@ -94,6 +94,9 @@ class Global
 public:
     // this name used in PrintUsage function as for now
 	static inline string_t APP_NAME = _T("SOME APP"); // initialized by argv[0] in function main
+	static const inline std::string LOGGER_NAME = "Arithmetic";
+	static const inline std::string LOGFILE_NAME = "ArithmeticLog.log";
+	static const inline std::string LFGFILE_NAME = "ArithmeticLog.lfg";
 #ifdef LOG4CPP
 	static log4cpp::Category& GetLogger()
 	{
@@ -102,7 +105,7 @@ public:
 #else
 	static LogEngine::Logger& GetLogger()
 	{
-		return LogEngine::GetLogger("Arithmetic");
+		return LogEngine::GetLogger(LOGGER_NAME);
 	}
 
 #endif
