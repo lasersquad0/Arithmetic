@@ -1,113 +1,30 @@
 
 #include <iostream>
 #include <filesystem>
+#include <string>
 #include <direct.h>
-#ifdef LOG4CPP
-#include <log4cpp/Category.hh>
-#include <log4cpp/PropertyConfigurator.hh>
-#include "resource.h"
-#else
+
 #include "LogEngine.h"
-#endif
-#include <strsafe.h>
+#include "resource.h"
+//#include <strsafe.h>
 #include "Archiver.h"
 #include "OptionsList.h"
 #include "DefaultParser.h"
 #include "CommandLine.h"
 #include "HelpFormatter.h"
 #include "Parameters.h"
-
+#include <CommonFunctions.h>
 
 
 using namespace std;
 
+
 // *************** TODO *********************
 // optimize model order 4 to use less memory
 // check memory allocations for buffers in Loadblock, SaveBlock to avoid allocating extra memory
-// finish TMemoryStream class.
-// work on multithreading
+// add multithreading for uncompress
+// think how to implement multithreading on compress. problem - coder and model have states, difficult to coder and model classes in parallel from diff threads 
 
-
-void PrintWindowsErrorMessage(const TCHAR* lpszFunction)
-{
-    LPVOID lpMsgBuf;
-    DWORD err = GetLastError();
-    
-	FormatMessage(
-        FORMAT_MESSAGE_ALLOCATE_BUFFER |
-        FORMAT_MESSAGE_FROM_SYSTEM |
-        FORMAT_MESSAGE_IGNORE_INSERTS,
-        NULL,
-        err,
-        MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-        (LPTSTR)&lpMsgBuf,
-        0, NULL);
-
-    wcout << (TCHAR*)lpMsgBuf << endl;
-
-    //const TCHAR* lpszFunction = TEXT("FindResource");
-
-    LPVOID lpDisplayBuf = (LPVOID)LocalAlloc(LMEM_ZEROINIT, (lstrlen((LPCTSTR)lpMsgBuf) + lstrlen((LPCTSTR)lpszFunction) + 40) * sizeof(TCHAR));
-
-    StringCchPrintf((LPTSTR)lpDisplayBuf, LocalSize(lpDisplayBuf) / sizeof(TCHAR),
-        TEXT("%s failed with error %d: %s"), lpszFunction, err, lpMsgBuf);
-
-
-    wcout << (TCHAR*)lpDisplayBuf << endl;
-
-    LocalFree(lpDisplayBuf);
-
-    //cout << "Error opening 'log4cpp.properties' resource! Error code:" << err << endl;
-
-}
-
-#ifdef LOG4CPP
-bool SaveLog4cppConfigurationFile()
-{
-    HRSRC resInfo = FindResource(nullptr, MAKEINTRESOURCE(IDR_RT_RCDATA1), L"RT_RCDATA");
-
-    if (resInfo == nullptr)
-    {
-        PrintWindowsErrorMessage(TEXT("FindResource"));
-        return false;
-    }
-
-    HGLOBAL resBytes = LoadResource(nullptr, resInfo);
-
-    if (resBytes == nullptr)
-    {
-        PrintWindowsErrorMessage(TEXT("LoadResource"));
-        return false;
-    }
-
-    LPVOID lockBytes = LockResource(resBytes);
-
-    if (lockBytes == nullptr)
-    {
-        PrintWindowsErrorMessage(TEXT("LockResource"));
-        return false;
-    }
-
-    DWORD size = SizeofResource(nullptr, resInfo);
-
-    ofstream out;
-    out.open("log4cpp.prop", ios::binary);
-    out.write((char*)lockBytes, size);
-    out.close();
-
-    return true;
-}
-#endif
-
-
-static void PrintUsage(COptionsList& options)
-{
-#ifdef LOG4CPP
-    Global::GetLogger().info(toOEM(CHelpFormatter::Format(Global::APP_NAME, &options)));
-#else
-    Global::GetLogger().Info(convert_string<char>(CHelpFormatter::Format(Global::APP_NAME, &options)));
-#endif
-}
 
 #define OPT_A _T("a")
 #define OPT_B _T("b")
@@ -147,40 +64,69 @@ static void DefineOptions(COptionsList& options)
     options.AddOption(OPT_O, _T("output-dir"), _T("Specifies directory where uncompressed files will be placed. Valid with -x option only."), 1);
 }
 
+static void PrintUsage(COptionsList& options)
+{
+	Global::GetLogger().Info(wtos(CHelpFormatter::Format(Global::APP_NAME, &options)));
+}
+
+// this function is called ONLY when .lfg file cannot be found or error during parsing .lfg file
+static void InitDefaultLogger()
+{
+	std::shared_ptr<LogEngine::Sink> consoleSink(new LogEngine::StdoutSinkST("console_sink"));
+	consoleSink->SetPattern("%time% %msg%");
+	std::shared_ptr<LogEngine::Sink> fileSink(new LogEngine::FileSinkST("file_sink", Global::LOGFILE_NAME));
+
+	LogEngine::Logger& logger = LogEngine::GetMultiLogger(Global::LOGGER_NAME, { consoleSink, fileSink });
+	logger.SetLogLevel(LogEngine::Levels::llInfo); // set log level for logger and all its sinks.
+
+	LOG_INFO("ArithmeticLog.lfg is not found, use default logging configuration.");
+}
+
+
 #ifdef LOG4CPP
 #define TRYCATCH(_,__) try {(_);}catch(...){logger.warn(__);}
 #else
 #define TRYCATCH(_,__) try {(_);}catch(...){logger.Warn(__);}
 #endif
 
+//forward declaration or main()
+void CheckParametersValidity(Parameters& params);
+
 int _tmain(int argc, _TCHAR* argv[])
 //int main(int argc,char* argv[])
 {
-#ifdef LOG4CPP
-    if (!SaveLog4cppConfigurationFile())
-        return 1; // were not able to load log4cpp.properties from resources - exiting with error message
+	try
+	{
+		// try to load .lfg file from currect directory
+		LogEngine::InitFromFile(Global::LFGFILE_NAME); // throws an exception if file is not found
 
-    try
-    {
-        log4cpp::PropertyConfigurator::configure("log4cpp.properties");
-    }
-    catch (exception& e)
-    {
-        cout << e.what() << endl;
-        cout << "Exiting." << endl;
-        return 1;
-    }
+	}
+	catch (FileException&)
+	{
+		// if ArithmeticLog.lfg is not found, try to find .lfg file in resources of .exe file
+		if (SaveLogConfigFile(IDR_RT_RCDATA2, Global::LFGFILE_NAME))
+		{
+			try
+			{
+				// try to load .lfg again 
+				LogEngine::InitFromFile(Global::LFGFILE_NAME); // throws an exception if file is not found
+			}
+			catch (FileException&)
+			{
+				// if .lfg file cannot be loaded again - use default logger settings
+				InitDefaultLogger();
+			}
+		}
+		else
+		{
+			// not able to load ArithmeticLog.lfg from resources - configure logger settings manually (console + file)
+			InitDefaultLogger();
+		}
+	}
 
-    log4cpp::Category& logger = Global::GetLogger(); //Category::getInstance("sub1"); // getRoot();
-    //ParametersG::logger = Category::getInstance("sub1");
+	GET_LOGGER();
 
-    logger.info("Arithmetic coder start");
-#else
-    LogEngine::InitFromFile("ArithmeticLog.lfg");
-
-    LogEngine::Logger& logger = Global::GetLogger();
-    logger.Info("Arithmetic coder start");
-#endif
+	logger.Info("Arithmetic coder start");
 
 
     SetImbue(cout);
@@ -195,19 +141,17 @@ int _tmain(int argc, _TCHAR* argv[])
 
     if (argc < 2)
     {
-        LOG_ERROR("Error: No command line arguments found.");
+        //LOG_ERROR("No command line arguments found.");
         PrintUsage(options);
         return 1;
     }
 
     if (!defaultParser.Parse(&options, &cmd, argv, argc))
     {
-        LOG_ERROR(convert_string<char>(defaultParser.GetLastError()));
+        LOG_ERROR(wtos(defaultParser.GetLastError()));
         PrintUsage(options);
         return 1;
     }
-
-	//Parameters params2;
 
 	Parameters params;
 	params.BLOCK_MODE = !cmd.HasOption(OPT_SM);
@@ -218,47 +162,44 @@ int _tmain(int argc, _TCHAR* argv[])
 		//TODO add check for value range (1...24)
 		TRYCATCH(params.THREADS = std::stoi(cmd.GetOptionValue(OPT_T, 0)), "Cannot parse Threads count option value (-t). Default value 1 will be used.");
 	}
-
 	if (cmd.HasOption(OPT_B))
 	{
 		//TODO add check for value range (1024...100M)
 		TRYCATCH(params.BLOCK_SIZE = ParseBlockSize(cmd.GetOptionValue(OPT_B, 0)), "Cannot parse Block size option value (-b). Default value 64K bytes will be used.");
 	}
+	if (cmd.HasOption(OPT_V))
+	{
+		params.VERBOSE = true;
+	}
+	if (cmd.HasOption(OPT_O))
+	{
+		params.OUTPUT_DIR = cmd.GetOptionValue(OPT_O);
+	}
 	if (cmd.HasOption(OPT_M))
 	{
 		TRYCATCH(params.MODEL_TYPE = ParseModelType(cmd.GetOptionValue(OPT_M, 0)), "Cannot parse Model type option value (-m). Default value 'O2' will be used.");
 	}
-
 	if (cmd.HasOption(OPT_C))
 	{
 		TRYCATCH(params.CODER_TYPE = ParseCoderType(cmd.GetOptionValue(OPT_C, 0)), "Cannot parse Coder type option value (-c). Default value 'AARI' will be used.");
 	}
 
-	if (cmd.HasOption(OPT_V))
-	{
-		params.VERBOSE = true;
-	}
-
-	if (cmd.HasOption(OPT_O))
-	{
-		params.OUTPUT_DIR = cmd.GetOptionValue(OPT_O);
-	}
-
 	if (params.VERBOSE)
 	{
 		for (size_t i = 0; i < argc; i++) // for debugging purposes
-#ifdef LOG4CPP
-			logger.info("CLI param: %s", argv[i]);
-#elif defined (__BORLANDC__)
-			logger.LogFmt(LogEngine::Levels::llInfo, "CLI param: %s", argv[i]);
+#if defined (__BORLANDC__)
+			LOG_INFO1("CLI param: %s", argv[i]);
+			//logger.LogFmt(LogEngine::Levels::llInfo, "CLI param: %s", argv[i]);
 #else
-			logger.InfoFmt("CLI param: {}", convert_string<char>(argv[i]));
+			LOG_INFO1("CLI param: {}", convert_string<char>(argv[i]));
 #endif
 	}
 
 
 	try
 	{
+		CheckParametersValidity(params);
+
 		if (cmd.HasOption(OPT_H))
 		{
 			PrintUsage(options);
@@ -266,7 +207,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		else if (cmd.HasOption(OPT_L))
 		{
 			ArchiveHeader hd;
-			hd.listContent(cmd.GetOptionValue(OPT_L, 0), params.VERBOSE);
+			hd.ListContent(cmd.GetOptionValue(OPT_L, 0), params.VERBOSE);
 		}
 		else if (cmd.HasOption(OPT_A))
 		{
