@@ -1,0 +1,11 @@
+TODO
+----
+
+This file contains an imcomplete list of things to be done, not necessarily ordered by importance or urgence.
+
++ Add possibility to compress files in multiple threads
+
+* Improve "usage" text - add there schema like this
+  ArithmeticConsole.exe [switches] [command] <archive_file> <File_to_archive>  <File_to_archive> ....
+
+
