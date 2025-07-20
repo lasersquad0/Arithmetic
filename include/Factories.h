@@ -42,15 +42,15 @@ public:
 
 			switch ((ModelType)fr.modelOrder)
 			{
-			case ModelType::O0:    models[fr.modelOrder][fr.alg] = new ModelOrder064(coder64); return models[fr.modelOrder][fr.alg]; break;
-			case ModelType::O1:    models[fr.modelOrder][fr.alg] = new ModelOrder164(coder64); return models[fr.modelOrder][fr.alg]; break;
-			case ModelType::O2:    models[fr.modelOrder][fr.alg] = new ModelOrder264(coder64); return models[fr.modelOrder][fr.alg]; break;
-			case ModelType::O3:    models[fr.modelOrder][fr.alg] = new ModelOrder364(coder64); return models[fr.modelOrder][fr.alg]; break;
-			case ModelType::O0FIX: models[fr.modelOrder][fr.alg] = new ModelOrder0Fixed64(coder64); return models[fr.modelOrder][fr.alg]; break;
+			case ModelType::O0:    models[fr.modelOrder][fr.alg] = new ModelOrder064(coder64);     return models[fr.modelOrder][fr.alg]; break;
+			case ModelType::O1:    models[fr.modelOrder][fr.alg] = new ModelOrder164(coder64);     return models[fr.modelOrder][fr.alg]; break;
+			case ModelType::O2:    models[fr.modelOrder][fr.alg] = new ModelOrder264(coder64);     return models[fr.modelOrder][fr.alg]; break;
+			case ModelType::O3:    models[fr.modelOrder][fr.alg] = new ModelOrder364(coder64);     return models[fr.modelOrder][fr.alg]; break;
+			case ModelType::O0FIX: models[fr.modelOrder][fr.alg] = new ModelOrder0Fixed64(coder64);return models[fr.modelOrder][fr.alg]; break;
 			case ModelType::O0SORT:models[fr.modelOrder][fr.alg] = new ModelOrder0Sort64(coder64); return models[fr.modelOrder][fr.alg]; break;
 			case ModelType::O0PAIR:models[fr.modelOrder][fr.alg] = new ModelOrder0Pair64(coder64); return models[fr.modelOrder][fr.alg]; break;
 			case ModelType::O3MIX: models[fr.modelOrder][fr.alg] = new ModelOrderMixed64(coder64); return models[fr.modelOrder][fr.alg]; break;
-			case ModelType::O1FPAQ: models[fr.modelOrder][fr.alg] = new fpaqBitCoder64(coder64); return models[fr.modelOrder][fr.alg]; break; // fpaqBitCoder model always works with ABITARI coder
+			case ModelType::O1FPAQ:models[fr.modelOrder][fr.alg] = new fpaqBitCoder64(coder64);    return models[fr.modelOrder][fr.alg]; break; // fpaqBitCoder model always works with ABITARI coder
 			}
 			throw std::invalid_argument("Invalid model type.");
 		}
@@ -60,15 +60,15 @@ public:
 
 			switch ((ModelType)fr.modelOrder)
 			{
-			case ModelType::O0:    models[fr.modelOrder][fr.alg] = new ModelOrder032(coder32); return models[fr.modelOrder][fr.alg]; break;
-			case ModelType::O1:    models[fr.modelOrder][fr.alg] = new ModelOrder132(coder32); return models[fr.modelOrder][fr.alg]; break;
-			case ModelType::O2:    models[fr.modelOrder][fr.alg] = new ModelOrder232(coder32); return models[fr.modelOrder][fr.alg]; break;
-			case ModelType::O3:    models[fr.modelOrder][fr.alg] = new ModelOrder332(coder32); return models[fr.modelOrder][fr.alg]; break;
-			case ModelType::O0FIX: models[fr.modelOrder][fr.alg] = new ModelOrder0Fixed32(coder32); return models[fr.modelOrder][fr.alg]; break;
+			case ModelType::O0:    models[fr.modelOrder][fr.alg] = new ModelOrder032(coder32);     return models[fr.modelOrder][fr.alg]; break;
+			case ModelType::O1:    models[fr.modelOrder][fr.alg] = new ModelOrder132(coder32);     return models[fr.modelOrder][fr.alg]; break;
+			case ModelType::O2:    models[fr.modelOrder][fr.alg] = new ModelOrder232(coder32);     return models[fr.modelOrder][fr.alg]; break;
+			case ModelType::O3:    models[fr.modelOrder][fr.alg] = new ModelOrder332(coder32);     return models[fr.modelOrder][fr.alg]; break;
+			case ModelType::O0FIX: models[fr.modelOrder][fr.alg] = new ModelOrder0Fixed32(coder32);return models[fr.modelOrder][fr.alg]; break;
 			case ModelType::O0SORT:models[fr.modelOrder][fr.alg] = new ModelOrder0Sort32(coder32); return models[fr.modelOrder][fr.alg]; break;
 			case ModelType::O0PAIR:models[fr.modelOrder][fr.alg] = new ModelOrder0Pair32(coder32); return models[fr.modelOrder][fr.alg]; break;
 			case ModelType::O3MIX: models[fr.modelOrder][fr.alg] = new ModelOrderMixed32(coder32); return models[fr.modelOrder][fr.alg]; break;
-			case ModelType::O1FPAQ:models[fr.modelOrder][fr.alg] = new fpaqBitCoder32(coder32); return models[fr.modelOrder][fr.alg]; break; // fpaqBitCoder model always works with ABITARI coder
+			case ModelType::O1FPAQ:models[fr.modelOrder][fr.alg] = new fpaqBitCoder32(coder32);    return models[fr.modelOrder][fr.alg]; break; // fpaqBitCoder model always works with ABITARI coder
 			}
 			throw std::invalid_argument("Invalid model type.");
 		}
@@ -81,8 +81,8 @@ public:
 
 		switch (ct)
 		{
-		case CoderType::HUFFMAN:        throw std::invalid_argument("Invalid coder type."); //return new RangeCoder(); break;
-		case CoderType::AHUFFMAN:       throw std::invalid_argument("Invalid coder type."); //return new RangeCoder(); break;
+		case CoderType::HUFFMAN:       throw std::invalid_argument("Invalid coder type."); //return new RangeCoder(); break;
+		case CoderType::AHUFFMAN:      throw std::invalid_argument("Invalid coder type."); //return new RangeCoder(); break;
 		case CoderType::ARITHMETIC:
 		case CoderType::ARITHMETIC32:  coders32[cindex] = new RangeCoder32(); return *(coders32[cindex]); break;
 		case CoderType::BITARITHMETIC: coders32[cindex] = new BitCoder32();   return *(coders32[cindex]); break;
@@ -99,11 +99,11 @@ public:
 
 		switch (ct)
 		{
-		case CoderType::HUFFMAN:        throw std::invalid_argument("Invalid coder type."); //return new RangeCoder(); break;
-		case CoderType::AHUFFMAN:       throw std::invalid_argument("Invalid coder type."); //return new RangeCoder(); break;
+		case CoderType::HUFFMAN:       throw std::invalid_argument("Invalid coder type."); //return new RangeCoder(); break;
+		case CoderType::AHUFFMAN:      throw std::invalid_argument("Invalid coder type."); //return new RangeCoder(); break;
 		case CoderType::ARITHMETIC64:  coders64[cindex] = new RangeCoder64(); return *(coders64[cindex]); break;
 		case CoderType::BITARITHMETIC: coders64[cindex] = new BitCoder64();   return *(coders64[cindex]); break;
-		//case CoderType::ABITARITHMETIC: coders64[cindex] = new fpaqBitCoder(*(new RangeCoder()));   return *(coders[cindex]); break; // TODO dirty hack here!!!
+		case CoderType::FPAQARITHMETIC:coders64[cindex] = new fpaqBitCoder64(*(new RangeCoder64())); return *(coders64[cindex]); break; // TODO dirty hack here!!!
 
 		}
 		throw std::invalid_argument("Invalid coder type.");

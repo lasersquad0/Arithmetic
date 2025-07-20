@@ -30,8 +30,6 @@ class ArchiveHeader
 	*/
 
 private:
-	//inline static log4cpp::Category& logger = log4cpp::Category::getInstance(ParametersG::LOGGER_NAME);
-
 	const uint32_t FILE_SIGNATURE_LEN = 4;
 	const uint32_t FILE_VERSION_LEN = 2;
 
@@ -50,9 +48,6 @@ private:
 		myassert((fileVersion[1] >= '0') && (fileVersion[1] <= '9'));
 	}
 
-public:
-	void listContent(const string_t& arcFilename, bool verbose);
-
 	bool CheckSignature(const string_t& ArchiveName)
 	{
 		std::ifstream fin(ArchiveName, std::ios::in | std::ios::binary);
@@ -70,41 +65,28 @@ public:
 	    	   signature[2] == 'M' && signature[3] == 'A' &&
 			   version[0] >= '0'   && version[0] <= '9'   &&
 			   version[1] >= '0'   && version[1] <= '9';
-
 	}
 
-	bool FileInList(const string_t& FileName)
+	string_t ellipsis(const string_t& str, uint len)
 	{
-		for (auto item: files)
-			if (item.fileName == FileName)
-				return true;
-		return false;
+		return (str.length() > len) ? str.substr(0, len - 3) + _T("...") : str;
 	}
 
-	void RemoveFileFromList(const string_t& FileName)
-	{
-		for (vect_fr_t::iterator iter = files.begin(); iter != files.end(); iter++)
-		{
-			if (iter->fileName == FileName)
-			{
-				files.erase(iter);
-				break;
-			}
-		}
-	}
+public:
+	void ListContent(const string_t& arcFilename, bool verbose);
 
-	void RemoveFilesFromList(const vect_string_t& FileList)
-	{
-		for (vect_fr_t::iterator iter = files.begin(); iter != files.end(); )
-		{
-			auto result = std::find(FileList.begin(), FileList.end(), iter->fileName);
+	/**
+	* Adds filenames into vector of FileRecord together with file lengths and modified datetime attributes
+	* @param filenames list of files (as strings).
+	*/
+	vect_fr_t& FillFileRecs(const vect_string_t& filenames, const Parameters& params);
 
-			if (result != FileList.end())
-				iter = files.erase(iter);
-			else
-				iter++;
-		}
-	}
+	/**
+	 * Update existing archive with information about sizes of compressed files in it (in bytes)
+	 * @param arcFilename Name of the archive
+	 * @throws IOException if something goes wrong
+	 */
+	void UpdateHeaders(const string_t& arcFilename);
 
 	vect_fr_t& LoadHeader(std::ifstream* sin)
 	{
@@ -152,27 +134,39 @@ public:
 			fr.save(sout);
 		}
 	}
-
-	/**
-	 * Adds filenames into vector of FileRecord together with file lengths and modified datetime attributes
-	 * @param filenames list of files (as strings).
-	 */
-	vect_fr_t& FillFileRecs(const vect_string_t& filenames, const Parameters& params);
-
-	/**
-	 * Update existing archive with information about sizes of compressed files in it (in bytes)
-	 * @param arcFilename Name of the archive
-	 * @throws IOException if something goes wrong
-	 */
-	void updateHeaders(const string_t& arcFilename);
-
 	
-	string_t ellipsis(const string_t& str, uint len)
+	bool FileInList(const string_t& FileName)
 	{
-		return (str.length() > len) ? str.substr(0, len - 3) + _T("...") : str;
+		for (auto item : files)
+			if (item.fileName == FileName)
+				return true;
+		return false;
 	}
 
+	void RemoveFileFromList(const string_t& FileName)
+	{
+		for (vect_fr_t::iterator iter = files.begin(); iter != files.end(); iter++)
+		{
+			if (iter->fileName == FileName)
+			{
+				files.erase(iter);
+				break;
+			}
+		}
+	}
 
+	void RemoveFilesFromList(const vect_string_t& FileList)
+	{
+		for (vect_fr_t::iterator iter = files.begin(); iter != files.end(); )
+		{
+			auto result = std::find(FileList.begin(), FileList.end(), iter->fileName);
+
+			if (result != FileList.end())
+				iter = files.erase(iter);
+			else
+				iter++;
+		}
+	}
 };
 
 
