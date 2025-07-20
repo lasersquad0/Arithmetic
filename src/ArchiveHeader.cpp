@@ -1,7 +1,9 @@
+
 #include "CommonFunctions.h"
 #include "ArchiveHeader.h"
+#include "LogEngine.h"
 
-void ArchiveHeader::listContent(const string_t& arcFilename, bool verbose)
+void ArchiveHeader::ListContent(const string_t& arcFilename, bool verbose)
 {
 	std::ifstream fin(arcFilename, std::ios::in | std::ios::binary);
 	if (fin.fail())
@@ -91,7 +93,7 @@ vect_fr_t& ArchiveHeader::FillFileRecs(const vect_string_t& filenames, const Par
 {
 	files.clear();
 
-	for (int i = 0; i < filenames.size(); i++) // first item in a list is archive file name, bypass it.
+	for (int i = 0; i < filenames.size(); i++) 
 	{
 		if (std::filesystem::exists(filenames[i]))
 		{
@@ -136,7 +138,7 @@ vect_fr_t& ArchiveHeader::FillFileRecs(const vect_string_t& filenames, const Par
  * @param arcFilename Name of the archive
  * @throws IOException if something goes wrong
  */
-void ArchiveHeader::updateHeaders(const string_t& arcFilename)
+void ArchiveHeader::UpdateHeaders(const string_t& arcFilename)
 {
 	std::fstream raf;
 	//raf.exceptions(ios_base::failbit | ios_base::badbit);
