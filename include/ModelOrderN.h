@@ -26,6 +26,7 @@ public:
 		models.ClearMem();
 	}
 
+	// the same model can be used for encoding-decoding different files during one session. it needs to be reset to original state each time.
 	void ResetModel()
 	{
 		for (uint i = 0; i < models.Count(); i++)
@@ -36,6 +37,7 @@ public:
 	{
 		assert(Order > 0);
 
+		//TODO rewrite it using GetValuePointer??? will be faster
 		int ind = models.GetKeys().IndexOf(ctx[Order - 1]);
 		if (ind >= 0)
 		{
@@ -63,6 +65,7 @@ public:
 	{
 		assert(Order > 0);
 
+		//TODO rewrite it using GetValuePointer??? will be faster
 		int ind = models.GetKeys().IndexOf(ctx[Order - 1]);
 		if (ind >= 0)
 		{
