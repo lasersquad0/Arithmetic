@@ -1,8 +1,11 @@
 
 #include <filesystem>
+#include <algorithm>
+
 #if defined (__BORLANDC__)
 #include <share.h>
 #endif
+
 #include "fpaq0.h"
 #include "RangeCoder.h"
 #include "BasicModel.h"
@@ -13,6 +16,8 @@
 #include "MTF.h"
 #include "Factories.h"
 #include "Archiver.h"
+#include "LogEngine.h"
+#include "thread_pool.h"
 
 using namespace std;
 
@@ -20,14 +25,6 @@ using namespace std;
 
 #define SHOW_PROGRESS_AFTER 1000
 #define SHOWP (fr.fileSize > SHOW_PROGRESS_AFTER)
-
-
-#if defined (__BORLANDC__)
-#define _SH_DENYRW SH_DENYRW
-#define _SH_DENYWR SH_DENYWR
-#define _SH_DENYRD SH_DENYRD
-#define _SH_DENYNO SH_DENYNO
-#endif
 
 void Archiver::AddCallback(ICallback* cb)
 {
@@ -42,6 +39,7 @@ void Archiver::RemoveCallback(ICallback* cb)
 // if ArchiveFileName does not have '.ar' extension it will be added
 // if ArchiveFileName exists - it will be overwritten
 // if ArchiveFileName does not exist it will be created
+// ArchiveFileName passed by value intentionally
 int Archiver::CompressFile(string_t ArchiveFileName, const string_t& FileName, const Parameters& params)
 {
 	vect_string_t files;
@@ -50,6 +48,7 @@ int Archiver::CompressFile(string_t ArchiveFileName, const string_t& FileName, c
 	return CompressFiles(ArchiveFileName, files, params);
 }
 
+// ArchiveFileName passed by value intentionally
 int Archiver::CompressFiles(string_t ArchiveFileName, const vect_string_t& files, const Parameters& params)
 {
 	//ConsoleProgressCallback ccb;
@@ -68,7 +67,7 @@ int Archiver::CompressFiles(string_t ArchiveFileName, const vect_string_t& files
 	PrintCompressionStart(params);
 	logger.LogFmt(LogEngine::Levels::llInfo, "Adding %d file%s to archive.", files.size(), files.size() > 1 ? "s" : "");
 #else
-	logger.InfoFmt("Creating archive '{}'.", convert_string<char>(ArchiveFileName));
+	logger.InfoFmt("Creating archive '{}'.", toOEM(ArchiveFileName));
 	PrintCompressionStart(params);
 	logger.InfoFmt("Adding {} file{} to archive.", files.size(), files.size() > 1 ? "s" : "");
 #endif
@@ -95,7 +94,12 @@ int Archiver::CompressFiles(string_t ArchiveFileName, const vect_string_t& files
 			throw file_error("Cannot open file '" + convert_string<char>(fr.origFilename) + "' for reading.");
 
 		if (params.BLOCK_MODE)
-			result = CompressFileBlock(&fout, &fin, fr, model);
+		{
+			if(params.THREADS > 1)
+				result = CompressFileBlockInThread(&fout, &fin, fr, model, params);
+			else
+				result = CompressFileBlock(&fout, &fin, fr, model);
+		}
 		else
 			result = CompressFile(&fout, &fin, fr, model);
 
@@ -120,7 +124,7 @@ int Archiver::CompressFiles(string_t ArchiveFileName, const vect_string_t& files
 	}
 	else
 	{
-		hd.updateHeaders(ArchiveFileName);
+		hd.UpdateHeaders(ArchiveFileName);
 		LOG_INFO("All files are compressed.");
 	}
 
@@ -174,7 +178,6 @@ int Archiver::CompressFile(ofstream* fout, ifstream* fin, FileRecord& fr, IModel
 			{
 				RESULT = CALLBACK_ABORT;
 				break;
-				//return CALLBACK_ABORT;
 			}
 		}
 
@@ -185,7 +188,7 @@ int Archiver::CompressFile(ofstream* fout, ifstream* fin, FileRecord& fr, IModel
 	model->StopEncode();
 	if (showprogress) cbmanager.Finish();
 
-	fr.compressedSize = model->GetBytesPassed(); // TODO makes sense do it better and more convenient
+	fr.compressedSize = model->GetBytesPassed();
 
 	if (RESULT == CALLBACK_ABORT)
 		PrintFileCompressionAborted(fr);
@@ -216,6 +219,176 @@ void WCHARtoChar(char* dest, const wchar_t* src)
 	//if (len > 0u) dest[len] = '\0';
 }
 
+bool Archiver::LoadBlocksToBWTTasks(ifstream* fin, MT::ThreadPool* ppool, uint32_t blockSize) const
+{
+	size_t tasksInQueue = ppool->task_queue_size();
+	if (tasksInQueue >= MAX_TASKS) return true;
+	uint32_t blocksLoaded = 0;
+	
+	GET_LOGGER();
+	logger.Debug("[LoadBlocksToBWTTasks] Loading blocks ...");
+
+	while (tasksInQueue < MAX_TASKS)
+	{
+		auto task = std::make_shared<BWTTask>(blockSize);
+		fin->read((char*)task->Buf, blockSize);
+		task->ReadSize = fin->gcount();
+		
+		// no sense to add task with zero data size
+		if(task->ReadSize > 0)
+			ppool->add_task(task);
+
+		blocksLoaded++;
+
+		if (task->ReadSize < blockSize) return false; // no more data blocks in a file
+		
+		tasksInQueue++;
+	}
+
+	logger.DebugFmt("[LoadBlocksToBWTTasks] Blocks loaded: {}", blocksLoaded);
+	//logger.DebugFmt("[LoadBlocksToBWTTasks] NEW blocks created: " + newBlocks);
+	//logger.DebugFmt("[LoadBlocksToBWTTasks] REUSED blocks: " + reusedBlocks);
+
+	return true; 
+}
+
+int Archiver::CompressFileBlockInThread(ofstream* fout, ifstream* fin, FileRecord& fr, IModel* model, const Parameters& params)
+{
+	GET_LOGGER();
+
+#ifdef LOG4CPP
+	logger.info("Compressing file '%s'.", fr.origFilename.c_str());
+#elif defined(__BORLANDC__)
+	logger.LogFmt(LogEngine::Levels::llInfo, "Compressing file '%s'.", convert_string<char>(fr.origFilename).c_str());
+#else
+	//std::string charbuf;
+	//charbuf.resize(MAX_PATH);
+	//WCHARtoChar(charbuf.data(), fr.origFilename.c_str());
+// sometimes convert_string<char> generates an exception during conversation, code above - is not.
+// neither of it works properly with, for instance, russian symbols in file name.
+	std::string oemStr;
+	oemStr.resize(fr.origFilename.size());
+	//std::string str2 = convert_string<char>(fr.origFilename);
+	//CharToOemA(str2.data(), oemStr.data());
+	CharToOemW(fr.origFilename.data(), oemStr.data());
+	logger.InfoFmt("Compressing file '{}'.", /*wtos(fr.origFilename)*/oemStr);
+
+#endif
+
+	// pool will not contain more than MAX_TASKS tasks.
+	MAX_TASKS = std::max(MAX_TASKS_MEMORY_USAGE / (2 * fr.blockSize + 8 * fr.blockSize), 2u); // buf + bwtbuf + tmpbuf
+
+	Ticks::Start(fr.origFilename);
+
+	// IModel* model = ModelsFactory::GetModel();
+   //  CallBack cb;
+
+	uint32_t numBlocks = 1 + (uint32_t)(fr.fileSize / fr.blockSize);
+	uint32_t delta = numBlocks / 100 + 1;
+	uint32_t threshold = 0;
+	uint32_t cntBlocks = 0;
+
+	bool showprogress = SHOWP;
+	if (showprogress) cbmanager.Start();
+
+	ostringstream fblock;
+	model->BeginEncode(&fblock, fin); // for O0FIX model: nullptr tells to the model - do NOT calculate Freqs on BeginEncode
+
+	Context ctx;
+	uint32_t i = 0;
+	if (showprogress) cbmanager.Progress(0);
+	int RESULT = CALLBACK_OK;
+
+	MT::ThreadPool pool(params.THREADS); //TODO how to get number of processor cores?
+	pool.set_logger_flag(false);
+	pool.start(); // remove the pool from a pause, allowing streams to take on the tasks on the fly
+
+	logger.DebugFmt("MAX_TASKS = {}", MAX_TASKS);
+
+	bool moreBlocks = LoadBlocksToBWTTasks(fin, &pool, fr.blockSize);
+	MT::task_id blockID = 1; // because pool.last_task_id starts from 1 too
+
+	uint32_t sleepTime = 100; // millisec
+	//if (fr.blockSize <= 1 << 16) sleepTime = 5;
+	//if (fr.blockSize > 1 << 22) sleepTime = 500;
+
+	while (true)
+	{
+		std::this_thread::sleep_for(std::chrono::milliseconds(sleepTime));
+
+		uint32_t tasksInQueue = pool.task_queue_size();
+
+		if (moreBlocks && (tasksInQueue < (MAX_TASKS/2)) ) // load more blocks only after half of blocks have been BWTed
+			moreBlocks = LoadBlocksToBWTTasks(fin, &pool, fr.blockSize);
+		
+		// pop_result returns nullptr if result is not ready yet.
+		auto task = pool.pop_result<BWTTask>(blockID);
+		if (task)
+		{
+			logger.DebugFmt("Block #{} started compressing", blockID);
+
+			model->BeginBlockEncode(task->Buf, task->ReadSize);
+
+			for (i = 0; i < task->ReadSize; i++)
+			{
+				model->EncodeSymbol(ctx.getCtx(), (uchar)task->Buf[i]);
+				ctx.add((uchar)task->Buf[i]);
+			}
+
+			model->StopBlockEncode(); // save 'last 4 bytes' into block.
+
+			logger.DebugFmt("Block #{} finsihed compressing", blockID);
+
+			SaveBlock(fblock, fout, i, (uint32_t)task->LineNum); //TODO shall we use task->ReadSize instead of i ?
+
+			logger.DebugFmt("Current task count in a queue:{}, completed: {}", pool.task_queue_size(), pool.tasks_completed());
+
+			cntBlocks++;
+			if (showprogress && (cntBlocks > threshold))
+			{
+				threshold += delta;
+				if (CALLBACK_ABORT == cbmanager.Progress((100ull * threshold / numBlocks)))
+				{
+					RESULT = CALLBACK_ABORT;
+					break;
+					//return CALLBACK_ABORT; // TODO immediate return causes memory leak
+				}
+			}
+
+			blockID++;
+		}
+		else
+		{
+			//logger.DebugFmt("[CompressFileBlockInThread] Task #{} is not ready yet, waiting.", blockID);
+		}
+
+		// check that all tasks are executed and removed from completed_tasks
+		if ((pool.tasks_completed() == 0) && (pool.task_queue_size() == 0) && !pool.is_active()) break; 
+		
+	}
+
+	model->StopEncode();
+	if (showprogress) cbmanager.Finish();
+
+	fr.compressedSize = model->GetBytesPassed(); // TODO makes sense do it better and more convenient
+	fr.blockCount = cntBlocks;
+
+	if (RESULT == CALLBACK_ABORT)
+		PrintFileCompressionAborted(fr);
+	else
+		PrintFileCompressionDone(fr);
+
+	auto tick = Ticks::Finish(fr.origFilename);
+#ifdef LOG4CPP
+	logger.info("%-16s %s", "Spent time:", millisecToStr(tick).c_str());
+#elif defined(__BORLANDC__)
+	logger.LogFmt(LogEngine::Levels::llInfo, "%-16s %s", "Spent time:", millisecToStr(tick).c_str());
+#else
+	logger.InfoFmt("{:16} {}", "Spent time:", millisecToStr(tick));
+#endif
+	LOG_INFO("------------------------------");
+	return RESULT;
+}
 
 int Archiver::CompressFileBlock(ofstream* fout, ifstream* fin, FileRecord& fr, IModel* model)
 {
@@ -236,7 +409,7 @@ int Archiver::CompressFileBlock(ofstream* fout, ifstream* fin, FileRecord& fr, I
 	//std::string str2 = convert_string<char>(fr.origFilename);
 	//CharToOemA(str2.data(), oemStr.data());
 	CharToOemW(fr.origFilename.data(), oemStr.data());
-	logger.InfoFmt("Compressing file '{}'.", oemStr);
+	logger.InfoFmt("Compressing file '{}'.", /*wtos(fr.origFilename)*/oemStr);
 #endif
 
 	Ticks::Start(fr.origFilename);
@@ -260,7 +433,7 @@ int Archiver::CompressFileBlock(ofstream* fout, ifstream* fin, FileRecord& fr, I
 	if (showprogress) cbmanager.Start();
 
 	ostringstream fblock;
-	model->BeginEncode(&fblock, fin);
+	model->BeginEncode(&fblock, fin); // for O0FIX model: nullptr tells to the model - do NOT calculate Freqs on BeginEncode
 
 	Context ctx;
 	uint32_t i = 0;
@@ -278,7 +451,7 @@ int Archiver::CompressFileBlock(ofstream* fout, ifstream* fin, FileRecord& fr, I
 		fin->read((char*)buf, fr.blockSize);
 		streamsize cntRead = fin->gcount();
 
-		if (cntRead == 0) break; // for the case when (filesize % fr.blockSize)==0
+		if (cntRead == 0) break; // for the case when (filesize % fr.blockSize)==0 i.e. nothing read
 
 		//string fn = "bufencode";
 		//SaveToFile(fn + to_string(cntBlocks), (char*)buf, cntRead);
@@ -292,7 +465,7 @@ int Archiver::CompressFileBlock(ofstream* fout, ifstream* fin, FileRecord& fr, I
 		//fn = "bwtbufencode";
 		//SaveToFile(fn + to_string(cntBlocks), (char*)bwtbuf, cntRead);
 
-		model->BeginBlockEncode();
+		model->BeginBlockEncode(buf, fr.blockSize);
 
 		for (i = 0; i < cntRead; i++)
 		{
@@ -448,12 +621,8 @@ int Archiver::UncompressFile(ifstream* fin, ofstream* fout, FileRecord& fr, IMod
 
    // fout.close();
 
-#ifdef LOG4CPP
-	logger.info("Extracting done '%s'.", fr.fileName.c_str());
-	auto tick = Ticks::Finish(fr.fileName);
-	logger.info("%-19s %s", "Spent time:", millisecToStr(tick).c_str());
-#elif defined(__BORLANDC__)
-	logger.LogFmt(LogEngine::Levels::llInfo, "Extracting done '%s'.", fr.fileName.c_str());
+#if defined(__BORLANDC__)
+	logger.LogFmt(LogEngine::Levels::llInfo, "Extracting done '%s'.", convert_string<char>(fr.fileName).c_str());
 	auto tick = Ticks::Finish(fr.fileName);
 	logger.LogFmt(LogEngine::Levels::llInfo, "%-19s %s", "Spent time:", millisecToStr(tick).c_str());
 #else
@@ -561,11 +730,7 @@ int Archiver::UncompressFileBlock(ifstream* fin, ofstream *fout, FileRecord& fr,
 	delete[] buf;
 	delete[] bwtbuf;
 	delete[] temp;
-#ifdef LOG4CPP
-	logger.info("Extracting done '%s'.", fr.fileName.c_str());
-	auto tick = Ticks::Finish(fr.fileName);
-	logger.info("%-19s %s", "Spent time:", millisecToStr(tick).c_str());
-#elif defined (__BORLANDC__)
+#if defined (__BORLANDC__)
 	logger.LogFmt(LogEngine::Levels::llInfo, "Extracting done '%s'.", convert_string<char>(fr.fileName).c_str());
 	auto tick = Ticks::Finish(fr.fileName);
 	logger.LogFmt(LogEngine::Levels::llInfo, "%-19s %s", "Spent time:", convert_string<char>(millisecToStr(tick)).c_str());
@@ -1036,7 +1201,7 @@ void Archiver::PrintUncompressionStart(const FileRecord& fr, const Parameters& p
 	LogEngine::Logger& logger = Global::GetLogger();
 	//logger.info("Using Arithmetic Range compressor.");
 
-	logger.InfoFmt("{:19} {}", "Extracting file:", convert_string<char>(fr.fileName));
+	logger.InfoFmt("{:19} {}", "Extracting file:", toOEM(fr.fileName));
 	logger.InfoFmt("{:19} {}", "Extracting to:", convert_string<char>(params.OUTPUT_DIR));
 	logger.InfoFmt("{:19} {}", "Compression coder:", convert_string<char>(Parameters::CoderNames[fr.alg]));
 	logger.InfoFmt("{:19} {}", "Model type:", convert_string<char>(Parameters::ModelTypeCode[fr.modelOrder]));
