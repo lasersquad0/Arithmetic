@@ -86,7 +86,7 @@ public:
 		case CoderType::ARITHMETIC:
 		case CoderType::ARITHMETIC32:  coders32[cindex] = new RangeCoder32(); return *(coders32[cindex]); break;
 		case CoderType::BITARITHMETIC: coders32[cindex] = new BitCoder32();   return *(coders32[cindex]); break;
-			//case CoderType::ABITARITHMETIC: coders[cindex] = new fpaqBitCoder(*(new RangeCoder()));   return *(coders[cindex]); break; // TODO dirty hack here!!!
+		case CoderType::FPAQARITHMETIC:coders32[cindex] = new fpaqBitCoder32(*(new RangeCoder32())); return *(coders32[cindex]); break; // TODO dirty hack here!!!
 
 		}
 		throw std::invalid_argument("Invalid coder type.");
