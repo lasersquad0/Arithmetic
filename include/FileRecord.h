@@ -14,11 +14,11 @@ File record in archive - structure
 3. Modified date of original file
 4. Compressed file size — 8 bytes (uint64_t)
 5. Code of algorythm (codec) used for compressing - 1 byte (uint8_t)
-6. Model order number used to compress the file (shared the same byte with apgorythm code above)
-7. Number of blocks used by compressed file (zero for non-block algorythms)
+6. Model order number used to compress the file (shares the same byte with algorithm code above)
+7. Number of blocks used by compressed file (zero for non-block algorithms)
 8. Size of block (valid for block algorythms only). can contain any value for non-block algorythms
 9. File name string size
-10. File name as number of chars. Each char uses 2 bytes.
+10. File name as number of wchars. Each char uses 2 bytes.
 */
 
 class FileRecord
