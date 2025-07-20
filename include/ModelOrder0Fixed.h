@@ -26,6 +26,19 @@ protected:
 			summFreq += (weights[i] -= (weights[i] >> 1));
 	}
 
+	void RescaleTo(UINT limit)
+	{
+		if (limit > summFreq) return; // no scaling needed
+
+		do
+			Rescale(); // changes only weights[]. cumFreq[] remains unchanged and needs to be recalculated separately (see below).
+		while (summFreq > limit);
+
+		cumFreqs[0] = 0;
+		for (int i = 0; i < ALFABET_CNT; i++)
+			cumFreqs[i + 1] = cumFreqs[i] + weights[i];
+	}
+
 public:
 	ModelOrder0Fixed(IBlockCoder<UINT>&cr): BasicModel<UINT>(cr)
 	{		
@@ -33,36 +46,39 @@ public:
 
 	void BeginEncode(std::ostream* fo, std::istream* fi = nullptr) override
 	{
-		//memset(weights, 0, ALFABET_CNT*sizeof(weights[0]));
-		for (uint i = 0; i < ALFABET_CNT; i++) weights[i] = 1; // weights[i] cannot be zero
-
-		summFreq = ALFABET_CNT; // default sum of weights
-		while (true)
+		if (fi)
 		{
-			uchar ch = (uchar)fi->get();
-			if (fi->eof()) break;
+			//memset(weights, 0, ALFABET_CNT*sizeof(weights[0]));
+			for (uint i = 0; i < ALFABET_CNT; i++) weights[i] = 1; // weights[i] cannot be zero
 
-			weights[ch]++;
-			summFreq++;
+			summFreq = ALFABET_CNT; // default sum of weights
+			while (true)
+			{
+				uchar ch = (uchar)fi->get();
+				if (fi->eof()) break;
+
+				weights[ch]++;
+				summFreq++;
+			}
+
+			cumFreqs[0] = 0;
+			for (uint i = 0; i < ALFABET_CNT; i++)
+			{
+				cumFreqs[i + 1] = cumFreqs[i] + weights[i];
+			}
+
+			RescaleTo(this->coder.GetIntParam("MAX_FREQ"));
+
+			// when we called fi->get() at the end of file two bit raised: failbit and eofbit. 
+			// need to clear them before moving reading point to beginning
+			fi->clear();
+			fi->seekg(0, std::ios_base::beg); // moving file pointer back to the beginning
+
+			// saving frequency table into archive file
+			fo->write((const char*)weights, ALFABET_CNT * sizeof(weights[0]));
 		}
 
-		cumFreqs[0] = 0;
-		for (uint i = 0; i < ALFABET_CNT; i++)
-		{
-			cumFreqs[i + 1] = cumFreqs[i] + weights[i];
-		}
-
-		RescaleTo(this->coder.GetIntParam("MAX_FREQ"));
-		
-		// when we called fi->get() at the end of file two bit raised: failbit and eofbit. 
-		// need to clear them before moving reading point to beginning
-		fi->clear();
-		fi->seekg(0, std::ios_base::beg); // moving file pointer back to the beginning
-		
-		// saving frequency table into archive file
-		fo->write((const char*)weights, ALFABET_CNT * sizeof(weights[0]));
-		
-		this->coder.StartEncode(fo);
+		BasicModel<UINT>::BeginEncode(fo);
 	}
 
 	void BeginDecode(std::istream* f) override
@@ -77,8 +93,37 @@ public:
 		}
 		summFreq = cumFreqs[ALFABET_CNT];
 
-		this->coder.StartDecode(f);
+		BasicModel<UINT>::BeginDecode(f);
 	}
+
+	//void BeginBlockEncode(uint8_t* buf, uint bufSize) override
+	//{
+	//	// get Freq statistic from buf because buf is after BWT and MTF transformations applied.
+	//	// therefore we need to refresh statistics
+
+	//	if (buf)
+	//	{
+	//		for (uint i = 0; i < ALFABET_CNT; i++) weights[i] = 1; // weights[i] cannot be zero
+	//		summFreq = ALFABET_CNT; // default sum of weights
+
+	//		for (uint i = 0; i < bufSize; i++)
+	//		{
+	//			uchar ch = buf[i];
+	//			weights[ch]++;
+	//			summFreq++;
+	//		}
+
+	//		cumFreqs[0] = 0;
+	//		for (uint i = 0; i < ALFABET_CNT; i++)
+	//		{
+	//			cumFreqs[i + 1] = cumFreqs[i] + weights[i];
+	//		}
+
+	//		RescaleTo(this->coder.GetIntParam("MAX_FREQ"));
+	//	}
+
+	//	BasicModel<UINT>::BeginBlockEncode(buf, bufSize);
+	//}
 
 	void EncodeSymbol(uchar*, uchar sym) override
 	{
@@ -121,18 +166,7 @@ public:
 		// nothing
 	}
 
-	void RescaleTo(UINT limit)
-	{
-		if (limit > summFreq) return; // no scaling needed
 
-		do
-			Rescale(); // changes only weights[], cumFreq[] remains unchanged and needs to be recalculated separately (see below).
-		while (summFreq > limit);
-
-		cumFreqs[0] = 0;
-		for (int i = 0; i < ALFABET_CNT; i++)
-			cumFreqs[i + 1] = cumFreqs[i] + weights[i];
-	}
 };
 
 using ModelOrder0Fixed32 = ModelOrder0Fixed<uint32_t>;

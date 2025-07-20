@@ -6,6 +6,8 @@
 #include "BasicModel.h"
 #include "Parameters.h"
 
+// Model order0 uses frequencies of each symbol independently to other symbols
+// frequencies are not fixed and collected as compression progresses
 template<class UINT>
 class ModelOrder0: public BasicModel<UINT>
 {
@@ -15,7 +17,7 @@ protected:
 	UINT summFreq;
 	bool zeroInit;
 public:
-	using uint_type = typename UINT;
+	using uint_type = UINT;
 
 	ModelOrder0(IBlockCoder<UINT>& cr, bool zInit = false): BasicModel<UINT>(cr)
 	{
@@ -29,7 +31,7 @@ public:
 		for (int i = 0; i < UCHAR_CNT; i++) 
 			summFreq += (weights[i] = static_cast<UINT>(zeroInit?0:1));
 		
-			//summFreq = 0;
+		//summFreq = 0;
 		//for (int i = 0; i < UCHAR_CNT; i++)
 		//	summFreq += (weights[i] = static_cast<uint32or64>(1)); // by default all weights are set to 1
 	}
