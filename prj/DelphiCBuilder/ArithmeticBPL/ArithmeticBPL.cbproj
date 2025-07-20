@@ -79,7 +79,7 @@
         <BCC_PCHUsage>None</BCC_PCHUsage>
         <BCC_UseClassicCompiler>false</BCC_UseClassicCompiler>
         <FinalOutputDir>.\$(Platform)\$(Config)</FinalOutputDir>
-        <ILINK_LibraryPath>..\..\..\src\;..\..\..\..\libsais\src\;..\..\..\include\;..\..\..\..\LogEngine2\lib;$(ILINK_LibraryPath)</ILINK_LibraryPath>
+        <ILINK_LibraryPath>..\..\..\src\;..\..\..\..\libsais\src\;..\..\..\include\;$(ILINK_LibraryPath)</ILINK_LibraryPath>
         <BCC_Defines>EXPORT_FOR_DELPHI;$(BCC_Defines)</BCC_Defines>
         <DynamicRTL>true</DynamicRTL>
         <BCC_wamb>true</BCC_wamb>
@@ -106,7 +106,7 @@
         <BCC_wiac>true</BCC_wiac>
         <BCC_wbcx>true</BCC_wbcx>
         <BCC_wpun>true</BCC_wpun>
-        <Defines>UNICODE;$(Defines)</Defines>
+        <Defines>UNICODE;LOGENGINE_HEADER_ONLY;$(Defines)</Defines>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win32)'!=''">
         <PackageImports>adortl;appanalytics;bcbie;bcbsmp;bindcomp;bindcompdbx;bindcompfmx;bindcompvcl;bindcompvclsmp;bindcompvclwinx;bindengine;CloudService;CustomIPTransport;DataSnapClient;DataSnapCommon;DataSnapConnectors;DatasnapConnectorsFreePascal;DataSnapFireDAC;DataSnapIndy10ServerTransport;DataSnapNativeClient;DataSnapProviderClient;DataSnapServer;DataSnapServerMidas;dbexpress;dbrtl;dbxcds;DbxClientDriver;DbxCommonDriver;DBXDb2Driver;DBXFirebirdDriver;DBXInformixDriver;DBXInterBaseDriver;DBXMSSQLDriver;DBXMySQLDriver;DBXOdbcDriver;DBXOracleDriver;DBXSqliteDriver;DBXSybaseASADriver;DBXSybaseASEDriver;dsnap;dsnapcon;dsnapxml;emsclient;emsclientfiredac;emsedge;emshosting;emsserverresource;FireDAC;FireDACADSDriver;FireDACASADriver;FireDACCommon;FireDACCommonDriver;FireDACCommonODBC;FireDACDb2Driver;FireDACDBXDriver;FireDACDSDriver;FireDACIBDriver;FireDACInfxDriver;FireDACMongoDBDriver;FireDACMSAccDriver;FireDACMSSQLDriver;FireDACMySQLDriver;FireDACODBCDriver;FireDACOracleDriver;FireDACPgDriver;FireDACSqliteDriver;FireDACTDataDriver;fmx;fmxase;fmxdae;fmxFireDAC;fmxobj;IndyCore;IndyIPClient;IndyIPCommon;IndyIPServer;IndyProtocols;IndySystem;inet;inetdb;inetdbxpress;RESTBackendComponents;RESTComponents;rtl;Skia;soapmidas;soaprtl;soapserver;tethering;vcl;vclactnband;vcldb;vcldsnap;vcledge;vclFireDAC;vclie;vclimg;VCLRESTComponents;VclSmp;vcltouch;vclwinx;vclx;xmlrtl;$(PackageImports)</PackageImports>
@@ -286,8 +286,14 @@
         <CppCompile Include="..\..\..\src\RangeCoder.cpp">
             <BuildOrder>43</BuildOrder>
         </CppCompile>
+        <CppCompile Include="..\..\..\src\thread_pool.cpp">
+            <BuildOrder>43</BuildOrder>
+        </CppCompile>
         <CppCompile Include="..\..\..\src\Ticks.cpp">
             <BuildOrder>43</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\..\..\src\timer.cpp">
+            <BuildOrder>44</BuildOrder>
         </CppCompile>
         <CppCompile Include="..\..\..\..\libsais\src\libsais.c">
             <BuildOrder>36</BuildOrder>
@@ -295,10 +301,6 @@
         <CppCompile Include="..\..\..\..\libsais\src\libsais64.c">
             <BuildOrder>37</BuildOrder>
         </CppCompile>
-        <LibFiles Include="..\..\..\..\LogEngine2\lib\LogEngine64_bcb.a" Condition="'$(Platform)'=='Win64'">
-            <BuildOrder>43</BuildOrder>
-            <IgnorePath>true</IgnorePath>
-        </LibFiles>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
@@ -326,6 +328,9 @@
                     <Source Name="MainSource">ArithmeticBPL.cpp</Source>
                 </Source>
                 <Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\Skia.Package.FMX.Designtime290.bpl">Skia4Delphi FMX Designtime package</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\dclsoapmidas290.bpl">Embarcadero SOAP Midas Components</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\dclsoapserver290.bpl">Embarcadero SOAP Server Components</Excluded_Packages>
                     <Excluded_Packages Name="$(BDSBIN)\bcboffice2k290.bpl">Embarcadero C++Builder Office 2000 Servers Package</Excluded_Packages>
                     <Excluded_Packages Name="$(BDSBIN)\bcbofficexp290.bpl">Embarcadero C++Builder Office XP Servers Package</Excluded_Packages>
                     <Excluded_Packages Name="$(BDSBIN)\dcloffice2k290.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
