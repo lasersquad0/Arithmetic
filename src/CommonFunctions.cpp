@@ -1,17 +1,20 @@
 
 #include <ctime>
-#include <direct.h>
-#include <io.h>
-#include <fcntl.h>
 #include <iostream>
 #include <cassert>
 #include <sstream>
 #include <algorithm>
 #include <locale>
+
 #if defined (__BORLANDC__)
 #include <share.h>
 #include <sys/stat.h>
 #endif
+#include "strsafe.h"
+#include <direct.h>
+#include <io.h>
+#include <fcntl.h>
+
 #include "Parameters.h"
 #include "CommonFunctions.h"
 
@@ -28,7 +31,7 @@ char mytoupper(int c) // to eliminate compile warning "warning C4244: '=': conve
 }
 
 // intentionally left std::string
-void trimAndUpper(string_t& str) // TODO what if we have \t in the beginning (end) of string?
+void TrimAndUpper(string_t& str) // TODO what if we have \t in the beginning (end) of string?
 {
 	// remove any leading and traling spaces, just in case.
 	size_t strBegin = str.find_first_not_of(' ');
@@ -38,6 +41,51 @@ void trimAndUpper(string_t& str) // TODO what if we have \t in the beginning (en
 
 	// to uppercase
 	transform(str.begin(), str.end(), str.begin(), ::mytoupper);
+}
+
+string_t GetErrorMessageText(ulong lastError, const string_t& errorPlace)
+{
+	const uint32_t BUF_SIZE = 2048; // should be enough for all error messages
+	string_t buf, buf2;
+	buf.resize(BUF_SIZE);
+	buf2.resize(BUF_SIZE);
+
+	BOOL_CHECK(FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+		nullptr, lastError, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR)buf.data(), BUF_SIZE, nullptr));
+
+	//return std::format(_T("%s failed with error code %d as follows:\n%s"), errorPlace, lastError, buf);
+	HR_CHECK(StringCchPrintf(buf2.data(), buf2.size(), TEXT("%s failed with error code %d as follows:\n%s"), errorPlace.c_str(), lastError, buf.data()));
+	return buf2;
+}
+
+//TODO replace by function GetErrorMessageText above ??
+void PrintWindowsErrorMessage(const TCHAR* lpszFunction)
+{
+	LPVOID lpMsgBuf;
+	DWORD err = GetLastError();
+
+	FormatMessage(
+		FORMAT_MESSAGE_ALLOCATE_BUFFER |
+		FORMAT_MESSAGE_FROM_SYSTEM |
+		FORMAT_MESSAGE_IGNORE_INSERTS,
+		NULL,
+		err,
+		MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+		(LPTSTR)&lpMsgBuf,
+		0, NULL);
+
+	//wcout << (TCHAR*)lpMsgBuf << endl;
+
+	LPVOID lpDisplayBuf = (LPVOID)LocalAlloc(LMEM_ZEROINIT, (lstrlen((LPCTSTR)lpMsgBuf) + lstrlen((LPCTSTR)lpszFunction) + 40) * sizeof(TCHAR));
+
+	StringCchPrintf((LPTSTR)lpDisplayBuf, LocalSize(lpDisplayBuf) / sizeof(TCHAR),
+		TEXT("%s failed with error %d: %s"), lpszFunction, err, lpMsgBuf);
+
+	auto& logger = Global::GetLogger();
+	LOG_ERROR(convert_string<char>((LPCTSTR)lpDisplayBuf));
+	//wcout << (TCHAR*)lpDisplayBuf << endl;
+
+	LocalFree(lpDisplayBuf);
 }
 
 uint32_t ParseBlockSize(string_t s) // intentionally by value
@@ -62,7 +110,7 @@ uint32_t ParseBlockSize(string_t s) // intentionally by value
 
 ModelType ParseModelType(string_t mt) // intentionally by value
 {
-	trimAndUpper(mt);
+	TrimAndUpper(mt);
 
 	size_t len = end(Parameters::ModelTypeCode) - begin(Parameters::ModelTypeCode);
 	for (size_t i = 0; i < len; i++)
@@ -76,7 +124,7 @@ ModelType ParseModelType(string_t mt) // intentionally by value
 
 CoderType ParseCoderType(string_t ct)  
 {
-	trimAndUpper(ct);
+	TrimAndUpper(ct);
 
 	size_t len = end(Parameters::CoderNames) - begin(Parameters::CoderNames);
 	for (size_t i = 0; i < len; i++)
@@ -86,7 +134,57 @@ CoderType ParseCoderType(string_t ct)
 	}
 
 	throw invalid_argument("Specified Coder type is not recognised.");
+}
 
+//TODO implementation of this function is not finished.
+void CheckParametersValidity(Parameters& params)
+{
+	struct Pair
+	{
+		CoderType coder;
+		ModelType model;
+	};
+
+	const Pair InvalidPairs[] = { {CoderType::HUFFMAN, ModelType::O1}, {CoderType::FPAQARITHMETIC, ModelType::O1FPAQ} };
+
+	if (params.BLOCK_MODE && params.MODEL_TYPE == ModelType::O0FIX)
+		throw std::invalid_argument("You have Block mode turned on. Model 'O0FIX' is not compatible with Block mode. Either select stream (non-block) mode or choo another model");
+}
+
+bool SaveLogConfigFile(int resID, const std::string& fileName)
+{
+	HRSRC resInfo = FindResource(nullptr, MAKEINTRESOURCE(resID/*IDR_RT_RCDATA1*/), L"RT_RCDATA");
+
+	if (resInfo == nullptr)
+	{
+		PrintWindowsErrorMessage(_T("FindResource"));
+		return false;
+	}
+
+	HGLOBAL resBytes = LoadResource(nullptr, resInfo);
+
+	if (resBytes == nullptr)
+	{
+		PrintWindowsErrorMessage(_T("LoadResource"));
+		return false;
+	}
+
+	LPVOID lockBytes = LockResource(resBytes);
+
+	if (lockBytes == nullptr)
+	{
+		PrintWindowsErrorMessage(_T("LockResource"));
+		return false;
+	}
+
+	DWORD size = SizeofResource(nullptr, resInfo);
+
+	ofstream out;
+	out.open(fileName, ios::binary);
+	out.write((char*)lockBytes, size);
+	out.close();
+
+	return true;
 }
 
 // converts native datetime value into string_t
