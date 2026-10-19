@@ -1,5 +1,5 @@
 
-#include <Windows.h>
+#include <windows.h>
 #include <time.h>
 #include "Utils.h"
 
@@ -21,6 +21,7 @@ void CharToWCHAR(wchar_t* dest, const char* src)
     // mbstowcs_s(&len, dest, MAX_PATH, src, strlen(src));
     // if (len > 0u) dest[len] = '\0';
 }
+
 
 uint MakeTCTime(time_t tt)
 {
@@ -70,13 +71,13 @@ string_t ExtractFileDirW(const char_t* FileName)
 }
 
 
-char mytoupper(int c); // to eliminate compile warning "warning C4244: '=': conversion from 'int' to 'char', possible loss of data"
+/*char mytoupper(int c); // to eliminate compile warning "warning C4244: '=': conversion from 'int' to 'char', possible loss of data"
 
 
 uint32_t ParseBlockSize(std::string s) // s is by value intentionally
 {
     int factor = 1;
-    transform(s.begin(), s.end(), s.begin(), mytoupper); // to uppercase
+    transform(s.begin(), s.end(), s.begin(), ::mytoupper); // to uppercase
 
     if (s.find_last_of('K') != std::string::npos)
         //if (s.lastIndexOf("K") > 0)
@@ -92,6 +93,7 @@ uint32_t ParseBlockSize(std::string s) // s is by value intentionally
 
     return stoi(s) * factor;
 }
+*/
 
 // function for convert bool Value to string
 string_t BooolToStr(bool Value)
