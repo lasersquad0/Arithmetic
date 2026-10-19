@@ -4,7 +4,7 @@
 #include "wcxhead.h"
 #include "CommonFunctions.h"
 #include "Callback.h"
-#include "LogEngine.h"
+#include "LogEngine2/LogEngine.h"
 
 class TCCallback : public ICallback
 {
@@ -28,13 +28,13 @@ public:
     int progress(uint64_t progress) override
     {
         LogEngine::Logger& logger = LogEngine::GetLogger(LOGGER_NAME);
-        LOG_DEBUG2("[TCCallback] progress: {}%", progress);
+        LOG_DEBUG1("[TCCallback] progress: {}%", progress);
 
         // is first parameter of FProgressDataProc is null then Progress TC window shows from and two paths correctly.
         // is first parameter of FProgressDataProc is name of the being copied file then Progress TC window shows just this filename that look bad.
         if (CALLBACK_ABORT == FProgressDataProc(nullptr/*(char*)FFilename.c_str()*/, -(int)progress))
         {
-            LOG_INFO2("[TCCallback] User cancelled operation at {}%.", progress);
+            LOG_INFO1("[TCCallback] User cancelled operation at {}%.", progress);
             return CALLBACK_ABORT;
         }
         return CALLBACK_OK;
@@ -70,11 +70,11 @@ public:
         int res = FProgressDataProc((char_t*)FFilename.c_str(), -(int)progress);
         if (CALLBACK_ABORT == res)
         {
-            LOG_INFO2("[TCCallbackW] User cancelled operation at {}%.", progress);
+            LOG_INFO1("[TCCallbackW] User cancelled operation at {}%.", progress);
             return CALLBACK_ABORT;
         }
 
-        LOG_DEBUG2("[TCCallbackW] progress: {}%", progress);
+        LOG_DEBUG1("[TCCallbackW] progress: {}%", progress);
         return CALLBACK_OK;
     }
 
