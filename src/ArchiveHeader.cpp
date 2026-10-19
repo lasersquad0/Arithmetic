@@ -1,57 +1,61 @@
 
 #include "CommonFunctions.h"
 #include "ArchiveHeader.h"
-#include "LogEngine.h"
+#include "LogEngine2/LogEngine.h"
+
+#define MAX_FN_COLW 46
+#define MIN_FN_COLW 10
 
 void ArchiveHeader::ListContent(const string_t& arcFilename, bool verbose)
 {
-	std::ifstream fin(arcFilename, std::ios::in | std::ios::binary);
+	std::ifstream fin;
+	fin.open(arcFilename, std::ios::in | std::ios::binary);
 	if (fin.fail())
-		throw file_error("Cannot open file '" + convert_string<char>(arcFilename) + "' for reading.");
+		throw file_error("Cannot open file '" + wtos(arcFilename) + "' for reading.");
 
 	LoadHeader(&fin);
 
-#if defined(LOG4CPP) || defined(__BORLANDC__)
-	printf("%-46s %18s %15s %6s %10s %6s %7s %7s %-19s %13s\n", "File name", "File size", "Compressed",
-		"Blocks", "Block size", "Alg", "Model", "Ratio", "Modified", "CRC32");
-#else
-	LogEngine::Logger& logger = Global::GetLogger();
-	logger.InfoFmt("{:<46} {:>18} {:>15} {:>6} {:>10} {:>6} {:>7} {:>7} {:<19} {:>13}", "File name", "File size", "Compressed",
-		"Blocks", "Block size", "Alg", "Model", "Ratio", "Modified", "CRC32");
-#endif
+	GET_LOGGER();
 
-	for (int i = 0; i < files.size(); i++)
+	size_t maxFileName = MIN_FN_COLW;
+
+	//TODO probably add calc of width of more columns here
+	for (int i = 0; i < m_files.size(); i++)
 	{
-		FileRecord fr = files[i];
+		FileRecord& fr = m_files[i];
+		if (maxFileName < fr.fileName.size()) maxFileName = fr.fileName.size();
+	}
 
-		std::string fileModified = DateTimeToStringA(fr.GetModifiedDateAsTimeT());
-		std::string algName = convert_string<char>(Parameters::CoderNames[fr.alg]); // fr.alg here does not contain model order already
-		std::string modelName = convert_string<char>(Parameters::ModelTypeCode[fr.modelOrder]);
+	if (maxFileName > MAX_FN_COLW) maxFileName = MAX_FN_COLW;
+
+	logger.InfoFmt("{:<{}} {:>18} {:>15} {:>6} {:>10} {:>6} {:>7} {:>7} {:<19} {:>13}", "File name", maxFileName, "File size", "Compressed",
+		"Blocks", "Block size", "Alg", "Model", "Ratio", "Modified", "CRC32");
+
+	for (int i = 0; i < m_files.size(); i++)
+	{
+		FileRecord fr = m_files[i];
 
 		float ratio = (float)fr.fileSize / (float)fr.compressedSize;
-#if defined(LOG4CPP) || defined(__BORLANDC__)
-		printf("%-46ls %18ls %15ls %6ls %10ls %6s %6s %7.2f  %19s %13llu\n",
-			ellipsis(fr.fileName, 46).c_str(), toStringSep(fr.fileSize).c_str(), toStringSep(fr.compressedSize).c_str(), toStringSep(fr.blockCount).c_str(),
-			toStringSep(fr.blockSize).c_str(), algName.c_str(), modelName.c_str(), ratio, fileModified.c_str(), fr.CRC32Value);
-#else
-		logger.InfoFmt("{:<46} {:>18} {:>15} {:>6} {:>10} {:>6} {:>6} {:7.2f}  {:>19} {:>13}",
-			convert_string<char>(ellipsis(fr.fileName, 46)), toStringSepA(fr.fileSize), toStringSepA(fr.compressedSize), toStringSepA(fr.blockCount),
-			toStringSepA(fr.blockSize), algName, modelName, ratio, fileModified, fr.CRC32Value);
-#endif
+		std::string fileModified = DateTimeToStringA(fr.GetModifiedDateAsTimeT());
+		std::string algName = wtos(Parameters::CoderNames[fr.alg]); // fr.alg here does not contain model order already
+		std::string modelName = wtos(Parameters::ModelTypeCode[fr.modelOrder]);
+		std::string fileNameA = wtos(ellipsis(fr.fileName, MAX_FN_COLW));
+
+		logger.InfoFmt("{:<{}} {:>18L} {:>15L} {:>6L} {:>10L} {:>6} {:>6} {:7.2f}  {:>19} {:>13}",
+			fileNameA, maxFileName, fr.fileSize, fr.compressedSize, fr.blockCount,
+			fr.blockSize, algName, modelName, ratio, fileModified, fr.CRC32Value);
 	}
 
 	if (verbose)
 	{
-		for (int i = 0; i < files.size(); i++)
+		for (int i = 0; i < m_files.size(); i++)
 		{
-			FileRecord fr = files[i];
-#if defined(LOG4CPP) || defined(__BORLANDC__)
-		 	printf("\n---------- List of blocks for '%ls' ----------\n", fr.fileName.c_str());
-		 	printf("%-4s %10s %12s %7s %13s %7s\n", "#", "Compressed", "Uncompressed", "Ratio", "BWT Line", "Flags");
-#else
-			logger.InfoFmt("\n---------- List of blocks for '{}' ----------\n", convert_string<char>(fr.fileName));
+			FileRecord fr = m_files[i];
+
+			logger.InfoFmt("\n---------- List of blocks for '{}' ----------\n", wtos(fr.fileName));
 			logger.InfoFmt("{:<4} {:>10} {:>12} {:>7} {:>13} {:>7}\n", "#", "Compressed", "Uncompressed", "Ratio", "BWT Line", "Flags");
-#endif
+
+			float ratio;
 			for (uint32_t j = 0; j < fr.blockCount; j++)
 			{
 				uint32_t cBlockSize;
@@ -66,21 +70,14 @@ void ArchiveHeader::ListContent(const string_t& arcFilename, bool verbose)
 				assert(cBlockSize > 0);
 				assert(uBlockSize > 0);
 
-				fin.ignore(cBlockSize);
-				float ratio = (float)uBlockSize / (float)cBlockSize;
-#if defined(LOG4CPP) || defined(__BORLANDC__)
-				printf("%-4u %10ls %12ls %7.2f %13ls %7u\n",
-					j, toStringSep(cBlockSize).c_str(), toStringSep(uBlockSize).c_str(), ratio, toStringSep(bwtLineNum).c_str(), (uint32_t)bflags);
-			}
-		}
-        printf("\n");
-#else
-				logger.InfoFmt("{:<4} {:>10} {:>12} {:>7.2f} {:>13} {:>7}",
-						j, toStringSepA(cBlockSize), toStringSepA(uBlockSize), ratio, toStringSepA(bwtLineNum), (uint32_t)bflags);
+				//fin.ignore(cBlockSize);
+				fin.seekg(cBlockSize, std::ios::cur);
+				ratio = (float)uBlockSize / cBlockSize;
+
+				logger.InfoFmt("{:<4} {:>10} {:>12} {:>7.2f} {:>13} {:>7}",	j, cBlockSize, uBlockSize, ratio, bwtLineNum, (uint32_t)bflags);
 			}
 		}
 		logger.Info(""); // just CRLF
-#endif
 	}
 	fin.close();
 }
@@ -91,7 +88,7 @@ void ArchiveHeader::ListContent(const string_t& arcFilename, bool verbose)
  */
 vect_fr_t& ArchiveHeader::FillFileRecs(const vect_string_t& filenames, const Parameters& params)
 {
-	files.clear();
+	m_files.clear();
 
 	for (int i = 0; i < filenames.size(); i++) 
 	{
@@ -100,9 +97,9 @@ vect_fr_t& ArchiveHeader::FillFileRecs(const vect_string_t& filenames, const Par
 			auto ph = std::filesystem::path(filenames[i]);
 
 			FileRecord fr;
-		   //	fr.dirName = ph.wstring(); //fl.getAbsolutePath(); // TODO find a way how to return a directory only. Now it returns full path with filename
+		   //	fr.dirName = ph.wstring(); //fl.getAbsolutePath(); //TODO find a way how to return a directory only. Now it returns full path with filename
 
-			fr.origFilename = filenames[i];
+			fr.origFilename = convert_string<wchar_t>(filenames[i]);
 			fr.fileName = ph.filename().wstring(); //fl.getName();//filenames[i]; // store name of the file without path
 			fr.fileSize = std::filesystem::file_size(filenames[i]);
 			fr.modifiedDate = std::filesystem::last_write_time(ph).time_since_epoch().count();
@@ -111,25 +108,21 @@ vect_fr_t& ArchiveHeader::FillFileRecs(const vect_string_t& filenames, const Par
 			fr.blockCount = 0;
 			fr.blockSize = params.BLOCK_SIZE;
 			fr.compressedSize = 0;
-			fr.CRC32Value = 0xFFFFF; // TODO change it
+			fr.CRC32Value = 0xFFFFF; //TODO change it
 
-			files.push_back(fr);
+			m_files.push_back(fr);
 		}
 		else
 		{
-#if defined (__BORLANDC__)
-			std::string mess = "Cannot read file '" + convert_string<char>(filenames[i]) + "'.";
-#else
-			std::string mess = std::format("Cannot read file '{}'.", convert_string<char>(filenames[i]));
-#endif
+			std::string mess = std::format("Cannot read file '{}'. Check if file exists.", wtos(filenames[i]));
 			throw std::invalid_argument(mess);
 			//	logger.warn("File '%s' cannot be found, pass on it.", filenames[i].c_str());
 		}
 	}
-	if (files.size() == 0)
+	if (m_files.size() == 0)
 		throw std::invalid_argument("There are no files to compress. Exiting...");
 
-	return files;
+	return m_files;
 }
 
 
@@ -144,7 +137,7 @@ void ArchiveHeader::UpdateHeaders(const string_t& arcFilename)
 	//raf.exceptions(ios_base::failbit | ios_base::badbit);
 	raf.open(arcFilename, std::ios::in | std::ios::out | std::ios::binary);
 	if (raf.fail())
-		throw file_error("Cannot open file '" + convert_string<char>(arcFilename) + "' for writing.");
+		throw file_error("Cannot open file '" + wtos(arcFilename) + "' for writing.");
 
 	uint32_t InitialOffset = FILE_SIGNATURE_LEN + FILE_VERSION_LEN + sizeof(uint16_t); // start of files table in an archive
 	constexpr uint32_t CRC32ValueOffset = sizeof(uint64_t);
@@ -154,10 +147,10 @@ void ArchiveHeader::UpdateHeaders(const string_t& arcFilename)
 
 	uint32_t pos = InitialOffset;
 
-	for (FileRecord fr : files)
+	for (FileRecord fr : m_files)
 	{
 		raf.seekp(pos + CRC32ValueOffset);
-		//fr.CRC32Value = 0xFFFFF; // TODO remove it later
+		//fr.CRC32Value = 0xFFFFF; //TODO remove it later
 		raf.write((char*)&fr.CRC32Value, sizeof(uint64_t));
 
 		raf.seekp(pos + CompressedSizeOffset, std::ios::beg);
