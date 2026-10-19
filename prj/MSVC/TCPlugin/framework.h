@@ -10,7 +10,8 @@
 
 #define PLUGIN_NAME "ARPacker"
 
-#define LOGGER_NAME "TCPluginLogger"
+constexpr auto LOGGER_NAME = "TCPluginLogger"; //TODO we have Global::LOGGER_NAME may be use it instead of constexpr
+
 #define LOGGER_FILE_NAME _T("ARPackerX.log") // we need _T() here 
 
 #define CONFIG_SECTION _T("ARPacker")
