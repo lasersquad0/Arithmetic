@@ -6,7 +6,7 @@
 //#include <source_location>
 #include "framework.h"
 #include "wcxhead.h"
-#include "LogEngine.h"
+#include "LogEngine2/LogEngine.h"
 #include "Archiver.h"
 #include "TCCallback.h"
 #include "resource.h"
@@ -62,8 +62,6 @@ PluginParameters ARPackParams;
 #define DEF_INIFILENAME _T("wcx_arpacker.ini")
 char_t IniFileName[MAX_PATH] = DEF_INIFILENAME;
 
-//Божена скажи пожалуйста как Тим Романченко может дать сроки заказчику если мы не знаем какой командой вы планируете делать проект, какие взаимосвязи между задачами и т.п.
-
 void InitLogger()
 {
     char_t logfn[MAX_PATH];
@@ -73,8 +71,7 @@ void InitLogger()
 
     LogEngine::SetProperty(APPNAME_PROPERTY, "ARPacker Total Commander plug-in");
     LogEngine::Logger& logger = LogEngine::GetFileLogger(LOGGER_NAME, convert_string<char>(logfn));
-    LogEngine::PatternLayout* lay = dynamic_cast<LogEngine::PatternLayout*>(logger.GetSink(LOGGER_NAME)->GetLayout());
-    lay->SetAllPatterns("%LOGLEVEL% %DATETIME% #%THREAD% : %MSG%");
+    logger.SetPattern("%LOGLEVEL% %DATETIME% #%THREAD% : %MSG%");
     logger.Info("LogEngine STARTED");
     if(lastErr == ERROR_FILE_NOT_FOUND) logger.WarnFmt("Ini file '{}' not found.", convert_string<char>(IniFileName));
 }
@@ -83,7 +80,7 @@ void ShutDownLogger()
 {
     LogEngine::Logger& logger = LogEngine::GetLogger(LOGGER_NAME);
     logger.Info("LogEngine STOPPED");
-    LogEngine::ClearLoggers();
+    LogEngine::ShutdownLoggers();
 }
 
 
@@ -587,7 +584,7 @@ BOOL CALLBACK DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
                 SendDlgItemMessage(hwndDlg, IDC_EDIT_BLOCKSIZE, WM_GETTEXT, PARAM_BUFSIZE, (LPARAM)value);
                 try
                 {
-                    uint32_t v = ParseBlockSize(value);
+                    uint64_t v = ParseBlockSize(value);
                     SendDlgItemMessage(hwndDlg, IDC_STATIC_BLOCKSIZE, WM_SETTEXT, 0, (LPARAM)_T("correct"));
                 }
                 catch(...)
@@ -684,10 +681,10 @@ void __stdcall PackSetDefaultParams(PackDefaultParamStruct* dps)
     
     // initialize logger again with new filename
     LogEngine::Logger& logger = LogEngine::GetFileLogger(LOGGER_NAME, convert_string<char>(ARPackParams.LOGFILENAME));
-    logger.SetLogLevel(LogEngine::Levels::llDebug);
-    logger.GetSink(LOGGER_NAME)->SetLogLevel(LogEngine::Levels::llDebug);
+    logger.SetLogLevel(LogEngine::llDebug);
+    logger.GetSink(LOGGER_NAME)->SetLogLevel(LogEngine::llDebug);
     LogEngine::PatternLayout* lay = dynamic_cast<LogEngine::PatternLayout*>(logger.GetSink(LOGGER_NAME)->GetLayout());
-    lay->SetAllPatterns("%LOGLEVEL% %DATETIME% #%THREAD% : %MSG%");
+    lay->SetPattern("%LOGLEVEL% %DATETIME% #%THREAD% : %MSG%");
 
     logger.InfoFmt("{} called", FUNC);
     logger.InfoFmt("{} TC IniFile: {}", FUNC, dps->DefaultIniName);
