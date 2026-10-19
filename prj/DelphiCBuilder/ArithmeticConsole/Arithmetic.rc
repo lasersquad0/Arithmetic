@@ -1,0 +1,3 @@
+#include "resource.h"
+
+IDR_RT_RCDATA2          RCDATA               "../../../ArithmeticLog.lfg"
