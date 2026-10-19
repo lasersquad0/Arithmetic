@@ -1,0 +1,10 @@
+[plugininstall]
+description=AR Packer/Unpacker v1.1
+type=wcx
+file=ARPacker.wcx64
+file=pluginst.inf
+file=ARPacker.license.txt
+file=ARPacker.Readme.txt
+defaultdir=ARPacker
+defaultextension=ar
+version=1.1
