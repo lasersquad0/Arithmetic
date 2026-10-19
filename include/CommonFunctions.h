@@ -1,20 +1,25 @@
 #pragma once
 
 #include <tchar.h>
+#include <strsafe.h>
+
 #include <string>
 #include <filesystem>
-//#include <iostream>
 #include <vector>
 #include <sstream>
 
 // this is to remove defines min, max in windows headers because they conflict with std::min std::max 
 #define NOMINMAX
+
 #include <windows.h>
+#include "utils/include/string_utils.h"
+#include "LogEngine2/LogEngine.h" // for uchar, uint, ulong definitions
 #include "ARIExceptions.h"
 
-typedef unsigned char uchar;
-typedef unsigned int uint;
+//typedef unsigned char uchar;
+//typedef unsigned int uint;
 
+/*
 #if defined(UNICODE) || defined(_UNICODE)
 
 typedef std::wstring string_t;
@@ -30,6 +35,7 @@ typedef std::string::value_type char_t;
 #define to_string_t std::to_string
 
 #endif
+*/
 
 #define GET_LOGGER() auto& logger = Global::GetLogger()
 #define LOG_INFO(_) logger.Info(_)
@@ -52,7 +58,7 @@ enum class ModelType { UNKNOWN, O0, O1, O2, O3, O0FIX, O0SORT, O0PAIR, O3MIX, O1
 #define HR_CHECK(_hr) {if(FAILED(_hr)) LOG_CHECK_ERROR( MAKE_LOG_STR(std::system_category().message(_hr)));}
 #define BOOL_CHECK(_res) {if(!(_res)) LOG_CHECK_ERROR( MAKE_LOG_STR(std::system_category().message(GetLastError())));}
 
-
+/*
 struct MyGroupSeparator : std::numpunct<char_t>
 {
     char_t do_thousands_sep() const override { return ' '; } // thousands separator
@@ -60,8 +66,9 @@ struct MyGroupSeparator : std::numpunct<char_t>
 };
 
 void SetImbue(std::ostream& stream);
+*/
 
-uint32_t ParseBlockSize(string_t s);
+uint64_t ParseBlockSize(const string_t& s);
 ModelType ParseModelType(string_t s);
 CoderType ParseCoderType(string_t ct);
 void PrintWindowsErrorMessage(const TCHAR* lpszFunction);
@@ -77,6 +84,7 @@ std::string toOEM(const string_t& str);
 //void LoadFromFile(std::string fileName, char* buf, uint len);
 //void SaveTo(std::string fileName, uint8_t* buf, int len);
 
+/*
 /// converts any integer type into a string with group separator applied.
 /// group separator is defined by MyGroupSeparator class
 /// string_t can be either std::string or std::wstring
@@ -181,7 +189,7 @@ constexpr std::basic_string<T> convert_string(const std::filesystem::path& str)
     else if (std::is_same_v<T, char32_t>) {
         return str.u32string();
     } */
-}
+//}
 
 
 // short version via filesystem::path
@@ -195,7 +203,7 @@ inline std::wstring stow(const std::filesystem::path& str)
 {
     return str.wstring();
 }*/
-
+/*
 template<class WSTRING>
 std::string wtos(const WSTRING& wstr)
 {
@@ -205,14 +213,14 @@ std::string wtos(const WSTRING& wstr)
 
     if (wstr.size() == 0) return "";
 
-    int len = WideCharToMultiByte(CP_UTF8, 0 /*WC_NO_BEST_FIT_CHARS*/, wstr.data(), (int)wstr.length(), nullptr, 0, nullptr, nullptr);
+    int len = WideCharToMultiByte(CP_UTF8, 0 /*WC_NO_BEST_FIT_CHARS*//*, wstr.data(), (int)wstr.length(), nullptr, 0, nullptr, nullptr);
 
     if (len == 0)
 		throw convert_error(std::string("Error in WideCharToMultiByte 1. Error code: ") + std::to_string(GetLastError()));
 
     std::string dest;
     dest.resize(len);
-    int err = WideCharToMultiByte(CP_UTF8, 0 /*WC_NO_BEST_FIT_CHARS*/, wstr.data(), (int)wstr.size(), dest.data(), len, nullptr, nullptr);
+    int err = WideCharToMultiByte(CP_UTF8, 0 /*WC_NO_BEST_FIT_CHARS*//*, wstr.data(), (int)wstr.size(), dest.data(), len, nullptr, nullptr);
 
 	if (!err)
 		throw convert_error(std::string("Error in WideCharToMultiByte 2. Error code: ") + std::to_string(GetLastError()));
@@ -243,3 +251,4 @@ std::wstring stow(const STRING& str)
     return wstr;
 }
 
+*/
