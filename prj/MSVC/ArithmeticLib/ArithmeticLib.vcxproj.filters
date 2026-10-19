@@ -45,10 +45,19 @@
     <ClCompile Include="..\..\..\src\RangeCoder.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\Ticks.cpp">
+    <ClCompile Include="..\..\..\src\ModelOrder0Sort.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\ModelOrder0Sort.cpp">
+    <ClCompile Include="..\..\..\src\thread_pool.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\timer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\external\libsais\src\libsais.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\external\libsais\src\libsais64.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -104,9 +113,6 @@
     <ClInclude Include="..\..\..\include\RangeCoder.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\include\Ticks.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\include\ModelOrder0Fixed.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -117,6 +123,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\include\ModelOrderMixed.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\external\utils\include\Ticks.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
