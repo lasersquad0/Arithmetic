@@ -1,14 +1,13 @@
 #pragma once
 
 #include <string>
-//#include <minwindef.h>
 
 #define CODER_MASK  (0x0F)
 #define MODEL_MASK  (0xF0)
 #define MODEL_SHIFT (4)
 
 /*
-File record in archive - structure
+File record in archive - structure as it is exists in .ar file
 1. Original file size (uncompressed) — 8 bytes (uint64_t)
 2. CRC32 of original file to verify correctness of uncompressing — 8 bytes (uint64_t)
 3. Modified date of original file
@@ -16,18 +15,17 @@ File record in archive - structure
 5. Code of algorythm (codec) used for compressing - 1 byte (uint8_t)
 6. Model order number used to compress the file (shares the same byte with algorithm code above)
 7. Number of blocks used by compressed file (zero for non-block algorithms)
-8. Size of block (valid for block algorythms only). can contain any value for non-block algorythms
-9. File name string size
-10. File name as number of wchars. Each char uses 2 bytes.
+8. Size of a block (valid for block algorythms only). can contain any value for non-block algorythms
+9. File name as std::wstring
 */
 
 class FileRecord
 {
 public:
 	// **** DO NOT FORGET to make changes in HashMap in case of adding more fields here!! *********
-	string_t fileName;
-	string_t origFilename;
-   //	string_t dirName; // for future extensions, not used now
+	std::wstring fileName;     //always Unicode
+	std::wstring origFilename; //always Unicode
+   //	wstring dirName; // for future extensions, not used now
 	uint64_t fileSize = 0L;
 	uint64_t CRC32Value = 0L;
 	uint64_t modifiedDate = 0L;
@@ -49,9 +47,10 @@ public:
 		sout->write((char*)&blockCount, sizeof(uint32_t));
 		sout->write((char*)&blockSize, sizeof(uint32_t));
 
-		uint64_t len = fileName.length();
+        assert(fileName.length() < MAXUINT16);
+		uint16_t len = (uint16_t)fileName.length();  // length in symbols, not bytes
 		sout->write((char*)&len, sizeof(uint16_t));
-		sout->write((char*)fileName.data(), len * sizeof(char_t));  // NOTE! char_t can be either char or wchar_t (2 bytes for each symbol)
+		sout->write((char*)fileName.data(), len * sizeof(wchar_t));  // NOTE! always wchar_t 2 bytes for each symbol
 	}
 
 	void load(std::ifstream* sin)
@@ -70,8 +69,9 @@ public:
 		uint16_t filenameLen; // length in symbols (not bytes)
 		sin->read((char*)&filenameLen, sizeof(uint16_t));
 
-		char_t buf[1024]; //MAX_PATH];
-		sin->read((char*)buf, filenameLen * sizeof(char_t)); // reading string either ANSI or UNICODE
+		//TODO decide what buf size needs to be here 
+		wchar_t buf[1024]; //MAX_PATH];
+		sin->read((char*)buf, filenameLen * sizeof(wchar_t)); // reading string as Unicode, 2 bytes for symbol
 		fileName.append(buf, filenameLen);
 	}
 
