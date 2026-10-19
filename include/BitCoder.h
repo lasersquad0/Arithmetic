@@ -337,7 +337,7 @@ int BitCoder<UINT>::inputBit()
 	}
 
 	int t = buffer & 1;  // output bits from minor bits (right part of the byte)
-	buffer >>= 1;        // TODO redo as implemented in AdaptHuffman
+	buffer >>= 1;        //TODO redo as implemented in AdaptHuffman
 	bitsToGo--;
 	return t;
 }
