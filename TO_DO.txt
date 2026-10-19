@@ -3,6 +3,14 @@ TODO
 
 This file contains an imcomplete list of things to be done, not necessarily ordered by importance or urgence.
 
+* check BitCoder, it may generate wrong compressed data sometimes
+
+* check memory allocations for buffers in Loadblock, SaveBlock to avoid allocating extra memory
+
+* reduce memoty used by high order models
+
++ Unpack files in a separate threads when -t switch is used
+
 + Add possibility to compress files in multiple threads
 
 * Improve "usage" text - add there schema like this
