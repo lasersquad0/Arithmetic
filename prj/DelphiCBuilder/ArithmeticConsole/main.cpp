@@ -4,14 +4,14 @@
 #include <string>
 #include <direct.h>
 
-#include "LogEngine.h"
+#include "LogEngine2/LogEngine.h"
 #include "resource.h"
 //#include <strsafe.h>
 #include "Archiver.h"
-#include "OptionsList.h"
-#include "DefaultParser.h"
-#include "CommandLine.h"
-#include "HelpFormatter.h"
+#include "cli/OptionsList.h"
+#include "cli/DefaultParser.h"
+#include "cli/CommandLine.h"
+#include "cli/HelpFormatter.h"
 #include "Parameters.h"
 #include <CommonFunctions.h>
 
@@ -24,6 +24,8 @@ using namespace std;
 // check memory allocations for buffers in Loadblock, SaveBlock to avoid allocating extra memory
 // add multithreading for uncompress
 // think how to implement multithreading on compress. problem - coder and model have states, difficult to coder and model classes in parallel from diff threads 
+// put IniReader into LogEngine namespace? together with exception class FileException?
+// Do we really need to support string_t everywhere and compilation switch between Unicode and ANSI? No switching to ANSI does not compile. Need review.
 
 
 #define OPT_A _T("a")
@@ -34,7 +36,7 @@ using namespace std;
 #define OPT_L _T("l")
 #define OPT_M _T("m")
 #define OPT_O _T("o")
-#define OPT_SM _T("sm")
+#define OPT_S _T("s")
 #define OPT_T _T("t")
 #define OPT_V _T("v")
 #define OPT_X _T("x")
@@ -60,8 +62,11 @@ static void DefineOptions(COptionsList& options)
     options.AddOption(OPT_M, _T("model-type"), _T("Use model of specified order. Valid model types: O0, O1, O2, O3, O0FIX, O0SORT, O0PAIR, O3MIX, O1FPAQ."), 1);
     options.AddOption(OPT_C, _T("coder-type"), _T("Use specified coder. Valid coders: huf, ahuf, ari, ari32, ari64, bitari."), 1);
     options.AddOption(OPT_V, _T("verbose"), _T("Print more detailed (verbose) information to screen."), 0);
-    options.AddOption(OPT_SM, _T("stream-mode"), _T("Use stream mode (oposite to block mode). No BWT, no MTB in this mode."), 0);
+    options.AddOption(OPT_S, _T("stream-mode"), _T("Use stream mode (oposite to block mode). No BWT, no MTB in this mode."), 0);
     options.AddOption(OPT_O, _T("output-dir"), _T("Specifies directory where uncompressed files will be placed. Valid with -x option only."), 1);
+
+	options.MutuallyExclusive(OPT_A, OPT_X, OPT_D);
+	//options.MutuallyExclusive(OPT_B, OPT_S);
 }
 
 static void PrintUsage(COptionsList& options)
@@ -77,23 +82,17 @@ static void InitDefaultLogger()
 	std::shared_ptr<LogEngine::Sink> fileSink(new LogEngine::FileSinkST("file_sink", Global::LOGFILE_NAME));
 
 	LogEngine::Logger& logger = LogEngine::GetMultiLogger(Global::LOGGER_NAME, { consoleSink, fileSink });
-	logger.SetLogLevel(LogEngine::Levels::llInfo); // set log level for logger and all its sinks.
+	logger.SetLogLevel(LogEngine::llInfo); // set log level for logger and all its sinks.
 
 	LOG_INFO("ArithmeticLog.lfg is not found, use default logging configuration.");
 }
 
-
-#ifdef LOG4CPP
-#define TRYCATCH(_,__) try {(_);}catch(...){logger.warn(__);}
-#else
-#define TRYCATCH(_,__) try {(_);}catch(...){logger.Warn(__);}
-#endif
-
 //forward declaration or main()
 void CheckParametersValidity(Parameters& params);
 
+#define TRYCATCH(_,__) try {(_);}catch(...){logger.Warn(__);}
+
 int _tmain(int argc, _TCHAR* argv[])
-//int main(int argc,char* argv[])
 {
 	try
 	{
@@ -125,11 +124,12 @@ int _tmain(int argc, _TCHAR* argv[])
 	}
 
 	GET_LOGGER();
+	logger.Imbue(Global::GetLoc()); // first call after logger initialization, set locale into logger
+	cout.imbue(Global::GetLoc());
+	SetConsoleOutputCP(CP_UTF8);
 
-	logger.Info("Arithmetic coder start");
-
-
-    SetImbue(cout);
+	logger.Debug("Arithmetic coder start");	
+    //SetImbue(cout);
 
     Global::APP_NAME = argv[0]; // this statement needs to be before first possible call of PrintUsage().
 
@@ -154,18 +154,17 @@ int _tmain(int argc, _TCHAR* argv[])
     }
 
 	Parameters params;
-	params.BLOCK_MODE = !cmd.HasOption(OPT_SM);
-
+	params.BLOCK_MODE = !cmd.HasOption(OPT_S);
 
 	if (cmd.HasOption(OPT_T))
 	{
 		//TODO add check for value range (1...24)
-		TRYCATCH(params.THREADS = std::stoi(cmd.GetOptionValue(OPT_T, 0)), "Cannot parse Threads count option value (-t). Default value 1 will be used.");
+		TRYCATCH(params.THREADS = std::stoul(cmd.GetOptionValue(OPT_T, 0)), format("Cannot parse Threads option '-t {}'. Default value 1 will be used.", wtos(cmd.GetOptionValue(OPT_T, 0))));
 	}
 	if (cmd.HasOption(OPT_B))
 	{
 		//TODO add check for value range (1024...100M)
-		TRYCATCH(params.BLOCK_SIZE = ParseBlockSize(cmd.GetOptionValue(OPT_B, 0)), "Cannot parse Block size option value (-b). Default value 64K bytes will be used.");
+		TRYCATCH(params.BLOCK_SIZE = ParseBlockSize(cmd.GetOptionValue(OPT_B, 0)), format("Cannot parse Block Size option '-b {}'. Default value 64K bytes will be used.", wtos(cmd.GetOptionValue(OPT_B, 0))));
 	}
 	if (cmd.HasOption(OPT_V))
 	{
@@ -184,17 +183,12 @@ int _tmain(int argc, _TCHAR* argv[])
 		TRYCATCH(params.CODER_TYPE = ParseCoderType(cmd.GetOptionValue(OPT_C, 0)), "Cannot parse Coder type option value (-c). Default value 'AARI' will be used.");
 	}
 
-	if (params.VERBOSE)
+/*	if (params.VERBOSE)
 	{
 		for (size_t i = 0; i < argc; i++) // for debugging purposes
-#if defined (__BORLANDC__)
-			LOG_INFO1("CLI param: %s", argv[i]);
-			//logger.LogFmt(LogEngine::Levels::llInfo, "CLI param: %s", argv[i]);
-#else
-			LOG_INFO1("CLI param: {}", convert_string<char>(argv[i]));
-#endif
+			LOG_INFO1("CLI param: {}", wtos(argv[i]));
 	}
-
+*/
 
 	try
 	{
@@ -214,7 +208,6 @@ int _tmain(int argc, _TCHAR* argv[])
 			vector_string_t files1 = cmd.GetOptionValues(OPT_A);
             vector_string_t files2(files1.begin() + 1, files1.end()); // copy to file2 everything but files1[0]
 
-			//copy(files1.begin()++, files1.end(), files2.begin());
 			Archiver comp;
 			ConsoleProgressCallback ccb;
 			comp.AddCallback(&ccb);
@@ -225,7 +218,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		{
 			if (cmd.HasOption(OPT_O))
 			{
-				int err = _wmkdir(params.OUTPUT_DIR.c_str()); // try to make dir to ensure that we received correct dir string
+				int err = std::filesystem::create_directories(params.OUTPUT_DIR); // try to make dir to ensure that we received correct dir string
 				if (err != 0)
 					if (errno != EEXIST) // EEXIST is a valid error here
 					{
@@ -235,7 +228,7 @@ int _tmain(int argc, _TCHAR* argv[])
 			}
 
 			string_t arcFile = cmd.GetOptionValue(OPT_X, 0);
-			auto values = cmd.GetOptionValues(OPT_X);
+			auto& values = cmd.GetOptionValues(OPT_X);
 
 			if (values.size() > 1)
 			{
@@ -294,6 +287,6 @@ int _tmain(int argc, _TCHAR* argv[])
 		return 1;
 	}
 
-	LOG_INFO("Arithmetic coder finished.");
+	LOG_DEBUG("Arithmetic coder finished.");
 	return 0;
 }
