@@ -5,6 +5,7 @@
 
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
+#include <tchar.h>
 #include <direct.h>
 #include "wcxhead.h"
 
@@ -243,7 +244,7 @@ static int __stdcall ProcessData(char *FileName, int Size)
 {
 	char buf[MAX_PATH];
 
-	CharToOem(FileName, buf);
+	CharToOemA(FileName, buf);
 	printf("%sProcessing %s (%d). Ok.\n", prog_prefix, buf, Size); 
 	fflush(stdout);
 	printf(".");
@@ -282,7 +283,7 @@ void check_fndir(char *fname)
 			/* there is no difference in speed: check if exists directory */
 			if(_stat(fname, & sb) == -1) 
 			{
-				CharToOem(fname, buf);
+				CharToOemA(fname, buf);
 				if(verbose) printf("%s-- Making dir %s\n", prog_prefix, buf);
 				mkdir(fname);
 			}
@@ -345,7 +346,7 @@ int ProcessFile(HANDLE hArchive, tHeaderData& hdrd)
 	char oemFileName[1024];
 	int		pfrc;
 
-	CharToOem(hdrd.FileName, oemFileName);
+	CharToOemA(hdrd.FileName, oemFileName);
 	switch (open_todo)
 	{
 	case TODO_LIST:
@@ -434,7 +435,7 @@ int ProcessFileEx(HANDLE hArchive, tHeaderDataEx& hdrd)
 	char oemFileName[1024];
 	int		pfrc;
 
-	CharToOem(hdrd.FileName, oemFileName);
+	CharToOemA(hdrd.FileName, oemFileName);
 	switch (open_todo)
 	{
 	case TODO_LIST:
@@ -802,14 +803,14 @@ int main(int argc, char *argv[])
 	}
 
 	if(verbose) printf("%sLoading plugin %s... ", prog_prefix, wcx_path);
-	if(!(hwcx = LoadLibrary(wcx_path))) 
+	if(!(hwcx = LoadLibraryA(wcx_path))) 
 	{
 		if(verbose) 
 			printf("Failed.\n");
 		else
 		{
 			printf("Failed loading plugin '%s'.\n", wcx_path);
-			PrintWindowsErrorMessage("LoadLibrary");
+			PrintWindowsErrorMessage(_T("LoadLibrary"));
 		}
 		return ERR_NO_WCX;
 	}
