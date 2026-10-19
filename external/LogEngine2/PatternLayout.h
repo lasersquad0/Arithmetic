@@ -1,0 +1,70 @@
+/*
+ * PatternLayout.h
+ *
+ * Copyright 2025, LogEngine2 Project. All rights reserved.
+ *
+ * See the COPYING file for the terms of usage and distribution.
+ */
+
+#if !defined(PATTERNLAYOUT_H)
+#define PATTERNLAYOUT_H
+
+#include "Common.h"
+#include "Layout.h"
+#include "Pattern.h"
+
+LOGENGINE_NS_BEGIN
+
+class PatternLayout : public Layout
+{
+protected:
+	// default pattern values
+	const std::string DefPatterns[llnLogLevels]{ DefaultLinePattern, DefaultCritPattern, DefaultErrorPattern,
+				             DefaultWarningPattern, DefaultInfoPattern, DefaultDebugPattern, DefaultTracePattern };
+	// actual pattern values
+	Pattern MessagePatterns[llnLogLevels]{ Pattern{DefaultLinePattern}, Pattern{DefaultCritPattern}, Pattern{DefaultErrorPattern},
+		          Pattern{DefaultWarningPattern}, Pattern{DefaultInfoPattern}, Pattern{DefaultDebugPattern}, Pattern{DefaultTracePattern} };
+	//TODO there is not way to print these 4 patterns as for now
+	// think how the could be applied
+	//Pattern AppName{ DefaultAppName };
+	//Pattern AppVersion{ DefaultAppVersion };
+	//Pattern StartAppLine{ DefaultStartAppLine };
+	//Pattern StopAppLine{ DefaultStopAppLine };
+	//Pattern SeparatorLine{ DefaultSeparatorLine };
+
+public:
+	PatternLayout() {}
+	~PatternLayout() override {}
+	std::string Format(const LogEvent& lv, Properties& props) override { return MessagePatterns[lv.msgLevel].Format(lv, props); }
+	std::string GetPattern(LogLevel level) override { return MessagePatterns[level].GetPattern(); }
+	std::string GetPattern() override { return MessagePatterns[llOff].GetPattern(); }
+	
+	//virtual void SetStartAppLinePattern(const std::string& pattern) { StartAppLine.SetPattern(pattern); }
+	//virtual void SetStopAppLinePattern(const std::string& pattern) { StopAppLine.SetPattern(pattern); }
+	//virtual void SetAppName(const std::string& aname) { AppName.SetPattern(aname); }
+
+	// set pattern for specified LogLevel only
+	void SetPattern(LogLevel level, const std::string& pattern) override { MessagePatterns[level].SetPattern(pattern); }
+
+	// set the same pattern for all lines: Crit, Error, Warn, Info, Debug, Trace
+	void SetPattern(const std::string& pattern) override
+	{
+		for (uint i = 0; i < llnLogLevels; i++)
+			MessagePatterns[i].SetPattern(pattern);
+	}
+
+	// this is a way to "revert back" to default pattern for the specified log level
+	void SetDefaultPattern(LogLevel level) override { MessagePatterns[level].SetPattern(DefPatterns[level]); }
+
+	// this is a way to "revert back" to default patterns
+	void SetDefaultPattern() override
+	{
+		for (uint i = 0; i < llnLogLevels; i++)
+			MessagePatterns[i].SetPattern(DefPatterns[i]);
+	}
+
+};
+
+LOGENGINE_NS_END
+
+#endif // PATTERNLAYOUT_H
