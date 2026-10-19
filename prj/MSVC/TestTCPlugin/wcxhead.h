@@ -1,5 +1,5 @@
 #pragma once
-#include <Windows.h>
+#include <windows.h>
 
 /* Contents of file wcxhead.h */
 /* It contains definitions of error codes, flags and callbacks */
