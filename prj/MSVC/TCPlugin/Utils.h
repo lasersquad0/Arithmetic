@@ -20,7 +20,7 @@ public:
     {
         char_t value[PARAM_BUFSIZE];
 
-        BLOCK_SIZE = GetPrivateProfileInt(CONFIG_SECTION, CONFIG_PARAM_BLOCKSIZE, BLOCK_SIZE, IniFile.c_str());
+        BLOCK_SIZE = GetPrivateProfileInt(CONFIG_SECTION, CONFIG_PARAM_BLOCKSIZE, (uint32_t)BLOCK_SIZE, IniFile.c_str());
         THREADS = GetPrivateProfileInt(CONFIG_SECTION, CONFIG_PARAM_THREADS, THREADS, IniFile.c_str());
         GetPrivateProfileString(CONFIG_SECTION, CONFIG_PARAM_MODEL, ModelTypeCode[(uint)MODEL_TYPE].c_str(), value, PARAM_BUFSIZE, IniFile.c_str());
         MODEL_TYPE = (ModelType)ModelIdByName(value);
