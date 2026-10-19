@@ -50,7 +50,8 @@ private:
 
 	bool checkSignature(const string_t& ArchiveName)
 	{
-		std::ifstream fin(ArchiveName, std::ios::in | std::ios::binary);
+		std::ifstream fin;
+		fin.open(ArchiveName, std::ios::in | std::ios::binary);
 		if (fin.fail()) return false; // return false even in case we cannot open file, either file does not exist or we do not have permissions
 
 		char signature[4];
