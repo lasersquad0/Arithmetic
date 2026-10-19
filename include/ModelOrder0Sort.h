@@ -51,7 +51,7 @@ public:
 	{
 		UINT index = char_to_index[sym];
 
-		this->coder.EncodeByte(cum_freq[index], freq[index], cum_freq[0]); // TODO shall instead of cum_freq[index] be something cum_freq[NO_OF_SYMBOLS- index] ? 
+		this->coder.EncodeByte(cum_freq[index], freq[index], cum_freq[0]); //TODO shall instead of cum_freq[index] be something cum_freq[NO_OF_SYMBOLS- index] ?
 
 		updateStatistics(index);
 	}
