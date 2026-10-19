@@ -48,7 +48,6 @@ void MTF::Decode(uint8_t* inBuf, uint8_t* outBuf, uint32_t size)
 	}
 }
 
-
 int MTF::shiftAlb(int off, uint8_t x)
 {
 	uint8_t tmp1 = alb[off];
@@ -74,5 +73,4 @@ void MTF::fillAlb()
 	{
 		alb[i] = (uint8_t)i;
 	}
-
 }
