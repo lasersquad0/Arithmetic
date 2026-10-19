@@ -2,12 +2,8 @@
 
 #include <string>
 #include "CommonFunctions.h"
-
-#ifdef LOG4CPP
-#include <log4cpp/Category.hh>
-#else
-#include "LogEngine.h"
-#endif
+//#include "utils/include/string_utils.h"
+//#include "LogEngine2/LogEngine.h"
 
 
 #ifdef EXPORT_FOR_DELPHI
@@ -49,7 +45,7 @@ class Parameters
 public:
 	uint32_t THREADS = 1;
 	string_t OUTPUT_DIR = _T(".\\");
-	uint32_t BLOCK_SIZE = 1 << 16;
+	uint64_t BLOCK_SIZE = 1 << 16;
 	bool BLOCK_MODE = true;  // using block mode by default, to back to 'stream' mode use -sm cli option
 	bool VERBOSE = false;
 	ModelType MODEL_TYPE = ModelType::O2;
@@ -69,8 +65,8 @@ public:
 	void SetVerbose(bool vrbs) { VERBOSE = vrbs; }
 	bool GetBlockMode() { return BLOCK_MODE; }
 	void SetBlockMode(bool bmode) { BLOCK_MODE = bmode; }
-	uint32_t GetBlockSize() { return BLOCK_SIZE; }
-	void SetBlockSize(uint32_t bsize) { BLOCK_SIZE = bsize; }
+	uint64_t GetBlockSize() { return BLOCK_SIZE; }
+	void SetBlockSize(uint64_t bsize) { BLOCK_SIZE = bsize; }
 
 #ifdef EXPORT_FOR_DELPHI
  	Parameters (){} // explicit default contructor needed because it is removed by compiler when constructor from TParametersInterface exists
@@ -89,26 +85,30 @@ public:
 #endif
 };
 
-class Global
+namespace Global
 {
-public:
     // this name used in PrintUsage function as for now
-	static inline string_t APP_NAME = _T("SOME APP"); // initialized by argv[0] in function main
-	static const inline std::string LOGGER_NAME = "Arithmetic";
-	static const inline std::string LOGFILE_NAME = "ArithmeticLog.log";
-	static const inline std::string LFGFILE_NAME = "ArithmeticLog.lfg";
-#ifdef LOG4CPP
-	static log4cpp::Category& GetLogger()
-	{
-		return log4cpp::Category::getInstance("Arithmetic");
-	}
-#else
-	static LogEngine::Logger& GetLogger()
+	inline string_t APP_NAME = _T("SOME APP"); // initialized by argv[0] in function main
+	const inline std::string LOGGER_NAME = "Arithmetic";
+	const inline std::string LOGFILE_NAME = "ArithmeticLog.log";
+	const inline std::string LFGFILE_NAME = "ArithmeticLog.lfg";
+	inline LogEngine::Logger& GetLogger()
 	{
 		return LogEngine::GetLogger(LOGGER_NAME);
 	}
 
-#endif
+	struct MyGroupSeparator : std::numpunct<char>
+	{
+		char do_thousands_sep() const override { return '\''; } // thousands separator
+		std::string do_grouping() const override { return "\3"; }   // group by 3
+	};
+
+	// used in std::cout and in std::format
+	inline const std::locale& GetLoc()
+	{
+		static std::locale LLocale(std::cout.getloc(), new MyGroupSeparator());
+		return LLocale;
+	}
 };
 
 /*
