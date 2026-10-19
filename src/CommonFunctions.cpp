@@ -5,33 +5,36 @@
 #include <sstream>
 #include <algorithm>
 #include <locale>
+#include <array>
 
 #if defined (__BORLANDC__)
 #include <share.h>
 #include <sys/stat.h>
 #endif
-#include "strsafe.h"
+//#include "strsafe.h"
 #include <direct.h>
 #include <io.h>
 #include <fcntl.h>
 
+#include "utils/include/string_utils.h"
 #include "Parameters.h"
 #include "CommonFunctions.h"
 
 using namespace std;
 
-void SetImbue(ostream& stream)
+/*void SetImbue(ostream& stream)
 {
 	stream.imbue(locale(stream.getloc(), new MyGroupSeparator()));
 }
 
-char mytoupper(int c) // to eliminate compile warning "warning C4244: '=': conversion from 'int' to 'char', possible loss of data"
+static char mytoupper(int c) // to eliminate compile warning "warning C4244: '=': conversion from 'int' to 'char', possible loss of data"
 {
 	return (char)toupper(c);
-}
+}*/
 
+/*
 // intentionally left std::string
-void TrimAndUpper(string_t& str) // TODO what if we have \t in the beginning (end) of string?
+void TrimAndUpper(string_t& str) //TODO what if we have \t in the beginning (end) of string?
 {
 	// remove any leading and traling spaces, just in case.
 	size_t strBegin = str.find_first_not_of(' ');
@@ -42,7 +45,7 @@ void TrimAndUpper(string_t& str) // TODO what if we have \t in the beginning (en
 	// to uppercase
 	transform(str.begin(), str.end(), str.begin(), ::mytoupper);
 }
-
+*/
 string_t GetErrorMessageText(ulong lastError, const string_t& errorPlace)
 {
 	const uint32_t BUF_SIZE = 2048; // should be enough for all error messages
@@ -81,14 +84,98 @@ void PrintWindowsErrorMessage(const TCHAR* lpszFunction)
 	StringCchPrintf((LPTSTR)lpDisplayBuf, LocalSize(lpDisplayBuf) / sizeof(TCHAR),
 		TEXT("%s failed with error %d: %s"), lpszFunction, err, lpMsgBuf);
 
-	auto& logger = Global::GetLogger();
+	GET_LOGGER();
 	LOG_ERROR(convert_string<char>((LPCTSTR)lpDisplayBuf));
 	//wcout << (TCHAR*)lpDisplayBuf << endl;
 
 	LocalFree(lpDisplayBuf);
 }
 
-uint32_t ParseBlockSize(string_t s) // intentionally by value
+static string_t RemoveApo(const string_t& str)
+{
+	string_t res;
+	res.reserve(str.size());
+	for (size_t i = 0; i < str.length(); i++)
+	{
+		if (str[i] != '\'') res += str[i];
+	}
+
+	return res;
+}
+
+/**
+* @brief Parses string in format with Factor multiplier suffix: B, K, M, G
+* @details Examples: 100G, 5m, 20000g, 5'000'000K, 400B, 0M, 1234 (no suffix)
+*   num is passed by value intentionally
+* @return An uint32_t value constructed from a string 'num' with factor suffx applied
+*/
+static uint64_t ParseNumber(string_t num, const string_t& factorSyms = _T("BKMG"), const std::array<uint64_t, 4ull>& factors = { 1, 1'000, 1'000'000, 1'000'000'000 })
+{
+	// remove any leading and traling spaces, just in case.
+	TrimAndUpper(num);
+
+	// remove apostrophes from number
+	auto num2 = RemoveApo(num);
+
+	char_t sym = num2.at(num2.length() - 1);
+
+	uint64_t ffactor = 0;
+	auto ind = factorSyms.find(sym);
+	if (ind == string_t::npos) // factor is present in num
+		if (std::isdigit(sym)) // looks like num is just number without factor at the end
+			ffactor = 1;
+		else
+			throw std::invalid_argument("[ParseNumber] Incorrect num parameter '" + wtos(num) + "'.");
+	else
+	{
+		ffactor = factors[ind];
+		num2.resize(num2.length() - 1); // remove letter G or or M, or K or B. at the end. 
+	}
+
+	uint64_t number;
+
+	try
+	{
+		std::size_t pos = 0;
+		number = std::stoull(num2, &pos);
+		if (pos != num2.size()) 
+			throw std::invalid_argument("[ParseNumber] String value should be a number: '" + wtos(num) + "'.");
+
+		/*
+		 std::from_chars DOES NOT work with wchar_t* :((((
+		auto [ptr, ec] = std::from_chars(num2.data(), num2.data() + num2.size(), number);
+
+		if (ec == std::errc::invalid_argument)
+			throw std::invalid_argument("String is not a number: '" + num2 + "'");
+		if (ec == std::errc::result_out_of_range)
+			throw std::out_of_range("Number is out of range: '" + num2 + "'");
+		if (ptr != num2.data() + num2.size())
+			throw std::invalid_argument("Extra symbols in s string: '" + num2 + "'");
+			*/
+	}
+	catch (...)
+	{
+		throw std::invalid_argument("[ParseNumber] String value should be a number: '" + wtos(num) + "'.");
+	}
+
+	return number * ffactor;
+}
+
+// s is passed by value intentionally
+uint64_t ParseBlockSize(const string_t& s)
+{
+	try
+	{
+		return ParseNumber(s);
+	}
+	catch (std::invalid_argument&)
+	{
+		throw std::invalid_argument("Error converting Block Size into integer value.");
+	}
+}
+
+// s is passed by value intentionally
+/*uint32_t ParseBlockSize(string_t s)
 {
 	int factor = 1;
 	transform(s.begin(), s.end(), s.begin(), ::mytoupper); // to uppercase
@@ -104,11 +191,14 @@ uint32_t ParseBlockSize(string_t s) // intentionally by value
 		s = s.substr(0, s.length() - 1);
 		factor = 1024 * 1024;
 	}
+	else
+		throw invalid_argument("Block Size is not recognised.");
 
 	return stoi(s) * factor;
-}
+}*/
 
-ModelType ParseModelType(string_t mt) // intentionally by value
+// mt is passed by value intentionally
+ModelType ParseModelType(string_t mt) 
 {
 	TrimAndUpper(mt);
 
@@ -153,7 +243,7 @@ void CheckParametersValidity(Parameters& params)
 
 bool SaveLogConfigFile(int resID, const std::string& fileName)
 {
-	HRSRC resInfo = FindResource(nullptr, MAKEINTRESOURCE(resID/*IDR_RT_RCDATA1*/), L"RT_RCDATA");
+	HRSRC resInfo = FindResourceW(nullptr, MAKEINTRESOURCEW(resID/*IDR_RT_RCDATA1*/), L"RT_RCDATA");
 
 	if (resInfo == nullptr)
 	{
@@ -214,14 +304,15 @@ std::string DateTimeToStringA(time_t t)
 	return ss;
 }
 
+/*
 std::string toOEM(const string_t& str)
 {
 	std::string tmp;
 	tmp.resize(str.size());
-	CharToOemBuffW(str.data(), tmp.data(), (DWORD)str.size());
+	CharToOemBuff(str.data(), tmp.data(), (DWORD)str.size());
 	return tmp;
 }
-
+*/
 /*
 void SaveToFile(string fileName, char* buf, unsigned int len)
 {
