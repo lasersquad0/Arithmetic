@@ -71,7 +71,7 @@ void CharToWCHAR(wchar_t* dest, const char* src); // assuming that dest buffer i
 uint MakeTCTime(time_t tt);
 char_t* ExtractFileNameW(char_t* path);
 string_t ExtractFileDirW(const char_t* FileName);
-uint32_t ParseBlockSize(std::string s); // s is by value intentionally
+//uint32_t ParseBlockSize(std::string s); // s is by value intentionally
 
 
 void StringListFromDeleteList(char* DeleteList, vect_string_t& StringList);
