@@ -10,13 +10,13 @@
 #include "RangeCoder.h"
 #include "BasicModel.h"
 #include "Context.h"
-#include "Ticks.h"
+#include "utils/include/Ticks.h"
 #include "CommonFunctions.h"
 #include "libsais64.h"
 #include "MTF.h"
 #include "Factories.h"
 #include "Archiver.h"
-#include "LogEngine.h"
+#include "LogEngine2/LogEngine.h"
 #include "thread_pool.h"
 
 using namespace std;
@@ -58,25 +58,16 @@ int Archiver::CompressFiles(string_t ArchiveFileName, const vect_string_t& files
 
 	if (ArchiveFileName.substr(ArchiveFileName.size() - 3, 3) != ARC_EXT) ArchiveFileName += ARC_EXT;
 
-#ifdef LOG4CPP
-	logger.info("Creating archive '%s'.", ArchiveFileName.c_str());
-	PrintCompressionStart(params);
-	logger.info("Adding %d file%s to archive.", files.size() - 1, files.size() > 2 ? "s" : "");
-#elif defined(__BORLANDC__)
-	logger.LogFmt(LogEngine::Levels::llInfo, "Creating archive '%s'.", convert_string<char>(ArchiveFileName).c_str());
-	PrintCompressionStart(params);
-	logger.LogFmt(LogEngine::Levels::llInfo, "Adding %d file%s to archive.", files.size(), files.size() > 1 ? "s" : "");
-#else
-	logger.InfoFmt("Creating archive '{}'.", toOEM(ArchiveFileName));
+	logger.InfoFmt("Creating archive '{}'.", /*toOEM*/wtos(ArchiveFileName));
 	PrintCompressionStart(params);
 	logger.InfoFmt("Adding {} file{} to archive.", files.size(), files.size() > 1 ? "s" : "");
-#endif
+
 	LOG_INFO("------------------------------");
 
 	ofstream fout;
-	fout.open(ArchiveFileName, ios::out | ios::binary, _SH_DENYWR);
+	fout.open(ArchiveFileName, ios::out | ios::binary/*, _SH_DENYWR*/); // third parameter is not supported by C++ standard
 	if (fout.fail())
-		throw file_error("Cannot open file '" + convert_string<char>(ArchiveFileName) + "' for writing. Check file permissions.");
+		throw file_error("Cannot open file '" + wtos(ArchiveFileName) + "' for writing. Check file permissions.");
 
 	ArchiveHeader hd;
 	vect_fr_t& frs = hd.FillFileRecs(files, params);
@@ -89,9 +80,10 @@ int Archiver::CompressFiles(string_t ArchiveFileName, const vect_string_t& files
 		IModel* model = ModelCoderFactory::GetModelAndCoder(frs[i]);
 
 		FileRecord& fr = frs[i];
-		ifstream fin(fr.origFilename, ios::in | ios::binary);
+		ifstream fin;
+		fin.open(fr.origFilename, ios::in | ios::binary);
 		if (fin.fail())
-			throw file_error("Cannot open file '" + convert_string<char>(fr.origFilename) + "' for reading.");
+			throw file_error("Cannot open file '" + wtos(fr.origFilename) + "' for reading.");
 
 		if (params.BLOCK_MODE)
 		{
@@ -134,15 +126,9 @@ int Archiver::CompressFiles(string_t ArchiveFileName, const vect_string_t& files
 int Archiver::CompressFile(ofstream* fout, ifstream* fin, FileRecord& fr, IModel* model)
 {
 	GET_LOGGER();
-#ifdef LOG4CPP
-	logger.info("Compressing file '%s'.", fr.origFilename.c_str());
-#elif defined(__BORLANDC__)
-	logger.LogFmt(LogEngine::Levels::llInfo, "Compressing file '%s'.", convert_string<char>(fr.origFilename).c_str());
-#else
-	logger.InfoFmt("Compressing file '{}'.", convert_string<char>(fr.origFilename));
-#endif
 
-	Ticks::Start(fr.origFilename);
+	logger.InfoFmt("Compressing file '{}'.", wtos(fr.origFilename));
+	Ticks::Start(_T("compressfile")); 
 
    // IModel* model = ModelsFactory::GetModel();
    // CallBack cb;
@@ -195,14 +181,9 @@ int Archiver::CompressFile(ofstream* fout, ifstream* fin, FileRecord& fr, IModel
 	else
 		PrintFileCompressionDone(fr);
 
-	auto tick = Ticks::Finish(fr.origFilename);
-#ifdef LOG4CPP
-	logger.info("%-16s %s", "Spent time:", millisecToStr(tick).c_str());
-#elif defined(__BORLANDC__)
-	logger.LogFmt(LogEngine::Levels::llInfo, "%-16s %s", "Spent time:", millisecToStr(tick).c_str());
-#else
-	logger.InfoFmt("{:16} {}", "Spent time:", millisecToStr(tick));
-#endif
+	auto tick = Ticks::Finish(_T("compressfile")); 
+	logger.InfoFmt("{:16} {}", "Spent time:", MillisecToStr(tick));
+
 	//LOG_INFO3("{:16} {}", "Spent time:", millisecToStr(tick));
 	LOG_INFO("------------------------------");
 
@@ -210,14 +191,14 @@ int Archiver::CompressFile(ofstream* fout, ifstream* fin, FileRecord& fr, IModel
 }
 
 // assuming that dest buffer is large enough
-void WCHARtoChar(char* dest, const wchar_t* src)
+/*void WCHARtoChar(char* dest, const wchar_t* src)
 {
 	//size_t len;
 	int res = WideCharToMultiByte(CP_ACP, 0, src, -1, dest, MAX_PATH, nullptr, nullptr);
 	assert(res != 0);
 	//wcstombs_s(&len, dest, MAX_PATH, src, wcslen(src));
 	//if (len > 0u) dest[len] = '\0';
-}
+}*/
 
 bool Archiver::LoadBlocksToBWTTasks(ifstream* fin, MT::ThreadPool* ppool, uint32_t blockSize) const
 {
@@ -232,7 +213,7 @@ bool Archiver::LoadBlocksToBWTTasks(ifstream* fin, MT::ThreadPool* ppool, uint32
 	{
 		auto task = std::make_shared<BWTTask>(blockSize);
 		fin->read((char*)task->Buf, blockSize);
-		task->ReadSize = fin->gcount();
+		task->ReadSize = (uint32_t)fin->gcount();
 		
 		// no sense to add task with zero data size
 		if(task->ReadSize > 0)
@@ -256,29 +237,12 @@ int Archiver::CompressFileBlockInThread(ofstream* fout, ifstream* fin, FileRecor
 {
 	GET_LOGGER();
 
-#ifdef LOG4CPP
-	logger.info("Compressing file '%s'.", fr.origFilename.c_str());
-#elif defined(__BORLANDC__)
-	logger.LogFmt(LogEngine::Levels::llInfo, "Compressing file '%s'.", convert_string<char>(fr.origFilename).c_str());
-#else
-	//std::string charbuf;
-	//charbuf.resize(MAX_PATH);
-	//WCHARtoChar(charbuf.data(), fr.origFilename.c_str());
-// sometimes convert_string<char> generates an exception during conversation, code above - is not.
-// neither of it works properly with, for instance, russian symbols in file name.
-	std::string oemStr;
-	oemStr.resize(fr.origFilename.size());
-	//std::string str2 = convert_string<char>(fr.origFilename);
-	//CharToOemA(str2.data(), oemStr.data());
-	CharToOemW(fr.origFilename.data(), oemStr.data());
-	logger.InfoFmt("Compressing file '{}'.", /*wtos(fr.origFilename)*/oemStr);
-
-#endif
+	logger.InfoFmt("Compressing file '{}'.", wtos(fr.origFilename));
 
 	// pool will not contain more than MAX_TASKS tasks.
 	MAX_TASKS = std::max(MAX_TASKS_MEMORY_USAGE / (2 * fr.blockSize + 8 * fr.blockSize), 2u); // buf + bwtbuf + tmpbuf
 
-	Ticks::Start(fr.origFilename);
+	Ticks::Start(_T("compressfile"));
 
 	// IModel* model = ModelsFactory::GetModel();
    //  CallBack cb;
@@ -316,7 +280,7 @@ int Archiver::CompressFileBlockInThread(ofstream* fout, ifstream* fin, FileRecor
 	{
 		std::this_thread::sleep_for(std::chrono::milliseconds(sleepTime));
 
-		uint32_t tasksInQueue = pool.task_queue_size();
+		size_t tasksInQueue = pool.task_queue_size();
 
 		if (moreBlocks && (tasksInQueue < (MAX_TASKS/2)) ) // load more blocks only after half of blocks have been BWTed
 			moreBlocks = LoadBlocksToBWTTasks(fin, &pool, fr.blockSize);
@@ -351,7 +315,7 @@ int Archiver::CompressFileBlockInThread(ofstream* fout, ifstream* fin, FileRecor
 				{
 					RESULT = CALLBACK_ABORT;
 					break;
-					//return CALLBACK_ABORT; // TODO immediate return causes memory leak
+					//return CALLBACK_ABORT; //TODO immediate return causes memory leak
 				}
 			}
 
@@ -370,7 +334,7 @@ int Archiver::CompressFileBlockInThread(ofstream* fout, ifstream* fin, FileRecor
 	model->StopEncode();
 	if (showprogress) cbmanager.Finish();
 
-	fr.compressedSize = model->GetBytesPassed(); // TODO makes sense do it better and more convenient
+	fr.compressedSize = model->GetBytesPassed(); //TODO makes sense do it better and more convenient
 	fr.blockCount = cntBlocks;
 
 	if (RESULT == CALLBACK_ABORT)
@@ -378,14 +342,9 @@ int Archiver::CompressFileBlockInThread(ofstream* fout, ifstream* fin, FileRecor
 	else
 		PrintFileCompressionDone(fr);
 
-	auto tick = Ticks::Finish(fr.origFilename);
-#ifdef LOG4CPP
-	logger.info("%-16s %s", "Spent time:", millisecToStr(tick).c_str());
-#elif defined(__BORLANDC__)
-	logger.LogFmt(LogEngine::Levels::llInfo, "%-16s %s", "Spent time:", millisecToStr(tick).c_str());
-#else
-	logger.InfoFmt("{:16} {}", "Spent time:", millisecToStr(tick));
-#endif
+	auto tick = Ticks::Finish(_T("compressfile")); 
+	logger.InfoFmt("{:16} {}", "Spent time:", MillisecToStr(tick));
+
 	LOG_INFO("------------------------------");
 	return RESULT;
 }
@@ -394,25 +353,9 @@ int Archiver::CompressFileBlock(ofstream* fout, ifstream* fin, FileRecord& fr, I
 {
 	GET_LOGGER();
 
-#ifdef LOG4CPP
-	logger.info("Compressing file '%s'.", fr.origFilename.c_str());
-#elif defined(__BORLANDC__)
-	logger.LogFmt(LogEngine::Levels::llInfo, "Compressing file '%s'.", convert_string<char>(fr.origFilename).c_str());
-#else
-	//std::string charbuf;
-	//charbuf.resize(MAX_PATH);
-	//WCHARtoChar(charbuf.data(), fr.origFilename.c_str());
-// sometimes convert_string<char> generates an exception during conversation, code above - is not.
-// neither of it works properly with, for instance, russian symbols in file name.
-	std::string oemStr;
-	oemStr.resize(fr.origFilename.size());
-	//std::string str2 = convert_string<char>(fr.origFilename);
-	//CharToOemA(str2.data(), oemStr.data());
-	CharToOemW(fr.origFilename.data(), oemStr.data());
-	logger.InfoFmt("Compressing file '{}'.", /*wtos(fr.origFilename)*/oemStr);
-#endif
+ 	logger.InfoFmt("Compressing file '{}'.", wtos(fr.origFilename));
 
-	Ticks::Start(fr.origFilename);
+	Ticks::Start(_T("compressfile"));
 
    // IModel* model = ModelsFactory::GetModel();
   //  CallBack cb;
@@ -449,7 +392,7 @@ int Archiver::CompressFileBlock(ofstream* fout, ifstream* fin, FileRecord& fr, I
 	while (true)
 	{
 		fin->read((char*)buf, fr.blockSize);
-		streamsize cntRead = fin->gcount();
+		uint32_t cntRead = (uint32_t)fin->gcount();
 
 		if (cntRead == 0) break; // for the case when (filesize % fr.blockSize)==0 i.e. nothing read
 
@@ -485,7 +428,7 @@ int Archiver::CompressFileBlock(ofstream* fout, ifstream* fin, FileRecord& fr, I
 			{
 				RESULT = CALLBACK_ABORT;
 				break;
-				//return CALLBACK_ABORT; // TODO immediate return causes memory leak
+				//return CALLBACK_ABORT; //TODO immediate return causes memory leak
 			}
 		}
 
@@ -499,7 +442,7 @@ int Archiver::CompressFileBlock(ofstream* fout, ifstream* fin, FileRecord& fr, I
 	delete [] bwtbuf;
 	delete [] temp;
 
-	fr.compressedSize = model->GetBytesPassed(); // TODO makes sense do it better and more convenient
+	fr.compressedSize = model->GetBytesPassed(); //TODO makes sense do it better and more convenient
 	fr.blockCount = cntBlocks;
 
 	if (RESULT == CALLBACK_ABORT)
@@ -507,14 +450,9 @@ int Archiver::CompressFileBlock(ofstream* fout, ifstream* fin, FileRecord& fr, I
 	else
 		PrintFileCompressionDone(fr);
 
-	auto tick = Ticks::Finish(fr.origFilename);
-#ifdef LOG4CPP
-	logger.info("%-16s %s", "Spent time:", millisecToStr(tick).c_str());
-#elif defined(__BORLANDC__)
-	logger.LogFmt(LogEngine::Levels::llInfo, "%-16s %s", "Spent time:", millisecToStr(tick).c_str());
-#else
-	logger.InfoFmt("{:16} {}", "Spent time:", millisecToStr(tick));
-#endif
+	auto tick = Ticks::Finish(_T("compressfile")); 
+	logger.InfoFmt("{:16} {}", "Spent time:", MillisecToStr(tick));
+
 	LOG_INFO("------------------------------");
 	return RESULT;
 }
@@ -524,9 +462,10 @@ int Archiver::UncompressFiles(const string_t& ArchiveFileName, const Parameters&
 {
 	GET_LOGGER();
 
-	ifstream fin(ArchiveFileName, ios::in | ios::binary);
+	ifstream fin;
+	fin.open(ArchiveFileName, ios::in | ios::binary);
 	if (fin.fail())
-		throw file_error("Cannot open archive file " + convert_string<char>(ArchiveFileName) + "for reading. Exiting.");
+		throw file_error("Cannot open archive file " + wtos(ArchiveFileName) + "for reading. Exiting.");
 
 	//ConsoleProgressCallback ccb;
 	//cbmanager.AddCallback(&ccb);
@@ -539,10 +478,11 @@ int Archiver::UncompressFiles(const string_t& ArchiveFileName, const Parameters&
 	{
 		IModel* model = ModelCoderFactory::GetModelAndCoder(files[i]);
 		//string_t temp = params.OUTPUT_DIR;
-		string_t realFileName = params.OUTPUT_DIR + _T("\\") + files[i].fileName;
-		ofstream fout(realFileName, ios::out | ios::binary, _SH_DENYWR);
+		string_t realFileName = params.OUTPUT_DIR + _T("\\") + convert_string<char_t>(files[i].fileName);
+		ofstream fout;
+		fout.open(realFileName, ios::out | ios::binary/*, _SH_DENYWR*/); // third parameter is not supported by C++ standard
 		if (fout.fail())
-			throw file_error("Cannot open file '" + convert_string<char>(realFileName) + "' for writing.");
+			throw file_error("Cannot open file '" + wtos(realFileName) + "' for writing.");
 
 		PrintUncompressionStart(files[i], params);
 
@@ -574,7 +514,7 @@ int Archiver::UncompressFile(ifstream* fin, ofstream* fout, FileRecord& fr, IMod
 {
 	GET_LOGGER();
 
-	Ticks::Start(fr.fileName);
+	Ticks::Start(_T("uncompressfile")); 
 
 	//CallBack cb;
 
@@ -605,7 +545,7 @@ int Archiver::UncompressFile(ifstream* fin, ofstream* fout, FileRecord& fr, IMod
 					return CALLBACK_ABORT;
 			}
 
-			symbol = model->DecodeSymbol(ctx.getCtx()); // TODO what to do when we extract first few symbols and we do not have context yet??
+			symbol = model->DecodeSymbol(ctx.getCtx()); //TODO what to do when we extract first few symbols and we do not have context yet??
 			ctx.add(symbol);
 			decodedBytes++;
 			fout->put(symbol);
@@ -621,15 +561,11 @@ int Archiver::UncompressFile(ifstream* fin, ofstream* fout, FileRecord& fr, IMod
 
    // fout.close();
 
-#if defined(__BORLANDC__)
-	logger.LogFmt(LogEngine::Levels::llInfo, "Extracting done '%s'.", convert_string<char>(fr.fileName).c_str());
-	auto tick = Ticks::Finish(fr.fileName);
-	logger.LogFmt(LogEngine::Levels::llInfo, "%-19s %s", "Spent time:", millisecToStr(tick).c_str());
-#else
-	logger.InfoFmt("Extracting done '{}'.", convert_string<char>(fr.fileName));
-	auto tick = Ticks::Finish(fr.fileName);
-	logger.InfoFmt("{:19} {}", "Spent time:", convert_string<char>(millisecToStr(tick)));
-#endif
+	auto tick = Ticks::Finish(_T("uncompressfile")); 
+
+	logger.InfoFmt("Extracting done '{}'.", wtos(fr.fileName));
+	logger.InfoFmt("{:19} {}", "Spent time:", MillisecToStr(tick));
+
 	LOG_INFO("------------------------------");
 	return CALLBACK_OK;
 }
@@ -638,7 +574,7 @@ int Archiver::UncompressFile(ifstream* fin, ofstream* fout, FileRecord& fr, IMod
 int Archiver::UncompressFileBlock(ifstream* fin, ofstream *fout, FileRecord& fr, IModel* model)
 {
 	GET_LOGGER();
-	Ticks::Start(fr.fileName);
+	Ticks::Start(_T("uncompressfile")); 
 
 	//CallBack cb;
 
@@ -730,15 +666,11 @@ int Archiver::UncompressFileBlock(ifstream* fin, ofstream *fout, FileRecord& fr,
 	delete[] buf;
 	delete[] bwtbuf;
 	delete[] temp;
-#if defined (__BORLANDC__)
-	logger.LogFmt(LogEngine::Levels::llInfo, "Extracting done '%s'.", convert_string<char>(fr.fileName).c_str());
-	auto tick = Ticks::Finish(fr.fileName);
-	logger.LogFmt(LogEngine::Levels::llInfo, "%-19s %s", "Spent time:", convert_string<char>(millisecToStr(tick)).c_str());
-#else
-	logger.InfoFmt("Extracting done '{}'.", convert_string<char>(fr.fileName));
-	auto tick = Ticks::Finish(fr.fileName);
-	logger.InfoFmt("{:19} {}", "Spent time:", convert_string<char>(millisecToStr(tick)));
-#endif
+
+	logger.InfoFmt("Extracting done '{}'.", wtos(fr.fileName));
+	auto tick = Ticks::Finish(_T("uncompressfile")); 
+	logger.InfoFmt("{:19} {}", "Spent time:", MillisecToStr(tick));
+
 	LOG_INFO("------------------------------");
 
 	return CALLBACK_OK;
@@ -776,9 +708,10 @@ int Archiver::ExtractFile(const string_t& ArchiveFileName, const string_t& FileT
 {
 	GET_LOGGER();
 
-	ifstream fin(ArchiveFileName, ios::in | ios::binary);
+	ifstream fin;
+	fin.open(ArchiveFileName, ios::in | ios::binary);
 	if (fin.fail())
-		throw file_error("Cannot open archive file '" + convert_string<char>(ArchiveFileName) + "' for reading. Exiting.");
+		throw file_error("Cannot open archive file '" + wtos(ArchiveFileName) + "' for reading. Exiting.");
 
 	ArchiveHeader ah;
 	auto files = ah.LoadHeader(&fin);
@@ -787,7 +720,7 @@ int Archiver::ExtractFile(const string_t& ArchiveFileName, const string_t& FileT
 	bool found = false;
 	for (size_t i = 0; i < files.size(); i++)
 	{
-		if (files[i].fileName == FileToExtract)
+		if (files[i].fileName == convert_string<wchar_t>(FileToExtract))
 		{
 			found = true;
 			fr = files[i];
@@ -796,11 +729,11 @@ int Archiver::ExtractFile(const string_t& ArchiveFileName, const string_t& FileT
 	}
 
 	if (!found)
-		throw file_error("File '" + convert_string<char>(FileToExtract) + "' absent in archive. Cannot extract.");
+		throw file_error("File '" + wtos(FileToExtract) + "' absent in archive. Cannot extract.");
 
 	for (size_t i = 0; i < files.size(); i++)
 	{
-		if (files[i].fileName == FileToExtract)
+		if (files[i].fileName == convert_string<wchar_t>(FileToExtract))
 		{
 			break;
 		}
@@ -821,9 +754,9 @@ int Archiver::ExtractFile(const string_t& ArchiveFileName, const string_t& FileT
 	}
 	else
 	{
-		fout.open(realFileName, ios::out | ios::binary, _SH_DENYWR);
+		fout.open(realFileName, ios::out | ios::binary/*, _SH_DENYWR*/); // third parameter is not supported by C++ standard
 		if (fout.fail())
-			throw file_error("Cannot open file '" + convert_string<char>(realFileName) + "' for writing.");
+			throw file_error("Cannot open file '" + wtos(realFileName) + "' for writing.");
 
 		PrintUncompressionStart(fr, params);
 	}
@@ -861,7 +794,7 @@ void Archiver::LoadBlock(istringstream& fb, ifstream* fin, uint32_t& uBlockSize,
 	fin->read((char*)&lineNum, sizeof(int32_t));
 	fin->read((char*)&flags, sizeof(char));
 
-	static string s;// (buf, cBlockSize);// TODO make s static? to avoid buffer realocating each time
+	static string s;// (buf, cBlockSize); //TODO make s static? to avoid buffer realocating each time
 	s.reserve(uBlockSize);
 	s.resize(cBlockSize);
 
@@ -992,9 +925,10 @@ void Archiver::RemoveFile(const string_t& ArchiveFileName, const string_t& FileT
 {
 	GET_LOGGER();
 
-    ifstream fin(ArchiveFileName, ios::in | ios::binary);
+	ifstream fin;
+	fin.open(ArchiveFileName, ios::in | ios::binary);
     if (fin.fail())
-		throw file_error("Cannot open archive file '" + convert_string<char>(ArchiveFileName) + "' for reading. Exiting.");
+		throw file_error("Cannot open archive file '" + wtos(ArchiveFileName) + "' for reading. Exiting.");
 
 	ArchiveHeader ah;
 	vect_fr_t& files = ah.LoadHeader(&fin);
@@ -1003,31 +937,27 @@ void Archiver::RemoveFile(const string_t& ArchiveFileName, const string_t& FileT
 
 	if (!ah.FileInList(FileToDelete)) //incorrect file name
 	{
-		throw invalid_argument("File '" + convert_string<char>(FileToDelete) + "' cannot be found in archive '" + convert_string<char>(ArchiveFileName) + "'.");
+		throw invalid_argument("File '" + wtos(FileToDelete) + "' cannot be found in archive '" + wtos(ArchiveFileName) + "'.");
 	}
-#ifdef LOG4CPP
-	logger.info("Deleting file '%s' from archive '%s'", toOEM(FileToDelete).c_str(), toOEM(ArchiveFileName).c_str());
-#elif defined(__BORLANDC__)
-	logger.LogFmt(LogEngine::Levels::llInfo, "Deleting file '%s' from archive '%s'", convert_string<char>(FileToDelete).c_str(), convert_string<char>(ArchiveFileName).c_str());
-#else
-    logger.InfoFmt("Deleting file '{}' from archive '{}'", convert_string<char>(FileToDelete), convert_string<char>(ArchiveFileName));
-#endif
+
+    logger.InfoFmt("Deleting file '{}' from archive '{}'", wtos(FileToDelete), wtos(ArchiveFileName));
 
 	ah.RemoveFileFromList(FileToDelete);
 
-    // TODO: add handling of removing last files from archive.
+	//TODO: add handling of removing last files from archive.
 
     string_t newArchiveFile = ArchiveFileName + _T(".tmp");
-    ofstream fout(newArchiveFile, ios::out | ios::binary, _SH_DENYWR);
+	ofstream fout;
+	fout.open(newArchiveFile, ios::out | ios::binary/*, _SH_DENYWR*/); // third parameter is not supported by C++ standard
     if (fout.fail())
-        throw file_error("Cannot open file '" + convert_string<char>(newArchiveFile) + "' for writing.");
+        throw file_error("Cannot open file '" + wtos(newArchiveFile) + "' for writing.");
 
     ah.SaveHeader(&fout); // saving header without deleted file in the list
 
 
     for (size_t i = 0; i < filesOLD.size(); i++)
     {
-        if (filesOLD[i].fileName == FileToDelete)
+        if (filesOLD[i].fileName == convert_string<wchar_t>(FileToDelete))
         {
             BypassFile(&fin, filesOLD[i]);
         }
@@ -1042,18 +972,18 @@ void Archiver::RemoveFile(const string_t& ArchiveFileName, const string_t& FileT
 
     if (fin.fail())
     {
-		std::remove(convert_string<char>(newArchiveFile).c_str());
-		throw file_error("Error reading archive file '" + convert_string<char>(ArchiveFileName) + "'.");
+		std::remove(wtos(newArchiveFile).c_str());
+		throw file_error("Error reading archive file '" + wtos(ArchiveFileName) + "'.");
 	}
 
 	if (fout.fail())
 	{
-		std::remove(convert_string<char>(newArchiveFile).c_str());
-		throw file_error("Error writing archive file '" + convert_string<char>(newArchiveFile) + "'.");
+		std::remove(wtos(newArchiveFile).c_str());
+		throw file_error("Error writing archive file '" + wtos(newArchiveFile) + "'.");
 	}
 
-	std::remove(convert_string<char>(ArchiveFileName).c_str());
-	std::rename(convert_string<char>(newArchiveFile).c_str(), convert_string<char>(ArchiveFileName).c_str());
+	std::remove(wtos(ArchiveFileName).c_str());
+	std::rename(wtos(newArchiveFile).c_str(), wtos(ArchiveFileName).c_str());
 
 	LOG_INFO("Deleted successfully");
 }
@@ -1066,9 +996,10 @@ void Archiver::RemoveFiles(const string_t& ArchiveFileName, const vect_string_t&
 
 	GET_LOGGER();
 
-    ifstream fin(ArchiveFileName, ios::in | ios::binary);
+	ifstream fin;
+	fin.open(ArchiveFileName, ios::in | ios::binary);
 	if (fin.fail())
-		throw file_error("Cannot open archive file '" + convert_string<char>(ArchiveFileName) + "' for reading. Exiting.");
+		throw file_error("Cannot open archive file '" + wtos(ArchiveFileName) + "' for reading. Exiting.");
 
     ArchiveHeader ah;
     vect_fr_t& files = ah.LoadHeader(&fin);
@@ -1079,30 +1010,24 @@ void Archiver::RemoveFiles(const string_t& ArchiveFileName, const vect_string_t&
     //{
     //    throw invalid_argument("File '" + FileToDelete + "' cannot be found in archive '" + ArchiveFile + "'.");
     //}
-#ifdef LOG4CPP
-    logger.info("Deleting files from archive '%s'", ArchiveFileName.c_str());
-#elif defined(__BORLANDC__)
-	logger.LogFmt(LogEngine::Levels::llInfo, "Deleting files from archive '%s'", convert_string<char>(ArchiveFileName).c_str());
-#else
-	logger.InfoFmt("Deleting files from archive '{}'", convert_string<char>(ArchiveFileName));
-#endif
+
+	logger.InfoFmt("Deleting files from archive '{}'", wtos(ArchiveFileName));
 
     ah.RemoveFilesFromList(flist);
 
-    // TODO add handling of removing last file from archive.
+    //TODO add handling of removing last file from archive.
 
     string_t newArchiveFile = ArchiveFileName + _T(".tmp");
-    ofstream fout(newArchiveFile, ios::out | ios::binary, _SH_DENYWR);
+	ofstream fout;
+	fout.open(newArchiveFile, ios::out | ios::binary/*, _SH_DENYWR*/); // third parameter is not supported by C++ standard
     if (fout.fail())
-        throw file_error("Cannot open file '" + convert_string<char>(newArchiveFile) + "' for writing.");
+        throw file_error("Cannot open file '" + wtos(newArchiveFile) + "' for writing.");
 
     ah.SaveHeader(&fout); // saving header without deleted file in the list
 
-
-    //for (size_t i = 0; i < filesOLD.size(); i++)
-    for (vect_fr_t::iterator iter = filesOLD.begin(); iter != filesOLD.end(); iter++)
+    for (auto iter = filesOLD.begin(); iter != filesOLD.end(); iter++)
     {
-        auto result = std::find(flist.begin(), flist.end(), iter->fileName);
+        auto result = std::find(flist.begin(), flist.end(), convert_string<char_t>(iter->fileName));
 
         if (result == flist.end()) // file not found, copy its data into new archive
             CopyFileData(&fin, &fout, *iter);
@@ -1113,154 +1038,73 @@ void Archiver::RemoveFiles(const string_t& ArchiveFileName, const vect_string_t&
     if (fin.fail())
     {
         fin.close();
-		std::remove(convert_string<char>(newArchiveFile).c_str());
-		throw file_error("Error reading archive file '" + convert_string<char>(ArchiveFileName) + "'.");
+		std::remove(wtos(newArchiveFile).c_str());
+		throw file_error("Error reading archive file '" + wtos(ArchiveFileName) + "'.");
 	}
 
 	if (fout.fail())
 	{
 		fout.close();
-		std::remove(convert_string<char>(newArchiveFile).c_str());
-		throw file_error("Error writing archive file '" + convert_string<char>(newArchiveFile) + "'.");
+		std::remove(wtos(newArchiveFile).c_str());
+		throw file_error("Error writing archive file '" + wtos(newArchiveFile) + "'.");
 	}
 
 	fin.close();
 	fout.close();
 
-	std::remove(convert_string<char>(ArchiveFileName).c_str());
-	std::rename(convert_string<char>(newArchiveFile).c_str(), convert_string<char>(ArchiveFileName).c_str());
+	std::remove(wtos(ArchiveFileName).c_str());
+	std::rename(wtos(newArchiveFile).c_str(), wtos(ArchiveFileName).c_str());
 
     LOG_INFO("Deleted successfully");
 }
 
 void Archiver::PrintCompressionStart(const Parameters& params)
 {
-#ifdef LOG4CPP
-    log4cpp::Category& logger = Global::GetLogger();
-    //logger.info("Using Arithmetic Range compressor.");
-	logger.info("%-19s %s.", "Compression coder:", Parameters::CoderNames[(uint8_t)params.CODER_TYPE].c_str());
-    logger.info("%-19s %s", "Use model type:", Parameters::ModelTypeCode[(uint8_t)params.MODEL_TYPE].c_str());
-    logger.info("%-19s %s", "Block mode:", params.BLOCK_MODE ? "YES" : "NO");
-    if (params.BLOCK_MODE)
-		logger.info("%-19s %s bytes", "Block size:", toStringSep(params.BLOCK_SIZE).c_str());
-	logger.info("%-19s %u", "Threads count:", params.THREADS);
-	logger.info("%-19s %s", "Verbose:", params.VERBOSE ? "true" : "false");
-#elif defined(__BORLANDC__)
-	LogEngine::Logger& logger = Global::GetLogger();
-	//logger.Info("Using Arithmetic Range compressor.");
-	logger.LogFmt(LogEngine::Levels::llInfo, "%-19s %s.", "Compression coder:", convert_string<char>(Parameters::CoderNames[(uint8_t)params.CODER_TYPE]).c_str());
-	logger.LogFmt(LogEngine::Levels::llInfo, "%-19s %s", "Use model type:", convert_string<char>(Parameters::ModelTypeCode[(uint8_t)params.MODEL_TYPE]).c_str());
-	logger.LogFmt(LogEngine::Levels::llInfo, "%-19s %s", "Block mode:", params.BLOCK_MODE ? "YES" : "NO");
-	if (params.BLOCK_MODE)
-		logger.LogFmt(LogEngine::Levels::llInfo, "%-19s %s bytes", "Block size:", toStringSepA(params.BLOCK_SIZE).c_str());
-	logger.LogFmt(LogEngine::Levels::llInfo, "%-19s %u", "Threads count:", params.THREADS);
-	logger.LogFmt(LogEngine::Levels::llInfo, "%-19s %s", "Verbose:", params.VERBOSE ? "true" : "false");
-#else
-	LogEngine::Logger& logger = Global::GetLogger();
+	GET_LOGGER();
+
 	//logger.info("Using Arithmetic Range compressor.");
-	logger.InfoFmt("{:19} {}.", "Compression coder:", convert_string<char>(Parameters::CoderNames[(uint8_t)params.CODER_TYPE]));
-	logger.InfoFmt("{:19} {}", "Use model type:", convert_string<char>(Parameters::ModelTypeCode[(uint8_t)params.MODEL_TYPE]));
+	logger.InfoFmt("{:19} {}.", "Compression coder:", wtos(Parameters::CoderNames[(uint8_t)params.CODER_TYPE]));
+	logger.InfoFmt("{:19} {}", "Use model type:", wtos(Parameters::ModelTypeCode[(uint8_t)params.MODEL_TYPE]));
 	logger.InfoFmt("{:19} {}", "Block mode:", params.BLOCK_MODE ? "YES" : "NO");
 	if (params.BLOCK_MODE)
-		logger.InfoFmt("{:19} {} bytes", "Block size:", toStringSepA(params.BLOCK_SIZE));
+		logger.InfoFmt("{:19} {:L} bytes", "Block size:", params.BLOCK_SIZE);
 	logger.InfoFmt("{:19} {}", "Threads count:", params.THREADS);
 	logger.InfoFmt("{:19} {}", "Verbose:", params.VERBOSE ? "true" : "false");
-#endif
-
 }
 
 void Archiver::PrintUncompressionStart(const FileRecord& fr, const Parameters& params)
 {
-#ifdef LOG4CPP
-    log4cpp::Category& logger = Global::GetLogger();
+	GET_LOGGER();
 
-    //logger.info("Using Arithmetic Range compressor.");
-	logger.info("%-19s %ls", "Extracting file:", fr.fileName.c_str());
-	logger.info("%-19s %ls", "Extracting to:", params.OUTPUT_DIR.c_str());
-	logger.info("%-19s %s", "Compression coder:", Parameters::CoderNames[fr.alg].c_str());
-	logger.info("%-19s %s", "Model type:", Parameters::ModelTypeCode[fr.modelOrder].c_str());
-	logger.info("%-19s %s", "Block mode:", fr.blockCount > 0 ? "YES" : "NO");
-	logger.info("%-19s %ls bytes", "Block size:", toStringSep(fr.blockSize).c_str());
-	logger.info("%-19s %u", "Threads count:", params.THREADS);
-	logger.info("%-19s %s", "Verbose:", params.VERBOSE ? "true" : "false");
-	//logger.info("------------------------------");
-#elif defined(__BORLANDC__)
-    LogEngine::Logger& logger = Global::GetLogger();
-    //logger.info("Using Arithmetic Range compressor.");
-
-	logger.LogFmt(LogEngine::Levels::llInfo, "%-19s %s", "Extracting file:", convert_string<char>(fr.fileName).c_str());
-	logger.LogFmt(LogEngine::Levels::llInfo, "%-19s %s", "Extracting to:", convert_string<char>(params.OUTPUT_DIR).c_str());
-	logger.LogFmt(LogEngine::Levels::llInfo, "%-19s %s", "Compression coder:", convert_string<char>(Parameters::CoderNames[fr.alg]).c_str());
-	logger.LogFmt(LogEngine::Levels::llInfo, "%-19s %s", "Model type:", convert_string<char>(Parameters::ModelTypeCode[fr.modelOrder]).c_str());
-	logger.LogFmt(LogEngine::Levels::llInfo, "%-19s %s", "Block mode:", fr.blockCount > 0 ? "YES" : "NO");
-	logger.LogFmt(LogEngine::Levels::llInfo, "%-19s %s bytes", "Block size:", toStringSepA(fr.blockSize).c_str());
-	logger.LogFmt(LogEngine::Levels::llInfo, "%-19s %u", "Threads count:", params.THREADS);
-	logger.LogFmt(LogEngine::Levels::llInfo, "%-19s %s", "Verbose:", params.VERBOSE ? "true" : "false");
-	//logger.info("------------------------------");
-#else
-	LogEngine::Logger& logger = Global::GetLogger();
 	//logger.info("Using Arithmetic Range compressor.");
-
-	logger.InfoFmt("{:19} {}", "Extracting file:", toOEM(fr.fileName));
-	logger.InfoFmt("{:19} {}", "Extracting to:", convert_string<char>(params.OUTPUT_DIR));
-	logger.InfoFmt("{:19} {}", "Compression coder:", convert_string<char>(Parameters::CoderNames[fr.alg]));
-	logger.InfoFmt("{:19} {}", "Model type:", convert_string<char>(Parameters::ModelTypeCode[fr.modelOrder]));
+	logger.InfoFmt("{:19} {}", "Extracting file:", wtos(fr.fileName)); //toOEM(fr.fileName));
+	logger.InfoFmt("{:19} {}", "Extracting to:", wtos(params.OUTPUT_DIR));
+	logger.InfoFmt("{:19} {}", "Compression coder:", wtos(Parameters::CoderNames[fr.alg]));
+	logger.InfoFmt("{:19} {}", "Model type:", wtos(Parameters::ModelTypeCode[fr.modelOrder]));
 	logger.InfoFmt("{:19} {}", "Block mode:", fr.blockCount > 0 ? "YES" : "NO");
-	logger.InfoFmt("{:19} {} bytes", "Block size:", toStringSepA(fr.blockSize));
+	logger.InfoFmt("{:19} {:L} bytes", "Block size:", fr.blockSize);
 	logger.InfoFmt("{:19} {}", "Threads count:", params.THREADS);
 	logger.InfoFmt("{:19} {}", "Verbose:", params.VERBOSE ? "true" : "false");
 	//logger.info("------------------------------");
-#endif // LOG4CPP
 }
 
 void Archiver::PrintFileCompressionDone(const FileRecord& fr)
 {
-#ifdef LOG4CPP
-	log4cpp::Category& logger = Global::GetLogger();
+	GET_LOGGER();
 
-	logger.info("Done compression.");
-	logger.info("%-16s '%s'", "File name:", fr.origFilename.c_str());
-	logger.info("%-16s %s bytes", "File size:", toStringSep(fr.fileSize).c_str());
-	logger.info("%-16s %s bytes", "Compressed size:", toStringSep(fr.compressedSize).c_str());
-	logger.info("%-16s %.2f", "Ratio:", (float)fr.fileSize / (float)fr.compressedSize);
-	logger.info("%-16s %s", "Blocks:", toStringSep(fr.blockCount).c_str());
-#elif defined(__BORLANDC__)
-	LogEngine::Logger& logger = Global::GetLogger();
 	logger.Info("Done compression.");
-	std::string oemFilename;
-	oemFilename.resize(fr.origFilename.size());
-	CharToOemBuffW(fr.origFilename.data(), oemFilename.data(), fr.origFilename.size());
-	logger.LogFmt(LogEngine::Levels::llInfo, "%-16s '%s'", "File name:", oemFilename.c_str());
-	logger.LogFmt(LogEngine::Levels::llInfo, "%-16s %s bytes", "File size:", toStringSepA(fr.fileSize).c_str());
-	logger.LogFmt(LogEngine::Levels::llInfo, "%-16s %s bytes", "Compressed size:", toStringSepA(fr.compressedSize).c_str());
-	logger.LogFmt(LogEngine::Levels::llInfo, "%-16s %.2f", "Ratio:", (float)fr.fileSize / (float)fr.compressedSize);
-	logger.LogFmt(LogEngine::Levels::llInfo, "%-16s %s", "Blocks:", toStringSepA(fr.blockCount).c_str());
-#else
-	LogEngine::Logger& logger = Global::GetLogger();
-	logger.Info("Done compression.");
-	logger.InfoFmt("{:16} '{}'", "File name:", toOEM(fr.origFilename));
-	logger.InfoFmt("{:16} {} bytes", "File size:", toStringSepA(fr.fileSize));
-	logger.InfoFmt("{:16} {} bytes", "Compressed size:", toStringSepA(fr.compressedSize));
-	logger.InfoFmt("{:16} {}", "Ratio:", (float)fr.fileSize / (float)fr.compressedSize);
-	logger.InfoFmt("{:16} {}", "Blocks:", toStringSepA(fr.blockCount));
-#endif // LOG4CPP
-
+	logger.InfoFmt("{:16} '{}'", "File name:", wtos(fr.origFilename)); //toOEM(fr.origFilename));
+	logger.InfoFmt("{:16} {:L} bytes", "File size:", fr.fileSize);
+	logger.InfoFmt("{:16} {:L} bytes", "Compressed size:", fr.compressedSize);
+	logger.InfoFmt("{:16} {:L}", "Ratio:", (float)fr.fileSize / (float)fr.compressedSize);
+	logger.InfoFmt("{:16} {:L}", "Blocks:", fr.blockCount);
 }
 
 void Archiver::PrintFileCompressionAborted(const FileRecord& fr)
 {
-#ifdef LOG4CPP
+	GET_LOGGER();
 
-#elif defined(__BORLANDC__)
-	LogEngine::Logger& logger = Global::GetLogger();
 	logger.Warn("Compression aborted by user.");
-	logger.LogFmt(LogEngine::Levels::llInfo, "%-16s '%s'", "File name:", convert_string<char>(fr.origFilename).c_str());
-	logger.LogFmt(LogEngine::Levels::llInfo, "%-16s %s bytes", "File size:", toStringSepA(fr.fileSize).c_str());
-#else
-	LogEngine::Logger& logger = Global::GetLogger();
-	logger.Info("Compression aborted by user.");
-	logger.InfoFmt("{:16} '{}'", "File name:", toOEM(fr.origFilename));
-	logger.InfoFmt("{:16} {} bytes", "File size:", toStringSepA(fr.fileSize));
-#endif // LOG4CPP
-
+	logger.InfoFmt("{:16} '{}'", "File name:", wtos(fr.origFilename)); //toOEM(fr.origFilename));
+	logger.InfoFmt("{:16} {:L} bytes", "File size:", fr.fileSize);
 }
