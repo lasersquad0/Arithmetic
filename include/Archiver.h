@@ -57,7 +57,7 @@ struct BWTTask : public MT::Task
 	void one_thread_method() override 
 	{
 		GET_LOGGER();
-		logger.DebugFmt("{} task has started", description.c_str());
+		logger.DebugFmt("{} task has started", description);
 		LineNum = libsais64_bwt(Buf, BWTBuf, TempBuf, ReadSize, 0, nullptr);
 
 		if (LineNum < 0)
@@ -67,7 +67,7 @@ struct BWTTask : public MT::Task
 
 		mtf.Encode(BWTBuf, Buf, ReadSize);
 
-		logger.DebugFmt("{} task has finished", description.c_str());
+		logger.DebugFmt("{} task has finished", description);
 	}
 };
 
