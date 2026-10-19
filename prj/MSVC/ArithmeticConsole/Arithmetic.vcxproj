@@ -30,27 +30,27 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v145</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v145</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v145</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
     <EnableASAN>false</EnableASAN>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v145</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -124,9 +124,10 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>LOGENGINE_HEADER_ONLY;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\..\..\..\command-line-argument-parser\cli;$(ProjectDir)..\..\..\..\libsais\include;$(ProjectDir)..\..\..\log4cpp\;$(ProjectDir)..\..\..\..\LogEngine2\include;$(ProjectDir)..\..\..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\..\..\external;$(ProjectDir)..\..\..\include;$(ProjectDir)..\..\..\external\libsais\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -143,9 +144,10 @@
       <PreprocessorDefinitions>WIN32;LOGENGINE_HEADER_ONLY;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\..\..\..\command-line-argument-parser\cli;$(ProjectDir)..\..\..\..\libsais\include;$(ProjectDir)..\..\..\log4cpp\;$(ProjectDir)..\..\..\..\LogEngine2\include;$(ProjectDir)..\..\..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\..\..\external;$(ProjectDir)..\..\..\include;$(ProjectDir)..\..\..\external\libsais\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <WholeProgramOptimization>false</WholeProgramOptimization>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -157,18 +159,18 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\..\command-line-argument-parser\cli\CommandLine.cpp" />
-    <ClCompile Include="..\..\..\..\command-line-argument-parser\cli\DefaultParser.cpp" />
-    <ClCompile Include="..\..\..\..\command-line-argument-parser\cli\HelpFormatter.cpp" />
-    <ClCompile Include="..\..\..\..\command-line-argument-parser\cli\Option.cpp" />
-    <ClCompile Include="..\..\..\..\command-line-argument-parser\cli\OptionsList.cpp" />
-    <ClCompile Include="..\..\..\..\libsais\src\libsais.c" />
-    <ClCompile Include="..\..\..\..\libsais\src\libsais64.c" />
+    <ClCompile Include="..\..\..\external\cli\CommandLine.cpp" />
+    <ClCompile Include="..\..\..\external\cli\DefaultParser.cpp" />
+    <ClCompile Include="..\..\..\external\cli\HelpFormatter.cpp" />
+    <ClCompile Include="..\..\..\external\cli\Option.cpp" />
+    <ClCompile Include="..\..\..\external\cli\OptionsList.cpp" />
+    <ClCompile Include="..\..\..\external\libsais\src\libsais.c" />
+    <ClCompile Include="..\..\..\external\libsais\src\libsais64.c" />
+    <ClCompile Include="..\..\..\external\utils\src\string_utils.cpp" />
     <ClCompile Include="..\..\..\src\ArchiveHeader.cpp" />
     <ClCompile Include="..\..\..\src\Archiver.cpp" />
     <ClCompile Include="..\..\..\src\BitCoder.cpp" />
     <ClCompile Include="..\..\..\src\CommonFunctions.cpp" />
-    <ClCompile Include="..\..\..\src\Context.cpp" />
     <ClCompile Include="..\..\..\src\fpaq0.cpp" />
     <ClCompile Include="..\..\..\src\ModelOrder0.cpp" />
     <ClCompile Include="..\..\..\src\ModelOrder0Sort.cpp" />
@@ -176,7 +178,6 @@
     <ClCompile Include="..\..\..\src\Parameters.cpp" />
     <ClCompile Include="..\..\..\src\RangeCoder.cpp" />
     <ClCompile Include="..\..\..\src\thread_pool.cpp" />
-    <ClCompile Include="..\..\..\src\Ticks.cpp" />
     <ClCompile Include="..\..\..\src\timer.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
@@ -206,7 +207,6 @@
     <ClInclude Include="..\..\..\include\Parameters.h" />
     <ClInclude Include="..\..\..\include\RangeCoder.h" />
     <ClInclude Include="..\..\..\include\thread_pool.h" />
-    <ClInclude Include="..\..\..\include\Ticks.h" />
     <ClInclude Include="..\..\..\include\timer.h" />
     <ClInclude Include="resource.h" />
   </ItemGroup>

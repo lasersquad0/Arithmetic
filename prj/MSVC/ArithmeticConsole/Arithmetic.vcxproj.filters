@@ -21,21 +21,6 @@
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\command-line-argument-parser\cli\CommandLine.cpp">
-      <Filter>Source Files\CLI</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\command-line-argument-parser\cli\DefaultParser.cpp">
-      <Filter>Source Files\CLI</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\command-line-argument-parser\cli\HelpFormatter.cpp">
-      <Filter>Source Files\CLI</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\command-line-argument-parser\cli\Option.cpp">
-      <Filter>Source Files\CLI</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\command-line-argument-parser\cli\OptionsList.cpp">
-      <Filter>Source Files\CLI</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\src\ArchiveHeader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -46,9 +31,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\CommonFunctions.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\src\Context.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\fpaq0.cpp">
@@ -69,19 +51,34 @@
     <ClCompile Include="..\..\..\src\RangeCoder.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\Ticks.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\libsais\src\libsais.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\libsais\src\libsais64.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\src\thread_pool.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\timer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\external\cli\CommandLine.cpp">
+      <Filter>Source Files\CLI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\external\cli\DefaultParser.cpp">
+      <Filter>Source Files\CLI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\external\cli\HelpFormatter.cpp">
+      <Filter>Source Files\CLI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\external\cli\Option.cpp">
+      <Filter>Source Files\CLI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\external\cli\OptionsList.cpp">
+      <Filter>Source Files\CLI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\external\utils\src\string_utils.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\external\libsais\src\libsais.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\external\libsais\src\libsais64.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -152,9 +149,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\include\RangeCoder.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\include\Ticks.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="resource.h">
