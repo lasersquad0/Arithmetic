@@ -51,8 +51,10 @@ public:
 			case ModelType::O0PAIR:models[fr.modelOrder][fr.alg] = new ModelOrder0Pair64(coder64); return models[fr.modelOrder][fr.alg]; break;
 			case ModelType::O3MIX: models[fr.modelOrder][fr.alg] = new ModelOrderMixed64(coder64); return models[fr.modelOrder][fr.alg]; break;
 			case ModelType::O1FPAQ:models[fr.modelOrder][fr.alg] = new fpaqBitCoder64(coder64);    return models[fr.modelOrder][fr.alg]; break; // fpaqBitCoder model always works with ABITARI coder
+
+			default: throw std::invalid_argument("Invalid model type.");
 			}
-			throw std::invalid_argument("Invalid model type.");
+			//throw std::invalid_argument("Invalid model type.");
 		}
 		else
 		{
@@ -69,8 +71,10 @@ public:
 			case ModelType::O0PAIR:models[fr.modelOrder][fr.alg] = new ModelOrder0Pair32(coder32); return models[fr.modelOrder][fr.alg]; break;
 			case ModelType::O3MIX: models[fr.modelOrder][fr.alg] = new ModelOrderMixed32(coder32); return models[fr.modelOrder][fr.alg]; break;
 			case ModelType::O1FPAQ:models[fr.modelOrder][fr.alg] = new fpaqBitCoder32(coder32);    return models[fr.modelOrder][fr.alg]; break; // fpaqBitCoder model always works with ABITARI coder
+
+			default: throw std::invalid_argument("Invalid model type.");
 			}
-			throw std::invalid_argument("Invalid model type.");
+			//throw std::invalid_argument("Invalid model type.");
 		}
 	}
 
@@ -86,10 +90,11 @@ public:
 		case CoderType::ARITHMETIC:
 		case CoderType::ARITHMETIC32:  coders32[cindex] = new RangeCoder32(); return *(coders32[cindex]); break;
 		case CoderType::BITARITHMETIC: coders32[cindex] = new BitCoder32();   return *(coders32[cindex]); break;
-		case CoderType::FPAQARITHMETIC:coders32[cindex] = new fpaqBitCoder32(*(new RangeCoder32())); return *(coders32[cindex]); break; // TODO dirty hack here!!!
+		case CoderType::FPAQARITHMETIC:coders32[cindex] = new fpaqBitCoder32(*(new RangeCoder32())); return *(coders32[cindex]); break; //TODO dirty hack here!!!
 
+		default: throw std::invalid_argument("Invalid coder type.");
 		}
-		throw std::invalid_argument("Invalid coder type.");
+		//throw std::invalid_argument("Invalid coder type.");
 	}
 
 	static IBlockCoder64& GetCoder64(CoderType ct)
@@ -103,9 +108,10 @@ public:
 		case CoderType::AHUFFMAN:      throw std::invalid_argument("Invalid coder type."); //return new RangeCoder(); break;
 		case CoderType::ARITHMETIC64:  coders64[cindex] = new RangeCoder64(); return *(coders64[cindex]); break;
 		case CoderType::BITARITHMETIC: coders64[cindex] = new BitCoder64();   return *(coders64[cindex]); break;
-		case CoderType::FPAQARITHMETIC:coders64[cindex] = new fpaqBitCoder64(*(new RangeCoder64())); return *(coders64[cindex]); break; // TODO dirty hack here!!!
+		case CoderType::FPAQARITHMETIC:coders64[cindex] = new fpaqBitCoder64(*(new RangeCoder64())); return *(coders64[cindex]); break; //TODO dirty hack here!!!
 
+		default: throw std::invalid_argument("Invalid coder type.");
 		}
-		throw std::invalid_argument("Invalid coder type.");
+		//throw std::invalid_argument("Invalid coder type.");
 	}
 };
