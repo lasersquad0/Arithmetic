@@ -1,0 +1,20 @@
+********************************
+Project name:                           Arithmetic file compression tool
+
+Resources: 
+	Maintainers			Andrey Romanchenko <lasersquad@gmail.com>
+
+
+********************************
++ means "added"
+- means "removed"
+* means "fixed" or "modified"
+********************************
+
+XXX.06.2025
+[+] Added possibility to do BWT adn MFT transitions in separate threads. Main compression still is single threaded. 
+[+] Added new coder fpaqbitcoder.
+[-] Started removing log4cpp depended code
+[*] Improved code compatibility with CBuilder
+[*] Arithmetic.lfg moved to "root" folder to be used by other Arithmetic projects
+
