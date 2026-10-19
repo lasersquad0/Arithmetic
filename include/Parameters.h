@@ -2,8 +2,6 @@
 
 #include <string>
 #include "CommonFunctions.h"
-//#include "utils/include/string_utils.h"
-//#include "LogEngine2/LogEngine.h"
 
 
 #ifdef EXPORT_FOR_DELPHI
@@ -16,7 +14,7 @@ class __declspec(delphiclass) DelphiParameters : public TParametersInterface
 {
 private:
 	uint32_t FTHREADS = 1;
-	uint32_t FBLOCK_SIZE = 1 << 16;
+	uint64_t FBLOCK_SIZE = 1 << 16;
 	UnicodeString FOUTPUT_DIR = ".\\";
 	bool FBLOCK_MODE = true;  // using block mode by default, to back to 'stream' mode use -sm cli option
 	bool FVERBOSE = false;
@@ -33,8 +31,8 @@ private:
 	void __fastcall SetVerbose(bool vrbs) override {FVERBOSE = vrbs; }
 	bool __fastcall GetBlockMode() override { return FBLOCK_MODE; }
 	void __fastcall SetBlockMode(bool bmode) override {FBLOCK_MODE = bmode; }
-	uint32_t __fastcall GetBlockSize() override { return FBLOCK_SIZE; }
-	void __fastcall SetBlockSize(uint32_t bsize) override {FBLOCK_SIZE = bsize; }
+	uint64_t __fastcall GetBlockSize() override { return FBLOCK_SIZE; }
+	void __fastcall SetBlockSize(uint64_t bsize) override {FBLOCK_SIZE = bsize; }
 	UnicodeString __fastcall GetOutputDir() override { return FOUTPUT_DIR; }
 	void __fastcall SetOutputDir(UnicodeString odir) override {FOUTPUT_DIR = odir; }
 };
