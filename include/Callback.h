@@ -38,7 +38,6 @@ public:
 		std::cout << "\rProgress " << prgrs << "%...";
 		return CALLBACK_OK;
 	}
-
 };
 
 class CallbackManager
