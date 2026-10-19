@@ -68,6 +68,7 @@ public:
 typedef RangeCoder<uint32_t> RangeCoder32;
 typedef RangeCoder<uint64_t> RangeCoder64;
 
+//TODO shall we put all methods from below into class declarations?
 
 template<class UINT>
 RangeCoder<UINT>::RangeCoder(uint8_t codebits) :
@@ -113,6 +114,7 @@ template<class UINT>
 void RangeCoder<UINT>::DecodeByte(UINT cumFreq, UINT freq, UINT totalFreq)
 {
     // Fixed error: 'cumFreq+freq<totFreq' was replaced with 'cumFreq+freq<=totFreq'
+    std::ignore = totalFreq;
     assert(cumFreq + freq <= totalFreq);
     assert(freq > 0);
     assert(totalFreq <= BOTTOM);
@@ -202,7 +204,6 @@ void RangeCoder<UINT>::FinishDecode()
 {
     //nothing
 };
-
 
 template<class UINT>
 void RangeCoder<UINT>::StartBlockEncode()
