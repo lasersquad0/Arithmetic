@@ -33,11 +33,11 @@ private:
 	const uint32_t FILE_SIGNATURE_LEN = 4;
 	const uint32_t FILE_VERSION_LEN = 2;
 
-	char fileSignature[4] = {'R', 'O', 'M', 'A'}; // TODO: shall it be wchar type?
+	char fileSignature[4] = {'R', 'O', 'M', 'A'};
 	char fileVersion[2] = {'0', '1'};
-	vect_fr_t files;
+	vect_fr_t m_files;
 
-	void checkHeaderData()
+	void checkHeaderData() const
 	{
 		myassert(fileSignature[0] == 'R');
 		myassert(fileSignature[1] == 'O');
@@ -48,7 +48,7 @@ private:
 		myassert((fileVersion[1] >= '0') && (fileVersion[1] <= '9'));
 	}
 
-	bool CheckSignature(const string_t& ArchiveName)
+	bool checkSignature(const string_t& ArchiveName)
 	{
 		std::ifstream fin(ArchiveName, std::ios::in | std::ios::binary);
 		if (fin.fail()) return false; // return false even in case we cannot open file, either file does not exist or we do not have permissions
@@ -67,9 +67,10 @@ private:
 			   version[1] >= '0'   && version[1] <= '9';
 	}
 
-	string_t ellipsis(const string_t& str, uint len)
+	// ellipsis is intended to work with file names which are always wstring
+	std::wstring ellipsis(const std::wstring& fileName, uint len) const
 	{
-		return (str.length() > len) ? str.substr(0, len - 3) + _T("...") : str;
+		return (fileName.length() > len) ? fileName.substr(0, len - 3) + L"..." : fileName;
 	}
 
 public:
@@ -98,7 +99,7 @@ public:
 		if (sin->fail())
 			throw bad_file_format("Wrong file format.");
 
-		files.clear();
+		m_files.clear();
 
 		uint16_t filesCount = 0;
 		sin->read((char*)&filesCount, sizeof(uint16_t)); // up to 65535 files in archive
@@ -108,10 +109,10 @@ public:
 			FileRecord fr;
 			fr.load(sin);
 
-			files.push_back(fr);
+			m_files.push_back(fr);
 		}
 
-		return files;
+		return m_files;
 	}
 
 	/**
@@ -126,10 +127,10 @@ public:
 		sout->write(fileSignature, 4);
 		sout->write(fileVersion, 2);
 
-		uint16_t sz = (uint16_t)files.size();
+		uint16_t sz = (uint16_t)m_files.size();
 		sout->write((char*)&sz, sizeof(uint16_t)); // assumed archive will have less than 65535 files in it
 
-		for (FileRecord fr : files)
+		for (FileRecord fr : m_files)
 		{
 			fr.save(sout);
 		}
@@ -137,19 +138,19 @@ public:
 	
 	bool FileInList(const string_t& FileName)
 	{
-		for (auto item : files)
-			if (item.fileName == FileName)
+		for (auto item : m_files)
+			if (item.fileName == convert_string<wchar_t>(FileName))
 				return true;
 		return false;
 	}
 
 	void RemoveFileFromList(const string_t& FileName)
 	{
-		for (vect_fr_t::iterator iter = files.begin(); iter != files.end(); iter++)
+		for (auto iter = m_files.begin(); iter != m_files.end(); iter++)
 		{
-			if (iter->fileName == FileName)
+			if (iter->fileName == convert_string<wchar_t>(FileName))
 			{
-				files.erase(iter);
+				m_files.erase(iter);
 				break;
 			}
 		}
@@ -157,12 +158,12 @@ public:
 
 	void RemoveFilesFromList(const vect_string_t& FileList)
 	{
-		for (vect_fr_t::iterator iter = files.begin(); iter != files.end(); )
+		for (auto iter = m_files.begin(); iter != m_files.end(); )
 		{
-			auto result = std::find(FileList.begin(), FileList.end(), iter->fileName);
+			auto result = std::find(FileList.begin(), FileList.end(), convert_string<char_t>(iter->fileName));
 
 			if (result != FileList.end())
-				iter = files.erase(iter);
+				iter = m_files.erase(iter);
 			else
 				iter++;
 		}
