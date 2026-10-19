@@ -3,6 +3,7 @@
 // Used by Arithmetic.rc
 //
 #define IDR_RT_RCDATA1                  101
+#define IDR_RT_RCDATA2                  106
 
 // Next default values for new objects
 // 
