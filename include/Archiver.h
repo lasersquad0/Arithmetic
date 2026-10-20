@@ -25,24 +25,12 @@ struct BWTTask : public MT::Task
 	BWTTask(uint32_t blockSize) : Task("BWTTask#" + std::to_string(getNextID()))
 	{
 		BlockSize = blockSize;
-		Buf     = new uint8_t[BlockSize];
-		BWTBuf  = new uint8_t[BlockSize];
-		TempBuf = new int64_t[BlockSize + 1]; //TODO too large array, consider using 32bit version of libsais
+		Buf     = new uint8_t[blockSize];
+		BWTBuf  = new uint8_t[blockSize];
+		TempBuf = new int64_t[blockSize + 1]; //TODO too large array, consider using 32bit version of libsais
 	};
 	
 	BWTTask(const BWTTask& a) = delete; // copy constructor
-
-	/*BWTTask(const BWTTask& a) : Task(a) // copy constructor
-	{
-		BlockSize = a.BlockSize;
-		ReadSize = a.ReadSize;
-		Buf = a.Buf;
-		BWTBuf = a.BWTBuf;
-		TempBuf = a.TempBuf;
-		LineNum = a.LineNum;
-		mtf = a.mtf;
-	}*/
-
 	BWTTask& operator=(const BWTTask& a) = delete;
 	
 	~BWTTask()
@@ -62,7 +50,7 @@ struct BWTTask : public MT::Task
 
 		if (LineNum < 0)
 		{
-			LOG_ERROR("[BWTTask] libsais64_bwt finished with error."); //TODO shall we exit in case of lineNum<0 ?
+			LOG_ERROR("[BWTTask] libsais64_bwt finished with error."); //TODO shall we throw an exception in case of lineNum<0 ?
 		}
 
 		mtf.Encode(BWTBuf, Buf, ReadSize);
