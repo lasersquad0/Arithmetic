@@ -2,7 +2,6 @@
 
 #include <tchar.h>
 #include <strsafe.h>
-
 #include <string>
 #include <filesystem>
 #include <vector>
@@ -16,26 +15,6 @@
 #include "LogEngine2/LogEngine.h" // for uchar, uint, ulong definitions
 #include "ARIExceptions.h"
 
-//typedef unsigned char uchar;
-//typedef unsigned int uint;
-
-/*
-#if defined(UNICODE) || defined(_UNICODE)
-
-typedef std::wstring string_t;
-typedef std::wstringstream stringstream_t;
-typedef std::wstring::value_type char_t;
-#define to_string_t std::to_wstring
-
-#else
-
-typedef std::string string_t;
-typedef std::stringstream stringstream_t;
-typedef std::string::value_type char_t;
-#define to_string_t std::to_string
-
-#endif
-*/
 
 #define GET_LOGGER() auto& logger = Global::GetLogger()
 #define LOG_INFO(_) logger.Info(_)
@@ -68,6 +47,7 @@ struct MyGroupSeparator : std::numpunct<char_t>
 void SetImbue(std::ostream& stream);
 */
 
+//void CheckParametersValidity(Parameters& params);
 uint64_t ParseBlockSize(const string_t& s);
 ModelType ParseModelType(string_t s);
 CoderType ParseCoderType(string_t ct);
@@ -78,7 +58,7 @@ bool SaveLogConfigFile(int resID, const std::string& fileName);
 string_t DateTimeToString(time_t t);
 std::string DateTimeToStringA(time_t t);
 
-std::string toOEM(const string_t& str);
+//std::string toOEM(const string_t& str);
 
 //void SaveToFile(std::string fileName, char* buf, uint len);
 //void LoadFromFile(std::string fileName, char* buf, uint len);
