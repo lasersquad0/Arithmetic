@@ -80,15 +80,15 @@ RangeCoder<UINT>::RangeCoder(/*uint8_t codebits*/) :
     CODEBITS([]() constexpr { // calculate codebits from UINT template parameter, no need to pass it into constructor
         if      constexpr (std::is_same_v<UINT, uint32_t>) return DEF_CODEBITS32;
         else if constexpr (std::is_same_v<UINT, uint64_t>) return DEF_CODEBITS64;
-        else throw convert_error("Incorrect bitness of codec:" + IntToStr(sizeof(UINT) * 8));
-            }()),  
+        else throw convert_error(std::format("Incorrect bitness of codec: {}", sizeof(UINT)*8));
+            }()),
     HIGHBYTE((CODEBITS >> 3) + 1), 
     TOP(1ull << CODEBITS),
     TOPTOP(1ull << (CODEBITS + 8)), // TOPTOP is always 64 bit
     BOTTOM([this]() constexpr { 
     if      constexpr (std::is_same_v<UINT, uint32_t>) return 1ul << (CODEBITS - 8);
     else if constexpr (std::is_same_v<UINT, uint64_t>) return DEF_BOTTOM64;
-    else throw convert_error("Incorrect bitness of codec:" + IntToStr(sizeof(UINT) * 8));
+    else throw convert_error(std::format("Incorrect bitness of codec: {}", sizeof(UINT) * 8));
         }()) //, (1ull << (CODEBITS - 8))
 {
     assert(CODEBITS <= (sizeof(UINT) - 1)*8);
