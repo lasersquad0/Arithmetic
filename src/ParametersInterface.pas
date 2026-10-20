@@ -20,8 +20,8 @@ type
     procedure SetVerbose(vbrs: Boolean); virtual; abstract;
     function GetBlockMode: Boolean; virtual; abstract;
     procedure SetBlockMode(th: Boolean); virtual; abstract;
-    function GetBlockSize: uint32; virtual; abstract;
-    procedure SetBlockSize(bsize: uint32); virtual; abstract;
+    function GetBlockSize: uint64; virtual; abstract;
+    procedure SetBlockSize(bsize: uint64); virtual; abstract;
     function GetOutputDir: string; virtual; abstract;
     procedure SetOutputDir(odir: string); virtual; abstract;
    // function GetAnsiOutputDir: AnsiString; virtual; abstract;
@@ -30,7 +30,7 @@ type
   public
    	//property Threads: uint32 read GetThreads write SetThreads; // = 1;
 	  property OutputDir: string read GetOutputDir write SetOutputDir; // = ".\\";
-	  property BlockSize: uint32 read GetBlockSize write SetBlockSize; //= 1 << 16;
+	  property BlockSize: uint64 read GetBlockSize write SetBlockSize; //= 1 << 16;
 	  property BlockMode: Boolean read GetBlockMode write SetBlockMode; // = true;  // using block mode by default, to back to 'stream' mode use -sm cli option
 	  //property Verbose: Boolean read GetVerbose write SetVerbose; // = false;
 	  property ModelType: TModelType read GetModelType write SetModelType; //= ModelType::O2;
@@ -38,7 +38,7 @@ type
 
    	property THREADS: uint32 read GetThreads write SetThreads; // = 1;
     property OUTPUT_DIR: string read GetOutputDir write SetOutputDir; // = ".\\";
-	  property BLOCK_SIZE: uint32 read GetBlockSize write SetBlockSize; //= 1 << 16;
+	  property BLOCK_SIZE: uint64 read GetBlockSize write SetBlockSize; //= 1 << 16;
 	  property BLOCK_MODE: Boolean read GetBlockMode write SetBlockMode; // = true;  // using block mode by default, to back to 'stream' mode use -sm cli option
 	  property VERBOSE: Boolean read GetVerbose write SetVerbose; // = false;
 	  property MODEL_TYPE: TModelType read GetModelType write SetModelType; //= ModelType::O2;
