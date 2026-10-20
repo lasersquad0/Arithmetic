@@ -37,6 +37,8 @@ protected:
 	}
 
 public:
+	//TODO if the same instance of model is used for compressing second file - statistic will not be reset.
+	// the best way is to reset model on BeginEncode
 	ModelOrder0Pair(IBlockCoder<UINT>& cr): BasicModel<UINT>(cr)
 	{
 		haveSymbol = false;
