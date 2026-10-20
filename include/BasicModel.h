@@ -9,7 +9,7 @@ public:
 	virtual void EncodeSymbol(uchar* ctx, uchar sym) = 0;
 	virtual void BeginEncode(std::ostream* fo, std::istream* fi = nullptr) = 0;
 	virtual void StopEncode() = 0;
-	virtual void BeginBlockEncode() = 0;
+	virtual void BeginBlockEncode(uint8_t* buf, uint bufSize) = 0;
 	virtual void StopBlockEncode() = 0;
 	virtual uchar DecodeSymbol(uchar* ctx) = 0;
 	virtual void BeginDecode(std::istream* f) = 0;
@@ -25,7 +25,7 @@ class BasicModel : public IModel
 {
 protected:
 	IBlockCoder<UINT>& coder;
-	BasicModel(IBlockCoder<UINT>& cr) :coder(cr) { }
+	BasicModel(IBlockCoder<UINT>& cr): coder(cr) { }
 public:
 	virtual UINT GetWeight(uchar*, uchar) { return 0; }
 
@@ -33,7 +33,7 @@ public:
 
 	uint64_t GetBytesPassed() override { return coder.GetBytesPassed(); };
 
-	void BeginBlockEncode() override 
+	void BeginBlockEncode(uint8_t*, uint) override
 	{
 		coder.StartBlockEncode();
 	}
@@ -52,7 +52,7 @@ public:
 	{
 		coder.FinishBlockDecode();
 	}
-	void BeginEncode(std::ostream* f, std::istream*) override
+	void BeginEncode(std::ostream* f, std::istream* = nullptr) override
 	{
 		coder.StartEncode(f);
 	}
