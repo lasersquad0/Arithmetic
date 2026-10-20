@@ -132,6 +132,7 @@ public:
 
 	void BeginEncode(std::ostream* fo, std::istream* fi = nullptr) override
 	{
+		//TODO shall we return back ResetModel call?
 		//ResetModel(); // the same model can be used for encoding-decoding different files during one session. it need to be reset to original state each time.
 		BasicModel<UINT>::BeginEncode(fo, fi);
 	}
