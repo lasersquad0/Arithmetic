@@ -35,16 +35,16 @@ namespace MT
 			error
 		};
 
-		MT::Task::TaskStatus status;
+		TaskStatus status;
 		std::string description;  // text description of the task (needed for beautiful logging)
-		MT::task_id id; // unique task ID
-		MT::ThreadPool* thread_pool;
+		task_id id; // unique task ID
+		ThreadPool* thread_pool;
 
 		// thread-running method
 		void one_thread_pre_method()
 		{
 			one_thread_method();
-			status = MT::Task::TaskStatus::completed;
+			status = TaskStatus::completed;
 		}
 
 	public:
@@ -53,7 +53,7 @@ namespace MT
 		{
 			description = _description;
 			id = 0;
-			status = MT::Task::TaskStatus::awaiting;
+			status = TaskStatus::awaiting;
 			thread_pool = nullptr;
 		}
 
@@ -77,7 +77,6 @@ namespace MT
 
 	class ThreadPool 
 	{
-
 		friend void MT::Task::send_signal();
 
 	public:
@@ -123,7 +122,7 @@ namespace MT
 
 		// get result by id
 		template <typename TaskChild>
-		std::shared_ptr<TaskChild> get_result(MT::task_id id) const 
+		std::shared_ptr<TaskChild> get_result(task_id id) const 
 		{
 			auto elem = completed_tasks.find(id);
 			if (elem != completed_tasks.end())
@@ -134,7 +133,7 @@ namespace MT
 
 		// get result by id
 		template <typename TaskChild>
-		std::shared_ptr<TaskChild> pop_result(MT::task_id id)
+		std::shared_ptr<TaskChild> pop_result(task_id id)
 		{
 			auto elem = completed_tasks[id]; //TODO check whether it is safe to erase elements this way.
 			//auto elem = completed_tasks.find(id);
