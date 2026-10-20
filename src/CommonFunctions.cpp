@@ -16,30 +16,7 @@
 
 using namespace std;
 
-/*void SetImbue(ostream& stream)
-{
-	stream.imbue(locale(stream.getloc(), new MyGroupSeparator()));
-}
 
-static char mytoupper(int c) // to eliminate compile warning "warning C4244: '=': conversion from 'int' to 'char', possible loss of data"
-{
-	return (char)toupper(c);
-}*/
-
-/*
-// intentionally left std::string
-void TrimAndUpper(string_t& str) //TODO what if we have \t in the beginning (end) of string?
-{
-	// remove any leading and traling spaces, just in case.
-	size_t strBegin = str.find_first_not_of(' ');
-	size_t strEnd = str.find_last_not_of(' ');
-	str.erase(strEnd + 1, str.size() - strEnd);
-	str.erase(0, strBegin);
-
-	// to uppercase
-	transform(str.begin(), str.end(), str.begin(), ::mytoupper);
-}
-*/
 string_t GetErrorMessageText(ulong lastError, const string_t& errorPlace)
 {
 	const uint32_t BUF_SIZE = 2048; // should be enough for all error messages
@@ -233,6 +210,10 @@ void CheckParametersValidity(Parameters& params)
 
 	if (params.BLOCK_MODE && params.MODEL_TYPE == ModelType::O0FIX)
 		throw std::invalid_argument("You have Block mode turned on. Model 'O0FIX' is not compatible with Block mode. Either select stream (non-block) mode or choose another model");
+
+	if(params.CODER_TYPE == CoderType::HUFFMAN || params.CODER_TYPE == CoderType::AHUFFMAN)
+		throw std::invalid_argument("Coders HUFF (Huffman) and AHUF (Adaptive Huffman) are not supported at the moment. Choose another coder.");
+
 }
 
 bool SaveLogConfigFile(int resID, const std::string& fileName)
