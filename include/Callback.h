@@ -32,10 +32,10 @@ class ConsoleProgressCallback: public ICallback
 public:
 
 	void start() override {}
-	void finish() override { std::cout << "\n"; }
+	void finish() override { /*std::cout << "\n";*/ }
 	int progress(uint64_t prgrs) override
 	{
-		std::cout << "\rProgress " << prgrs << "%...";
+		std::cout << "Progress " << prgrs << "%...\r";
 		return CALLBACK_OK;
 	}
 };
