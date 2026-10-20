@@ -21,7 +21,7 @@ protected:
 	uchar symbol1;
 	bool haveSymbol;
 
-	// 'old' EncodeSymbol() function used for encoding sinle symbols when rescaling going to happer in the middle of pair of symbols
+	// 'old' EncodeSymbol() function used for encoding single symbols when rescaling going to happer in the middle of pair of symbols
 	// or file contains odd number of symbols.
 	void EncodeSymbol(uchar sym) 
 	{ 
