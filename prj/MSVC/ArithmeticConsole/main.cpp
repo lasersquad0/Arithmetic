@@ -6,14 +6,14 @@
 
 #include "LogEngine2/LogEngine.h"
 #include "resource.h"
-//#include <strsafe.h>
 #include "Archiver.h"
 #include "cli/OptionsList.h"
 #include "cli/DefaultParser.h"
 #include "cli/CommandLine.h"
 #include "cli/HelpFormatter.h"
+#include "Version.h"
 #include "Parameters.h"
-#include <CommonFunctions.h>
+#include "CommonFunctions.h"
 
 
 using namespace std;
@@ -87,10 +87,10 @@ static void InitDefaultLogger()
 	LOG_INFO("ArithmeticLog.lfg is not found, use default logging configuration.");
 }
 
-//forward declaration or main()
-void CheckParametersValidity(Parameters& params);
-
 #define TRYCATCH(_,__) try {(_);}catch(...){logger.Warn(__);}
+
+//TODO implementation of this function is not finished.
+void CheckParametersValidity(Parameters& params);
 
 int _tmain(int argc, _TCHAR* argv[])
 {
@@ -130,6 +130,8 @@ int _tmain(int argc, _TCHAR* argv[])
 
 	logger.Debug("Arithmetic coder start");	
     //SetImbue(cout);
+
+	logger.InfoFmt("\nArithmetic compressor {}.{}.{} x64 Copyright(c) 2024 - 2026 Andrey Romanchenko {}\n", ARI_VER_MAJOR, ARI_VER_MINOR,ARI_VER_PATCH,ARI_BUILD_DATE);
 
     Global::APP_NAME = argv[0]; // this statement needs to be before first possible call of PrintUsage().
 
@@ -176,11 +178,11 @@ int _tmain(int argc, _TCHAR* argv[])
 	}
 	if (cmd.HasOption(OPT_M))
 	{
-		TRYCATCH(params.MODEL_TYPE = ParseModelType(cmd.GetOptionValue(OPT_M, 0)), "Cannot parse Model type option value (-m). Default value 'O2' will be used.");
+		TRYCATCH(params.MODEL_TYPE = ParseModelType(cmd.GetOptionValue(OPT_M, 0)), format("Cannot parse Model type option value (-m {}). Default value 'O2' will be used.", wtos(cmd.GetOptionValue(OPT_M, 0))));
 	}
 	if (cmd.HasOption(OPT_C))
 	{
-		TRYCATCH(params.CODER_TYPE = ParseCoderType(cmd.GetOptionValue(OPT_C, 0)), "Cannot parse Coder type option value (-c). Default value 'AARI' will be used.");
+		TRYCATCH(params.CODER_TYPE = ParseCoderType(cmd.GetOptionValue(OPT_C, 0)), format("Cannot parse Coder type option value (-c {}). Default value 'ARI' will be used.", wtos(cmd.GetOptionValue(OPT_C, 0))));
 	}
 
 /*	if (params.VERBOSE)
@@ -274,16 +276,19 @@ int _tmain(int argc, _TCHAR* argv[])
 	catch (runtime_error& e)
 	{
 		LOG_ERROR(e.what());
+		LOG_ERROR("Exiting.");
 		return 1;
 	}
 	catch (exception& e)
 	{
 		LOG_ERROR(e.what());
+		LOG_ERROR("Exiting.");
 		return 1;
 	}
 	catch (...)
 	{
 		LOG_ERROR("Unknown error has been caught.");
+		LOG_ERROR("Exiting.");
 		return 1;
 	}
 
