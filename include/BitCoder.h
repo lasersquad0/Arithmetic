@@ -1,7 +1,4 @@
 #pragma once
-#include "ICoder.h"
-
-#pragma once
 
 #include <fstream>
 #include "ICoder.h"
@@ -15,29 +12,25 @@ class BitCoder : public IBlockCoder<UINT>
 {
 public:
     const uint8_t CODEBITS = DEF_BITCODER_CODEBITS;
-    const UINT TOP = static_cast<UINT>(1)<<CODEBITS;
-    const UINT TOP_VALUE = TOP - 1; //0XFFFFFFFF;	  /* Largest code value */
-    /* HALF AND QUARTER POINTS IN THE CODE VALUE RANGE. */
-    const UINT FIRST_QTR = (TOP_VALUE / 4 + 1);  /* Point after first quarter    */
-    const UINT HALF = (2 * FIRST_QTR);    /* Point after first half  */
-    const UINT THIRD_QTR = (3 * FIRST_QTR);    /* Point after third quarter */
+    const UINT TOP = static_cast<UINT>(1) << CODEBITS;
+    const UINT TOP_VALUE = TOP - 1; //0xFFFFFFFF; Largest code value
+    // HALF AND QUARTER POINTS IN THE CODE VALUE RANGE.
+    const UINT FIRST_QTR = (TOP_VALUE / 4 + 1);  // Point after first quarter
+    const UINT HALF = (2 * FIRST_QTR);           // Point after first half
+    const UINT THIRD_QTR = (3 * FIRST_QTR);      // Point after third quarter
     const UINT MAX_FREQ = 16383; // ?????
 
-    //const uint32or64 HIGHBYTE;
-    //const uint64_t TOPTOP; // эта поле всегда должно быть 64bit
-    //const uint32or64 BOTTOM;
 private:
     
     UINT low    = 0;
     UINT high   = 0;
     UINT nextCh = 0;
-    //uint32or64 range;
     uint8_t bitsToFollow = 0;
     int buffer = 0;
     uint8_t bitsToGo = 0;
     uint8_t garbage_bits = 0;
 
-    uint64_t bytesPassed = 0; //should always be 64bit variable, because we may compress files with more than 4G size
+    uint64_t bytesPassed = 0; // should always be 64bit variable, because we may compress files with more than 4G size
     std::ostream* fout = nullptr;
     std::istream* fin = nullptr;
 
@@ -46,7 +39,7 @@ private:
     int inputBit();
     void outputBitPlusFollow(int bit);
     void ResetLowRange();
-	BitCoder(); // disable direct creating of RC instance 
+	BitCoder(); // disable direct creating of BitCoder instance 
 
     friend class CoderFactory;
     friend class ModelCoderFactory;
@@ -78,12 +71,6 @@ typedef BitCoder<uint64_t> BitCoder64;
 
 template<class UINT>
 BitCoder<UINT>::BitCoder()
-	//CODEBITS(codebits),
-	//TOP(1ull << codebits),
-	//TOP_VALUE(TOP - 1),
-   // HIGHBYTE((codebits >> 3) + 1),
-   // TOPTOP(1ull << (codebits + 8)),
-   // BOTTOM(1ull << (codebits - 8))
 {
 
 }
