@@ -74,7 +74,7 @@ void MT::ThreadPool::run(MT::Thread* _thread)
 			}
 			catch (...)
 			{
-				elem->status = MT::Task::TaskStatus::error;
+				elem->status = Task::TaskStatus::error;
 			}
 
 			if (logger_flag) 
