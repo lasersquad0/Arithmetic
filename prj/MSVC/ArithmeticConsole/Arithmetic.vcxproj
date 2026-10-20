@@ -191,6 +191,7 @@
     <ClInclude Include="..\..\..\include\Callback.h" />
     <ClInclude Include="..\..\..\include\CommonFunctions.h" />
     <ClInclude Include="..\..\..\include\Context.h" />
+    <ClInclude Include="..\..\..\include\debug.h" />
     <ClInclude Include="..\..\..\include\Factories.h" />
     <ClInclude Include="..\..\..\include\FileRecord.h" />
     <ClInclude Include="..\..\..\include\fpaq0.h" />
