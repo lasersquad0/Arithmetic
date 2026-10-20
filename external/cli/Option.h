@@ -49,7 +49,7 @@ public:
      * @brief Create an option instance with default values. This is used by the parser to check
      * if the program argument is an option name, an option argument or an unknown data.
      */
-    COption():m_NumArgs(0),m_NumRequiredArgs(0),m_IsRequired(false) {}
+    COption():m_IsRequired(false), m_NumArgs(0),m_NumRequiredArgs(0) {}
 
     /**
      * @brief Create an option instance.
