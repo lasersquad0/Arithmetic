@@ -2,7 +2,7 @@
 
 #include <cassert>
 #include "BasicModel.h"
-#include "DynamicArrays.h"
+#include "LogEngine2/DynamicArrays.h"
 
 template<class LowerModel, int Order>
 class ModelOrderN : public BasicModel<typename LowerModel::uint_type>
