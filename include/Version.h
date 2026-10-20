@@ -1,0 +1,9 @@
+#pragma once
+
+#define ARI_VER_MAJOR 1
+#define ARI_VER_MINOR 03
+#define ARI_VER_PATCH 0
+
+#define ARI_VERSION (ARI_VER_MAJOR * 10000 + ARI_VER_MINOR * 100 + ARI_VER_PATCH)
+
+#define ARI_BUILD_DATE "26 Oct 2026"
