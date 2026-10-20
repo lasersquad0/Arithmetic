@@ -48,22 +48,22 @@ public:
 	bool VERBOSE = false;
 	ModelType MODEL_TYPE = ModelType::O2;
 	CoderType CODER_TYPE = CoderType::ARITHMETIC;
-	static const inline string_t CoderNames[] = { _T("NONE"),_T("HUF"),_T("AHUF"),_T("RLE"),_T("ARI"),_T("ARI32"),_T("ARI64"),_T("BITARI"), _T("ARIFPAQ") };
-	static const inline bool IsCoder64bit[]   = {   false,      true,      true,     true,    false,     false,      true,        false    };
-	static const inline string_t ModelTypeCode[] = { _T("UNKNOWN"),_T("O0"),_T("O1"),_T("O2"),_T("O3"),_T("O0FIX"),_T("O0SORT"),_T("O0PAIR"),_T("O3MIX"),_T("O1FPAQ") };
+	static const inline string_t CoderNames[(uint)CoderType::CodersCount] = { _T("NONE"),_T("HUF"),_T("AHUF"),_T("RLE"),_T("ARI"),_T("ARI32"),_T("ARI64"),_T("BITARI"), _T("ARIFPAQ") };
+	static const inline bool IsCoder64bit[(uint)CoderType::CodersCount]   = {   false,      true,      true,     true,     false,      false,      true,        true,         true};
+	static const inline string_t ModelTypeCode[(uint)ModelType::ModelsCount]={ _T("UNKNOWN"),_T("O0"),_T("O1"),_T("O2"),_T("O3"),_T("O0FIX"),_T("O0SORT"),_T("O0PAIR"),_T("O3MIX"),_T("O1FPAQ") };
 
 
-	uint32_t GetThreads() { return THREADS; }
+	uint32_t GetThreads() const { return THREADS; }
 	void SetThreads(uint32_t thrds) { THREADS = thrds; }
-	ModelType GetModelType() { return MODEL_TYPE; }
+	ModelType GetModelType() const { return MODEL_TYPE; }
 	void SetModelType(ModelType mtype) { MODEL_TYPE = mtype; }
-	CoderType GetCoderType() { return CODER_TYPE; }
+	CoderType GetCoderType() const { return CODER_TYPE; }
 	void SetCoderType(CoderType ctype) { CODER_TYPE = ctype; }
-	bool GetVerbose() { return VERBOSE; }
+	bool GetVerbose() const { return VERBOSE; }
 	void SetVerbose(bool vrbs) { VERBOSE = vrbs; }
-	bool GetBlockMode() { return BLOCK_MODE; }
+	bool GetBlockMode() const { return BLOCK_MODE; }
 	void SetBlockMode(bool bmode) { BLOCK_MODE = bmode; }
-	uint64_t GetBlockSize() { return BLOCK_SIZE; }
+	uint64_t GetBlockSize() const { return BLOCK_SIZE; } 
 	void SetBlockSize(uint64_t bsize) { BLOCK_SIZE = bsize; }
 
 #ifdef EXPORT_FOR_DELPHI
