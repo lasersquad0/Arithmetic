@@ -6,12 +6,6 @@
 #include <algorithm>
 #include <locale>
 #include <array>
-
-#if defined (__BORLANDC__)
-#include <share.h>
-#include <sys/stat.h>
-#endif
-//#include "strsafe.h"
 #include <direct.h>
 #include <io.h>
 #include <fcntl.h>
@@ -238,7 +232,7 @@ void CheckParametersValidity(Parameters& params)
 	const Pair InvalidPairs[] = { {CoderType::HUFFMAN, ModelType::O1}, {CoderType::FPAQARITHMETIC, ModelType::O1FPAQ} };
 
 	if (params.BLOCK_MODE && params.MODEL_TYPE == ModelType::O0FIX)
-		throw std::invalid_argument("You have Block mode turned on. Model 'O0FIX' is not compatible with Block mode. Either select stream (non-block) mode or choo another model");
+		throw std::invalid_argument("You have Block mode turned on. Model 'O0FIX' is not compatible with Block mode. Either select stream (non-block) mode or choose another model");
 }
 
 bool SaveLogConfigFile(int resID, const std::string& fileName)
