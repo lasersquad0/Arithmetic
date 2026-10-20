@@ -3,7 +3,7 @@
 #ifdef EXPORT_FOR_DELPHI
 
 #include "Archiver.h"
-#include "DynamicArrays.h"
+//#include "DynamicArrays.h"
 #include "ICallback.hpp"
 #include "ArchiverInterface.hpp"
 
