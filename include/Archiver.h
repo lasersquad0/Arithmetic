@@ -146,7 +146,7 @@ private:
 	int UncompressFile(std::ifstream* fin, std::ofstream* fout, FileRecord& fr, IModel* model);
 	int UncompressFileBlock(std::ifstream* fin, std::ofstream* fout, FileRecord& fr, IModel* model);
 
-	void PrintCompressionStart(const Parameters& params);
+	void PrintCompressionStart(const Parameters& params, const string_t& archiveFileName, const vect_string_t& files);
 	void PrintUncompressionStart(const FileRecord& fr, const Parameters& params);
 	void PrintFileCompressionDone(const FileRecord& fr);
 	void PrintFileCompressionAborted(const FileRecord& fr);

@@ -2,10 +2,6 @@
 #include <filesystem>
 #include <algorithm>
 
-#if defined (__BORLANDC__)
-#include <share.h>
-#endif
-
 #include "fpaq0.h"
 #include "RangeCoder.h"
 #include "BasicModel.h"
@@ -25,6 +21,12 @@ using namespace std;
 
 #define SHOW_PROGRESS_AFTER 1000
 #define SHOWP (fr.fileSize > SHOW_PROGRESS_AFTER)
+#define TICK_COMPRESS_FILE "compressfile"
+#define TICK_UNCOMPRESS_FILE "uncompressfile"
+
+const uint FIELD_W = 19;
+const uint FILL_LENGTH = 30; // number of '-' syms in line '---...---'
+const char FILL_SYM = '-';
 
 void Archiver::AddCallback(ICallback* cb)
 {
@@ -40,34 +42,31 @@ void Archiver::RemoveCallback(ICallback* cb)
 // if ArchiveFileName exists - it will be overwritten
 // if ArchiveFileName does not exist it will be created
 // ArchiveFileName passed by value intentionally
-int Archiver::CompressFile(string_t ArchiveFileName, const string_t& FileName, const Parameters& params)
+int Archiver::CompressFile(string_t archiveFileName, const string_t& fileName, const Parameters& params)
 {
 	vect_string_t files;
 
-	files.push_back(FileName);
-	return CompressFiles(ArchiveFileName, files, params);
+	files.push_back(fileName);
+	return CompressFiles(archiveFileName, files, params);
 }
 
 // ArchiveFileName passed by value intentionally
-int Archiver::CompressFiles(string_t ArchiveFileName, const vect_string_t& files, const Parameters& params)
+int Archiver::CompressFiles(string_t archiveFileName, const vect_string_t& files, const Parameters& params)
 {
 	//ConsoleProgressCallback ccb;
 	//cbmanager.AddCallback(&ccb);
 
 	GET_LOGGER();
 
-	if (ArchiveFileName.substr(ArchiveFileName.size() - 3, 3) != ARC_EXT) ArchiveFileName += ARC_EXT;
+	if (archiveFileName.substr(archiveFileName.size() - 3, 3) != ARC_EXT) archiveFileName += ARC_EXT;
 
-	logger.InfoFmt("Creating archive '{}'.", /*toOEM*/wtos(ArchiveFileName));
-	PrintCompressionStart(params);
-	logger.InfoFmt("Adding {} file{} to archive.", files.size(), files.size() > 1 ? "s" : "");
-
-	LOG_INFO("------------------------------");
+	PrintCompressionStart(params, archiveFileName, files);
+	//LOG_INFO(std::string(30, '-'));
 
 	ofstream fout;
-	fout.open(ArchiveFileName, ios::out | ios::binary/*, _SH_DENYWR*/); // third parameter is not supported by C++ standard
+	fout.open(archiveFileName, ios::out | ios::binary/*, _SH_DENYWR*/); // third parameter is not supported by C++ standard
 	if (fout.fail())
-		throw file_error("Cannot open file '" + wtos(ArchiveFileName) + "' for writing. Check file permissions.");
+		throw file_error("Cannot open file '" + wtos(archiveFileName) + "' for writing. Check file permissions.");
 
 	ArchiveHeader hd;
 	vect_fr_t& frs = hd.FillFileRecs(files, params);
@@ -111,12 +110,12 @@ int Archiver::CompressFiles(string_t ArchiveFileName, const vect_string_t& files
 
 	if (aborted)
 	{
-		std::filesystem::remove(ArchiveFileName); // remove partially created archive file
+		std::filesystem::remove(archiveFileName); // remove partially created archive file
 		LOG_INFO("User has cancelled compression process. Aborting.");
 	}
 	else
 	{
-		hd.UpdateHeaders(ArchiveFileName);
+		hd.UpdateHeaders(archiveFileName);
 		LOG_INFO("All files are compressed.");
 	}
 
@@ -127,8 +126,8 @@ int Archiver::CompressFile(ofstream* fout, ifstream* fin, FileRecord& fr, IModel
 {
 	GET_LOGGER();
 
-	logger.InfoFmt("Compressing file '{}'.", wtos(fr.origFilename));
-	Ticks::Start(_T("compressfile")); 
+	logger.InfoFmt("{:<{}}: '{}'", "Compressing file", FIELD_W, wtos(fr.origFilename));
+	Ticks::Start(TICK_COMPRESS_FILE);
 
    // IModel* model = ModelsFactory::GetModel();
    // CallBack cb;
@@ -176,29 +175,19 @@ int Archiver::CompressFile(ofstream* fout, ifstream* fin, FileRecord& fr, IModel
 
 	fr.compressedSize = model->GetBytesPassed();
 
+	Ticks::Finish(TICK_COMPRESS_FILE);
+
 	if (RESULT == CALLBACK_ABORT)
 		PrintFileCompressionAborted(fr);
 	else
 		PrintFileCompressionDone(fr);
 
-	auto tick = Ticks::Finish(_T("compressfile")); 
-	logger.InfoFmt("{:16} {}", "Spent time:", MillisecToStr(tick));
-
+	//logger.InfoFmt("{:16} {}", "Spent time:", MillisecToStr(tick));
 	//LOG_INFO3("{:16} {}", "Spent time:", millisecToStr(tick));
-	LOG_INFO("------------------------------");
+	//LOG_INFO("------------------------------");
 
 	return RESULT;
 }
-
-// assuming that dest buffer is large enough
-/*void WCHARtoChar(char* dest, const wchar_t* src)
-{
-	//size_t len;
-	int res = WideCharToMultiByte(CP_ACP, 0, src, -1, dest, MAX_PATH, nullptr, nullptr);
-	assert(res != 0);
-	//wcstombs_s(&len, dest, MAX_PATH, src, wcslen(src));
-	//if (len > 0u) dest[len] = '\0';
-}*/
 
 bool Archiver::LoadBlocksToBWTTasks(ifstream* fin, MT::ThreadPool* ppool, uint32_t blockSize) const
 {
@@ -242,7 +231,7 @@ int Archiver::CompressFileBlockInThread(ofstream* fout, ifstream* fin, FileRecor
 	// pool will not contain more than MAX_TASKS tasks.
 	MAX_TASKS = std::max(MAX_TASKS_MEMORY_USAGE / (2 * fr.blockSize + 8 * fr.blockSize), 2u); // buf + bwtbuf + tmpbuf
 
-	Ticks::Start(_T("compressfile"));
+	Ticks::Start(TICK_COMPRESS_FILE);
 
 	// IModel* model = ModelsFactory::GetModel();
    //  CallBack cb;
@@ -337,15 +326,15 @@ int Archiver::CompressFileBlockInThread(ofstream* fout, ifstream* fin, FileRecor
 	fr.compressedSize = model->GetBytesPassed(); //TODO makes sense do it better and more convenient
 	fr.blockCount = cntBlocks;
 
+	Ticks::Finish(TICK_COMPRESS_FILE);
+	
 	if (RESULT == CALLBACK_ABORT)
 		PrintFileCompressionAborted(fr);
 	else
 		PrintFileCompressionDone(fr);
 
-	auto tick = Ticks::Finish(_T("compressfile")); 
-	logger.InfoFmt("{:16} {}", "Spent time:", MillisecToStr(tick));
-
-	LOG_INFO("------------------------------");
+	//logger.InfoFmt("{:16} {}", "Spent time:", MillisecToStr(tick));
+	//LOG_INFO("------------------------------");
 	return RESULT;
 }
 
@@ -354,8 +343,7 @@ int Archiver::CompressFileBlock(ofstream* fout, ifstream* fin, FileRecord& fr, I
 	GET_LOGGER();
 
  	logger.InfoFmt("Compressing file '{}'.", wtos(fr.origFilename));
-
-	Ticks::Start(_T("compressfile"));
+	Ticks::Start(TICK_COMPRESS_FILE);
 
    // IModel* model = ModelsFactory::GetModel();
   //  CallBack cb;
@@ -445,15 +433,14 @@ int Archiver::CompressFileBlock(ofstream* fout, ifstream* fin, FileRecord& fr, I
 	fr.compressedSize = model->GetBytesPassed(); //TODO makes sense do it better and more convenient
 	fr.blockCount = cntBlocks;
 
+	Ticks::Finish(TICK_COMPRESS_FILE);
+
 	if (RESULT == CALLBACK_ABORT)
 		PrintFileCompressionAborted(fr);
 	else
 		PrintFileCompressionDone(fr);
-
-	auto tick = Ticks::Finish(_T("compressfile")); 
-	logger.InfoFmt("{:16} {}", "Spent time:", MillisecToStr(tick));
-
-	LOG_INFO("------------------------------");
+	
+	//LOG_INFO("------------------------------");
 	return RESULT;
 }
 
@@ -514,7 +501,7 @@ int Archiver::UncompressFile(ifstream* fin, ofstream* fout, FileRecord& fr, IMod
 {
 	GET_LOGGER();
 
-	Ticks::Start(_T("uncompressfile")); 
+	Ticks::Start(TICK_UNCOMPRESS_FILE);
 
 	//CallBack cb;
 
@@ -561,12 +548,12 @@ int Archiver::UncompressFile(ifstream* fin, ofstream* fout, FileRecord& fr, IMod
 
    // fout.close();
 
-	auto tick = Ticks::Finish(_T("uncompressfile")); 
+	auto tick = Ticks::Finish(TICK_UNCOMPRESS_FILE);
 
-	logger.InfoFmt("Extracting done '{}'.", wtos(fr.fileName));
-	logger.InfoFmt("{:19} {}", "Spent time:", MillisecToStr(tick));
+	logger.InfoFmt("{:<{}}:'{}'", "Extracting status", FIELD_W, "Successful");
+	logger.InfoFmt("{:<{}}: {}", "File extracting time", FIELD_W, MillisecToStr(tick));
+	LOG_INFO(std::string(FILL_LENGTH, FILL_SYM));
 
-	LOG_INFO("------------------------------");
 	return CALLBACK_OK;
 }
 
@@ -574,7 +561,7 @@ int Archiver::UncompressFile(ifstream* fin, ofstream* fout, FileRecord& fr, IMod
 int Archiver::UncompressFileBlock(ifstream* fin, ofstream *fout, FileRecord& fr, IModel* model)
 {
 	GET_LOGGER();
-	Ticks::Start(_T("uncompressfile")); 
+	Ticks::Start(TICK_UNCOMPRESS_FILE);
 
 	//CallBack cb;
 
@@ -667,11 +654,10 @@ int Archiver::UncompressFileBlock(ifstream* fin, ofstream *fout, FileRecord& fr,
 	delete[] bwtbuf;
 	delete[] temp;
 
-	logger.InfoFmt("Extracting done '{}'.", wtos(fr.fileName));
-	auto tick = Ticks::Finish(_T("uncompressfile")); 
-	logger.InfoFmt("{:19} {}", "Spent time:", MillisecToStr(tick));
-
-	LOG_INFO("------------------------------");
+	auto tick = Ticks::Finish(TICK_UNCOMPRESS_FILE);
+	logger.InfoFmt("{:<{}}: {}", "Extracting status", FIELD_W, "Successfull");
+	logger.InfoFmt("{:<{}}: {}", "File extracting time", FIELD_W, MillisecToStr(tick));
+	LOG_INFO(std::string(FILL_LENGTH, FILL_SYM));
 
 	return CALLBACK_OK;
 }
@@ -714,7 +700,7 @@ int Archiver::ExtractFile(const string_t& ArchiveFileName, const string_t& FileT
 		throw file_error("Cannot open archive file '" + wtos(ArchiveFileName) + "' for reading. Exiting.");
 
 	ArchiveHeader ah;
-	auto files = ah.LoadHeader(&fin);
+	auto& files = ah.LoadHeader(&fin);
 
 	FileRecord fr;
 	bool found = false;
@@ -734,13 +720,9 @@ int Archiver::ExtractFile(const string_t& ArchiveFileName, const string_t& FileT
 	for (size_t i = 0; i < files.size(); i++)
 	{
 		if (files[i].fileName == convert_string<wchar_t>(FileToExtract))
-		{
 			break;
-		}
 		else
-		{
 			BypassFile(&fin, files[i]);
-		}
 	}
 
 	ofstream fout;
@@ -1058,18 +1040,20 @@ void Archiver::RemoveFiles(const string_t& ArchiveFileName, const vect_string_t&
     LOG_INFO("Deleted successfully");
 }
 
-void Archiver::PrintCompressionStart(const Parameters& params)
+void Archiver::PrintCompressionStart(const Parameters& params, const string_t& archiveFileName, const vect_string_t& files)
 {
 	GET_LOGGER();
 
-	//logger.info("Using Arithmetic Range compressor.");
-	logger.InfoFmt("{:19} {}.", "Compression coder:", wtos(Parameters::CoderNames[(uint8_t)params.CODER_TYPE]));
-	logger.InfoFmt("{:19} {}", "Use model type:", wtos(Parameters::ModelTypeCode[(uint8_t)params.MODEL_TYPE]));
-	logger.InfoFmt("{:19} {}", "Block mode:", params.BLOCK_MODE ? "YES" : "NO");
+	logger.InfoFmt("{:<{}}:'{}'", "Creating archive", FIELD_W, /*toOEM*/wtos(archiveFileName));
+	logger.InfoFmt("{:<{}}: {}", "Compression coder", FIELD_W, wtos(Parameters::CoderNames[(uint8_t)params.CODER_TYPE]));
+	logger.InfoFmt("{:<{}}: {}", "Use model type", FIELD_W, wtos(Parameters::ModelTypeCode[(uint8_t)params.MODEL_TYPE]));
+	logger.InfoFmt("{:<{}}: {}", "Block mode", FIELD_W, params.BLOCK_MODE ? "YES" : "NO");
 	if (params.BLOCK_MODE)
-		logger.InfoFmt("{:19} {:L} bytes", "Block size:", params.BLOCK_SIZE);
-	logger.InfoFmt("{:19} {}", "Threads count:", params.THREADS);
-	logger.InfoFmt("{:19} {}", "Verbose:", params.VERBOSE ? "true" : "false");
+		logger.InfoFmt("{:<{}}: {:L} bytes", "Block size", FIELD_W, params.BLOCK_SIZE);
+	logger.InfoFmt("{:<{}}: {}", "Threads count", FIELD_W, params.THREADS);
+	logger.InfoFmt("{:<{}}: {}", "Verbose", FIELD_W, params.VERBOSE ? "true" : "false");
+	logger.InfoFmt("Adding {} file{} to archive.", files.size(), files.size() > 1 ? "s" : "");
+	logger.Info(std::string(FILL_LENGTH, FILL_SYM));
 }
 
 void Archiver::PrintUncompressionStart(const FileRecord& fr, const Parameters& params)
@@ -1077,34 +1061,38 @@ void Archiver::PrintUncompressionStart(const FileRecord& fr, const Parameters& p
 	GET_LOGGER();
 
 	//logger.info("Using Arithmetic Range compressor.");
-	logger.InfoFmt("{:19} {}", "Extracting file:", wtos(fr.fileName)); //toOEM(fr.fileName));
-	logger.InfoFmt("{:19} {}", "Extracting to:", wtos(params.OUTPUT_DIR));
-	logger.InfoFmt("{:19} {}", "Compression coder:", wtos(Parameters::CoderNames[fr.alg]));
-	logger.InfoFmt("{:19} {}", "Model type:", wtos(Parameters::ModelTypeCode[fr.modelOrder]));
-	logger.InfoFmt("{:19} {}", "Block mode:", fr.blockCount > 0 ? "YES" : "NO");
-	logger.InfoFmt("{:19} {:L} bytes", "Block size:", fr.blockSize);
-	logger.InfoFmt("{:19} {}", "Threads count:", params.THREADS);
-	logger.InfoFmt("{:19} {}", "Verbose:", params.VERBOSE ? "true" : "false");
-	//logger.info("------------------------------");
+	logger.InfoFmt("{:<{}}: {}", "Extracting to", FIELD_W, wtos(params.OUTPUT_DIR));
+	logger.InfoFmt("{:<{}}: {}", "Compression coder", FIELD_W, wtos(Parameters::CoderNames[fr.alg]));
+	logger.InfoFmt("{:<{}}: {}", "Model type", FIELD_W, wtos(Parameters::ModelTypeCode[fr.modelOrder]));
+	logger.InfoFmt("{:<{}}: {}", "Block mode", FIELD_W, fr.blockCount > 0 ? "YES" : "NO");
+	logger.InfoFmt("{:<{}}: {:L} bytes", "Block size", FIELD_W, fr.blockSize);
+	logger.InfoFmt("{:<{}}: {}", "Threads count", FIELD_W, params.THREADS);
+	logger.InfoFmt("{:<{}}: {}", "Verbose", FIELD_W, params.VERBOSE ? "true" : "false");
+	logger.InfoFmt("{:<{}}:'{}'", "Extracting file", FIELD_W, wtos(fr.fileName)); //toOEM(fr.fileName));
+	//logger.Info(std::string(FILL_LENGTH, FILL_SYM));
 }
 
 void Archiver::PrintFileCompressionDone(const FileRecord& fr)
 {
 	GET_LOGGER();
 
-	logger.Info("Done compression.");
-	logger.InfoFmt("{:16} '{}'", "File name:", wtos(fr.origFilename)); //toOEM(fr.origFilename));
-	logger.InfoFmt("{:16} {:L} bytes", "File size:", fr.fileSize);
-	logger.InfoFmt("{:16} {:L} bytes", "Compressed size:", fr.compressedSize);
-	logger.InfoFmt("{:16} {:L}", "Ratio:", (float)fr.fileSize / (float)fr.compressedSize);
-	logger.InfoFmt("{:16} {:L}", "Blocks:", fr.blockCount);
+	logger.InfoFmt("{:<{}}: {}", "Compression status", FIELD_W, "Successfull");
+	logger.InfoFmt("{:<{}}: '{}'", "File name", FIELD_W, wtos(fr.origFilename)); //toOEM(fr.origFilename));
+	logger.InfoFmt("{:<{}}: {:L} bytes", "File size", FIELD_W, fr.fileSize);
+	logger.InfoFmt("{:<{}}: {:L} bytes", "Compressed size", FIELD_W, fr.compressedSize);
+	logger.InfoFmt("{:<{}}: {:5.3f}", "Ratio", FIELD_W, (float)fr.fileSize / (float)fr.compressedSize);
+	logger.InfoFmt("{:<{}}: {:L}", "Blocks", FIELD_W, fr.blockCount);
+	logger.InfoFmt("{:<{}}: {}", "Spent time", FIELD_W, MillisecToStr(Ticks::GetTick("compressfile")));
+	logger.Info(std::string(FILL_LENGTH, FILL_SYM));
 }
 
 void Archiver::PrintFileCompressionAborted(const FileRecord& fr)
 {
 	GET_LOGGER();
 
-	logger.Warn("Compression aborted by user.");
-	logger.InfoFmt("{:16} '{}'", "File name:", wtos(fr.origFilename)); //toOEM(fr.origFilename));
-	logger.InfoFmt("{:16} {:L} bytes", "File size:", fr.fileSize);
+	logger.WarnFmt("{:<{}}: {}", "Compression status", FIELD_W, "ABORTED BY USER");
+	logger.InfoFmt("{:<{}}: '{}'", "File name", FIELD_W, wtos(fr.origFilename)); //toOEM(fr.origFilename));
+	logger.InfoFmt("{:<{}}: {:L} bytes", "File size", FIELD_W, fr.fileSize);
+	logger.InfoFmt("{:<{}}: {}", "Spent time", FIELD_W, MillisecToStr(Ticks::GetTick("compressfile")));
+	logger.Info(std::string(FILL_LENGTH, FILL_SYM));
 }
