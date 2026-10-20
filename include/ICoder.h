@@ -1,10 +1,8 @@
 #pragma once
+
 #include <stdint.h>
 #include <iostream>
 #include "CommonFunctions.h"
-
-//typedef uint64_t uint32or64; // switches coder and model into either uint32_t or uint64_t mode. all integer variables become either 32bit or 64bit 
-//typedef int64_t int32or64;
 
 template<class UINT>
 class ICoder
