@@ -128,6 +128,8 @@
       <LanguageStandard>stdcpp20</LanguageStandard>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <AdditionalOptions>/w15038 %(AdditionalOptions)</AdditionalOptions>
+      <ExceptionHandling>Async</ExceptionHandling>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -148,6 +150,7 @@
       <WholeProgramOptimization>false</WholeProgramOptimization>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <ExceptionHandling>Async</ExceptionHandling>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -169,14 +172,9 @@
     <ClCompile Include="..\..\..\external\utils\src\string_utils.cpp" />
     <ClCompile Include="..\..\..\src\ArchiveHeader.cpp" />
     <ClCompile Include="..\..\..\src\Archiver.cpp" />
-    <ClCompile Include="..\..\..\src\BitCoder.cpp" />
     <ClCompile Include="..\..\..\src\CommonFunctions.cpp" />
     <ClCompile Include="..\..\..\src\fpaq0.cpp" />
-    <ClCompile Include="..\..\..\src\ModelOrder0.cpp" />
-    <ClCompile Include="..\..\..\src\ModelOrder0Sort.cpp" />
     <ClCompile Include="..\..\..\src\MTF.cpp" />
-    <ClCompile Include="..\..\..\src\Parameters.cpp" />
-    <ClCompile Include="..\..\..\src\RangeCoder.cpp" />
     <ClCompile Include="..\..\..\src\thread_pool.cpp" />
     <ClCompile Include="..\..\..\src\timer.cpp" />
     <ClCompile Include="main.cpp" />
@@ -208,6 +206,7 @@
     <ClInclude Include="..\..\..\include\RangeCoder.h" />
     <ClInclude Include="..\..\..\include\thread_pool.h" />
     <ClInclude Include="..\..\..\include\timer.h" />
+    <ClInclude Include="..\..\..\include\Version.h" />
     <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
