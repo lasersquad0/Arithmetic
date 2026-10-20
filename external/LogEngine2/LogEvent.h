@@ -28,9 +28,9 @@ enum LogLevel : uint { llOff, llCritical, llError, llWarning, llInfo, llDebug, l
 #define LL_CAPS_NAMES  { "OFF", "CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG", "TRACE" }
 #define LL_SHORT_NAMES { "O", "C", "E", "W", "I", "D", "T" }
 
-static const std::string LogLevelNames[] LL_NAMES;
-static const std::string LogLevelCapsNames[] LL_CAPS_NAMES;
-static const char* LogLevelShortNames[] LL_SHORT_NAMES;
+static const std::string LogLevelNames[llnLogLevels] LL_NAMES;
+static const std::string LogLevelCapsNames[llnLogLevels] LL_CAPS_NAMES;
+static const char* LogLevelShortNames[llnLogLevels] LL_SHORT_NAMES;
 
 inline const std::string& LLtoString(const LogLevel ll) { return LogLevelNames[ll]; }
 inline const std::string& LLtoCapsString(const LogLevel ll) { return LogLevelCapsNames[ll]; }
