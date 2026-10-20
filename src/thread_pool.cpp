@@ -172,13 +172,7 @@ bool MT::ThreadPool::is_standby() const
 
 void MT::ThreadPool::clear_completed()
 {
-//#ifdef __BORLANDC__
-//	std::lock(completed_tasks_mutex, signal_queue_mutex);
-//	std::lock_guard<std::mutex> lk1(completed_tasks_mutex, std::adopt_lock);
-//	std::lock_guard<std::mutex> lk2(signal_queue_mutex, std::adopt_lock);
-//#else
 	std::scoped_lock lock(completed_tasks_mutex, signal_queue_mutex);
-//#endif
 
 	completed_tasks.clear();
 	while (!signal_queue.empty())
