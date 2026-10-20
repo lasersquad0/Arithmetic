@@ -18,6 +18,7 @@ public:
 	virtual void StopBlockDecode() = 0;
 	virtual uint64_t GetBytesPassed() = 0;
 	virtual void UpdateStatistics(uchar* ctx, uchar sym) = 0;
+	virtual ~IModel() {};
 };
 
 template<class UINT>
@@ -25,7 +26,9 @@ class BasicModel : public IModel
 {
 protected:
 	IBlockCoder<UINT>& coder;
-	BasicModel(IBlockCoder<UINT>& cr): coder(cr) { }
+	BasicModel(IBlockCoder<UINT>& cr): coder(cr) 
+	{ 
+	}
 public:
 	virtual UINT GetWeight(uchar*, uchar) { return 0; }
 
