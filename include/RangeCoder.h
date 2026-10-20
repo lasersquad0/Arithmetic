@@ -6,7 +6,7 @@
 #include "ICoder.h"
 #include "ARIExceptions.h"
 
-#define  DEF_RANGECODER_CODEBITS  (24)
+//#define  DEF_RANGECODER_CODEBITS  (24)
 //#define  DEFAULT_BOTTOM    (16)
 
 //#define  TOP       (1<<CODEBITS)
@@ -15,6 +15,9 @@
 template<class UINT>
 class RangeCoder: public IBlockCoder<UINT>
 {
+    static const uint8_t DEF_CODEBITS32 = (sizeof(uint32_t) - 1) * 8;
+    static const uint8_t DEF_CODEBITS64 = (sizeof(uint64_t) - 2) * 8;
+    static const UINT    DEF_BOTTOM64   = 1ull << 16;
 public:
     const uint8_t CODEBITS;
     const uint8_t HIGHBYTE;
@@ -35,7 +38,7 @@ private:
     void SaveState();
     void LoadState();
     void ResetLowRange();
-    RangeCoder(uint8_t codebits = DEF_RANGECODER_CODEBITS); // disable direct creating of RC instance
+    RangeCoder(/*uint8_t codebits = DEF_RANGECODER_CODEBITS */); // disable direct creating of RangeCoder instance
     
   //  friend class CoderFactory;
     friend class ModelCoderFactory;
@@ -70,15 +73,27 @@ typedef RangeCoder<uint64_t> RangeCoder64;
 
 //TODO shall we put all methods from below into class declarations?
 
+// constants in initialization list need to have different values depending on UINT template parameter. That is why so complicated code.
+// IDEA: create 2 classes descentants: RangeCoder32 and RangeCoder64 and initialise constants in their constructors. All other methods leave in RangeCoder<UINT> class.
 template<class UINT>
-RangeCoder<UINT>::RangeCoder(uint8_t codebits) :
-    CODEBITS(codebits),
-    TOP(1ull << codebits),
-    HIGHBYTE((codebits >> 3) + 1),
-    TOPTOP(1ull << (codebits + 8)), // TOPTOP is always 64 bit
-    BOTTOM(1ull << (codebits - 8))
+RangeCoder<UINT>::RangeCoder(/*uint8_t codebits*/) :
+    CODEBITS([]() constexpr { // calculate codebits from UINT template parameter, no need to pass it into constructor
+        if      constexpr (std::is_same_v<UINT, uint32_t>) return DEF_CODEBITS32;
+        else if constexpr (std::is_same_v<UINT, uint64_t>) return DEF_CODEBITS64;
+        else throw convert_error("Incorrect bitness of codec:" + IntToStr(sizeof(UINT) * 8));
+            }()),  
+    HIGHBYTE((CODEBITS >> 3) + 1), 
+    TOP(1ull << CODEBITS),
+    TOPTOP(1ull << (CODEBITS + 8)), // TOPTOP is always 64 bit
+    BOTTOM([this]() constexpr { 
+    if      constexpr (std::is_same_v<UINT, uint32_t>) return 1ul << (CODEBITS - 8);
+    else if constexpr (std::is_same_v<UINT, uint64_t>) return DEF_BOTTOM64;
+    else throw convert_error("Incorrect bitness of codec:" + IntToStr(sizeof(UINT) * 8));
+        }()) //, (1ull << (CODEBITS - 8))
 {
+    assert(CODEBITS <= (sizeof(UINT) - 1)*8);
     range = (UINT)(TOPTOP - 1); // initialise into widest interval
+    assert(range > 0);
 }
 
 template<class UINT>
