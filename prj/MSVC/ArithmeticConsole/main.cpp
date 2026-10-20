@@ -1,4 +1,5 @@
 
+#include "debug.h"
 #include <iostream>
 #include <filesystem>
 #include <string>
@@ -25,7 +26,6 @@ using namespace std;
 // add multithreading for uncompress
 // think how to implement multithreading on compress. problem - coder and model have states, difficult to coder and model classes in parallel from diff threads 
 // put IniReader into LogEngine namespace? together with exception class FileException?
-// Do we really need to support string_t everywhere and compilation switch between Unicode and ANSI? No switching to ANSI does not compile. Need review.
 
 
 #define OPT_A _T("a")
@@ -60,7 +60,7 @@ static void DefineOptions(COptionsList& options)
     options.AddOption(OPT_T, _T("threads"), _T("Use specified number of threads during operation"), 1);
     options.AddOption(OPT_H, _T("help"), _T("Show help"), 0);
     options.AddOption(OPT_M, _T("model-type"), _T("Use model of specified order. Valid model types: O0, O1, O2, O3, O0FIX, O0SORT, O0PAIR, O3MIX, O1FPAQ."), 1);
-    options.AddOption(OPT_C, _T("coder-type"), _T("Use specified coder. Valid coders: huf, ahuf, ari, ari32, ari64, bitari."), 1);
+    options.AddOption(OPT_C, _T("coder-type"), _T("Use specified coder. Valid coders: huf, ahuf, ari, ari32, ari64, bitari, fpaqari."), 1);
     options.AddOption(OPT_V, _T("verbose"), _T("Print more detailed (verbose) information to screen."), 0);
     options.AddOption(OPT_S, _T("stream-mode"), _T("Use stream mode (oposite to block mode). No BWT, no MTB in this mode."), 0);
     options.AddOption(OPT_O, _T("output-dir"), _T("Specifies directory where uncompressed files will be placed. Valid with -x option only."), 1);
@@ -94,6 +94,11 @@ void CheckParametersValidity(Parameters& params);
 
 int _tmain(int argc, _TCHAR* argv[])
 {
+	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+	_CrtMemState s1, s2, s3;
+	_CrtMemCheckpoint(&s1); // Take a snapshot at the start of main()
+
+
 	try
 	{
 		// try to load .lfg file from currect directory
@@ -293,5 +298,10 @@ int _tmain(int argc, _TCHAR* argv[])
 	}
 
 	LOG_DEBUG("Arithmetic coder finished.");
+
+	_CrtMemCheckpoint(&s2); // Take a snapshot at the end of main()
+	_CrtMemCheckpoint(&s2); // Take a snapshot at the end of main()
+	if (_CrtMemDifference(&s3, &s1, &s2)) _CrtMemDumpStatistics(&s3); // Dump memory statistics excluding global variables
+
 	return 0;
 }
