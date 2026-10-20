@@ -4,9 +4,8 @@
 #include <cstdlib>
 #include <cassert>
 #include "BasicModel.h"
+#include "ICoder.h"
 #include "ARIExceptions.h"
-
-//typedef unsigned long U32;  // 32 bit type
 
 //////////////////////////// Predictor /////////////////////////
 
@@ -52,11 +51,11 @@ class fpaqBitCoder: public BasicModel<UINT>, public IBlockCoder<UINT>
 {
 private:
 
-#define Top_value UINT(0XFFFFFFFF)	  /* Largest code value */
-    /* HALF AND QUARTER POINTS IN THE CODE VALUE RANGE. */
-#define First_qtr UINT(Top_value/4+1)  /* Point after first quarter    */
-#define Half	  UINT(2*First_qtr)    /* Point after first half  */
-#define Third_qtr UINT(3*First_qtr)    /* Point after third quarter */
+#define Top_value UINT(0XFFFFFFFF)	  // Largest code value
+// HALF AND QUARTER POINTS IN THE CODE VALUE RANGE.
+#define First_qtr UINT(Top_value/4+1)  // Point after first quarter
+#define Half	  UINT(2*First_qtr)    // Point after first half
+#define Third_qtr UINT(3*First_qtr)    // Point after third quarter
 
     Predictor predictor;
     //const Mode mode;       // Compress or decompress?
@@ -117,7 +116,7 @@ typedef fpaqBitCoder<uint64_t> fpaqBitCoder64;
 
 template<class UINT>
 fpaqBitCoder<UINT>::fpaqBitCoder(IBlockCoder<UINT>& cr) : BasicModel<UINT>(cr), predictor(), x1(0), x2(Top_value),
-x(0), bits_to_follow(0), bptr(128), bout(0), bptrin(1), bytesPassed(0)
+x(0), bits_to_follow(0), bytesPassed(0), bptr(128), bout(0), bptrin(1)
 {
 
 }
