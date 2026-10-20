@@ -71,7 +71,7 @@ private:
     void Init();
 
 public:
-    fpaqBitCoder(IBlockCoder<UINT>& cr);
+    fpaqBitCoder(/*IBlockCoder<UINT>& cr*/);
     //void encode(int y);    // Compress bit y
     //int decode();          // Uncompress and return bit y
     void flush();          // Call when done compressing
@@ -115,8 +115,8 @@ typedef fpaqBitCoder<uint32_t> fpaqBitCoder32;
 typedef fpaqBitCoder<uint64_t> fpaqBitCoder64;
 
 template<class UINT>
-fpaqBitCoder<UINT>::fpaqBitCoder(IBlockCoder<UINT>& cr) : BasicModel<UINT>(cr), predictor(), x1(0), x2(Top_value),
-x(0), bits_to_follow(0), bytesPassed(0), bptr(128), bout(0), bptrin(1)
+fpaqBitCoder<UINT>::fpaqBitCoder(/*IBlockCoder<UINT>& cr*/) : BasicModel<UINT>(*this), predictor(), x1(0), x2(Top_value),
+x(0), bits_to_follow(0), bytesPassed(0), bptr(128), bout(0), bptrin(1), bin(0)
 {
 
 }
@@ -164,6 +164,7 @@ void fpaqBitCoder<UINT>::Init()
     bptr = 128;
     bout = 0;
     bptrin = 1;
+    bin = 0;
 }
 
 template<class UINT>
