@@ -954,18 +954,18 @@ void Archiver::RemoveFile(const string_t& ArchiveFileName, const string_t& FileT
 
     if (fin.fail())
     {
-		std::remove(wtos(newArchiveFile).c_str());
+		std::filesystem::remove(newArchiveFile);
 		throw file_error("Error reading archive file '" + wtos(ArchiveFileName) + "'.");
 	}
 
 	if (fout.fail())
 	{
-		std::remove(wtos(newArchiveFile).c_str());
+		std::filesystem::remove(newArchiveFile);
 		throw file_error("Error writing archive file '" + wtos(newArchiveFile) + "'.");
 	}
 
-	std::remove(wtos(ArchiveFileName).c_str());
-	std::rename(wtos(newArchiveFile).c_str(), wtos(ArchiveFileName).c_str());
+	std::filesystem::remove(ArchiveFileName);
+	std::filesystem::rename(newArchiveFile, ArchiveFileName);
 
 	LOG_INFO("Deleted successfully");
 }
@@ -1020,22 +1020,22 @@ void Archiver::RemoveFiles(const string_t& ArchiveFileName, const vect_string_t&
     if (fin.fail())
     {
         fin.close();
-		std::remove(wtos(newArchiveFile).c_str());
+		std::filesystem::remove(newArchiveFile);
 		throw file_error("Error reading archive file '" + wtos(ArchiveFileName) + "'.");
 	}
 
 	if (fout.fail())
 	{
 		fout.close();
-		std::remove(wtos(newArchiveFile).c_str());
+		std::filesystem::remove(newArchiveFile);
 		throw file_error("Error writing archive file '" + wtos(newArchiveFile) + "'.");
 	}
 
 	fin.close();
 	fout.close();
 
-	std::remove(wtos(ArchiveFileName).c_str());
-	std::rename(wtos(newArchiveFile).c_str(), wtos(ArchiveFileName).c_str());
+	std::filesystem::remove(ArchiveFileName);
+	std::filesystem::rename(newArchiveFile, ArchiveFileName);
 
     LOG_INFO("Deleted successfully");
 }
