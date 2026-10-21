@@ -16,6 +16,9 @@ add_executable(arpack ${ARI_SRC} ${CLI_SRC} ${LIBSAIS_SRC})
 # Set minimal C++ version to C++20
 target_compile_features(arpack PRIVATE cxx_std_20)
 
+set(CMAKE_C_COMPILER gcc-13)
+set(CMAKE_CXX_COMPILER g++-13)
+
 #set_property(TARGET arpack PROPERTY CXX_STANDARD 17)
 
 # Add libraries include path.
