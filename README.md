@@ -4,41 +4,46 @@
 ## Functions
 
 This is a project the implements different compression techniques such as:
-- Arithmetic encoding. Four implementations - 32bit, 64 bit, byte-wise, bit-wise. Each of them can be either ordinary or adaptive.
+- Arithmetic encoding. Four arithmetic coder implementations - 32bit, 64 bit, byte-wise, bit-wise. Each of them can be either ordinary or adaptive.
 - Huffman encoding. Two different implementations - ordinary and adaptive.
-- BWT and MTF transformations which are done before actual compression by one of the compression methods above.
-- Several simple models (order0 fixed or adaptive, order2, order4 and order 4) that can be used with any compression method. 
+- BWT and MTF transformations which are done before actual compression significantly increasing level of compression.
+- Several simple models (order0, order1, order2, and order3) that can be used with any compression coders. 
 - Compression/decompression can be done in several threads. 
-- Support for up to 65535 files in archive
-- Support for large files in archive (up to 100G)
-- Unicode support in filenames
-- Can be buit as: console app, static library, BPL library for C++ Builder
-- Plugin to easy work with archives in Total Commander
+- Support for up to 65535 files in archive.
+- Support for large files in archive (up to 100G).
+- Unicode support in filenames.
+- Can be buit as: console app, static library, BPL library for C++ Builder.
+- Total Commander Plugin to easy work with archives from Total Commander
 - Command line tool for testing Total Commander plugin
  
 
 ## How to use
 
 ### Command line application
-Command line application has name ArithmeticConsole.exe.
+Command line application has name `ArithmeticConsole.exe`.
 You do not need any additional software installed to run ARPack archiver
 
-If you run ArithmeticConsole.exe without parameters it will show you list of command line parameters it accepts. 
+If you run `ArithmeticConsole.exe` without parameters it will show you list of command line parameters it accepts. 
 
 ```
-ArithmeticConsole.exe usage:
--a, --add          <req args>(2)...<total args>(up to 55) Add files to archive
--x, --extract      <req args>(1)...<total args>(up to 55) Extract files from archive
--d, --delete       <req args>(2)...<total args>(up to 55) Delete files from archive
--b, --blocksize    <arg>                                  Set the block size for BWT transformation
--l, --list         <arg>                                  List content of archive
--T, --threads      <arg>                                  Use specified number of threads during operation
--h, --help                                                Show help
--m, --model-type   <arg>                                  Use model of specified order. Valid model types: o1, o2, o3, o4, fo1, bito1.
--c, --coder-type   <arg>                                  Use specified coder. Valid coders: huf, ahuf, ari, aari, bitari.
--v, --verbose                                             Print more detailed (verbose) information to screen.
--sm, --stream-mode                                        Use stream mode (oposite to block mode). No BWT, no MTB in this mode.
--o, --output-dir   <arg>                                  Specifies directory where uncompressed files will be placed. Valid with -x option only.
+Arithmetic compressor 1.3.0 x64 Copyright(c) 2024 - 2026 Andrey Romanchenko 26 Oct 2026
+
+Usage:
+   ArithmeticConsole.exe -command <arg1>...<argN> -option <arg>
+
+Commands and options:
+-a, --add         <req args>(2)..<tot args>(55) Add files to archive
+-x, --extract     <req args>(1)..<tot args>(55) Extract files from archive
+-d, --delete      <req args>(2)..<tot args>(55) Delete files from archive
+-b, --blocksize   <arg>                         Set the block size for BWT transformation
+-l, --list        <arg>                         List content of archive
+-t, --threads     <arg>                         Use specified number of threads during operation
+-h, --help                                      Show help
+-m, --model-type  <arg>                         Use model of specified order. Valid model types: O0, O1, O2, O3, O0FIX, O0SORT, O0PAIR, O3MIX, O1FPAQ.
+-c, --coder-type  <arg>                         Use specified coder. Valid coders: huf, ahuf, ari, ari32, ari64, bitari, fpaqari.
+-v, --verbose                                   Print more detailed (verbose) information to screen.
+-s, --stream-mode                               Use stream mode (oposite to block mode). No BWT, no MTB in this mode.
+-o, --output-dir  <arg>                         Specifies directory where uncompressed files will be placed. Valid with -x option only.
 ```
 
 There are four commands: ` -a, -x, -l, -d`, all the other switches are options.
@@ -71,27 +76,27 @@ Statistics table will be stored together with compressed data.
 With `-ahuf` option Adaptive Huffman compression method will be used that does not require storing separate table with frequencies.
 Both methods have similar compresssion ratio. Compression method is applied to all files being compressed.
 
-`-ari`, `-aari`, `-bitari` - use Arithmetic encoding for compression. Algorithms are the same, they differ by bitness of calculations.
-Due to this they produce different compressed output, but have similar compression ratio.
+`-ari`, `-ari32`, `-ari64`, `-bitari`, `fpaqari` - use Arithmetic encoding for compression. Algorithms are the same, they differ by bitness of calculations.
+Due to this they produce different compressed output, but have similar compression ratio. `-ari` is an alias of `-ari32`, they produce the same result.
 Compression method is applied to all files being compressed.
 
 `-m` - specifies model to use for compression. Model is stored into archive so you do not need to specify model during decompression.
-Valid models: o1, o2, o3, o4, fo1, bito1. Model o4 may use much memory, be carefull with it.
+Valid models: O0, O1, O2, O3, O0FIX, O0SORT, O0PAIR, O3MIX, O1FPAQ. Models O3 and O3MIX may use much memory, be careful with them.
 
 `-b` - specifies block size to use. Blocks are required for BWT and MTF transformations which provide better compression. 
 Each input file is divided into blocks of specified size and each block will be compressed separately.
 Block size can be specified in bytes, kilobytes (K) or megabytes (M).
-Examples: `-b2048`, `-b100000`, `-b10K`, `-b128K`, `-b2M`
+Examples: `-b 2048`, `-b 100000`, `-b 10K`, `-b 128K`, `-b 2M`
 Block size cannot be less than 1000 bytes and greater than 300 000 000 bytes.
 This option is valid for compression only. Ignored during uncompresion.
 
 `-t` - specifies number of threads to be used for doing compression or uncompression. 
-Significantly speeds up the process on computers with several CPU units.
+Significantly speeds up the process on computers with several CPU cores.
 Multiple threads will be used only if value specified by `-t` option is greater than 1.
 Value cannot be greater than 24.
-Examples: `-t0`, `-t1`, `-t4`,`-t10`.
+Examples: `-t 0`, `-t 1`, `-t 4`,`-t 10`.
 
-`-sm` - specifies to DO NOT use blocks during compression. Files will be compressed as streams of bytes without using BWT and MTF transformations. 
+`-s` - specifies to DO NOT use blocks during compression. Files will be compressed as streams of bytes without using BWT and MTF transformations. 
 Compression will be faster, but compression rate much worse. 
 This option is intended for experimental purposes for example for adding new compresson algorithms which do not support block mode by default. 
 
@@ -100,12 +105,6 @@ This option is intended for experimental purposes for example for adding new com
 `-v` - turns on verbose mode. Additional information will be printed to console during compression or uncompression.
 
 `-h` - shows help.
-
-Источники:
-- https://www.youtube.com/watch?v=4n7NPk5lwbI
-- https://www.quora.com/Algorithms/How-can-I-optimize-burrows-wheeler-transform-and-inverse-transform-to-work-in-O-n-time-O-n-space
-
-
 
 # Performance test results
 For tests we are going to use [Calgary group dataset](http://www.data-compression.info/Corpora/CalgaryCorpus/)
