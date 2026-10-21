@@ -118,7 +118,7 @@
       <PreprocessorDefinitions>LOGENGINE_HEADER_ONLY;WIN32;_DEBUG;TCPLUGIN_EXPORTS;_WINDOWS;_USRDLL;_UNICODE;UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <CallingConvention>StdCall</CallingConvention>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\..\..\external;$(ProjectDir)..\..\..\include;$(ProjectDir)..\..\..\..\libsais\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\..\..\external;$(ProjectDir)..\..\..\include;$(ProjectDir)..\..\..\external\libsais\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -145,7 +145,7 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;TCPLUGIN_EXPORTS;_WINDOWS;_USRDLL;UNICODE;_UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>Default</ConformanceMode>
       <CallingConvention>Cdecl</CallingConvention>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\..\..\external;$(ProjectDir)..\..\..\include;$(ProjectDir)..\..\..\..\libsais\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\..\..\external;$(ProjectDir)..\..\..\include;$(ProjectDir)..\..\..\external\libsais\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
