@@ -1,5 +1,10 @@
 # ARPack - fast and convenient arithmetic archiver
 
+## Contacts
+Author: Andrey Romanchenko (lasersquad@gmail.com)
+Web site: https://github.com/lasersquad0/Arithmetic
+
+Questions and comments: https://github.com/lasersquad0/Arithmetic/discussions or by email
 
 ## Functions
 
