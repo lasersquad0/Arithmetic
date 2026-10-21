@@ -15,6 +15,7 @@
 #include <vector>
 #include <filesystem>
 
+
 #if defined(UNICODE) || defined(_UNICODE)
 
 #define U(quote) L##quote  
@@ -41,9 +42,56 @@ typedef std::ostream ostream_t;
 //void Trim(std::string& str); //Note: str will be changed upon function return
 void TrimAndUpper(string_t& str); //Note: str will be changed upon function return
 
+
+static std::string WideToUTF8(const std::wstring& ws)
+{
+    std::string result;
+
+    // Максимум 4 байта UTF-8 на символ UTF-32
+    result.reserve(ws.size() * 4);
+
+    for (wchar_t wc : ws)
+    {
+        uint32_t cp = static_cast<uint32_t>(wc);
+
+        if (cp <= 0x7F)
+        {
+            result.push_back(static_cast<char>(cp));
+        }
+        else if (cp <= 0x7FF)
+        {
+            result.push_back(static_cast<char>(0xC0 | (cp >> 6)));
+            result.push_back(static_cast<char>(0x80 | (cp & 0x3F)));
+        }
+        else if (cp <= 0xFFFF)
+        {
+            // Запрещённые UTF-16 surrogate-коды
+            if (cp >= 0xD800 && cp <= 0xDFFF)
+                throw std::runtime_error("Error in WideToUTF8. Invalid Unicode surrogate code point");
+
+            result.push_back(static_cast<char>(0xE0 | (cp >> 12)));
+            result.push_back(static_cast<char>(0x80 | ((cp >> 6) & 0x3F)));
+            result.push_back(static_cast<char>(0x80 | (cp & 0x3F)));
+        }
+        else if (cp <= 0x10FFFF)
+        {
+            result.push_back(static_cast<char>(0xF0 | (cp >> 18)));
+            result.push_back(static_cast<char>(0x80 | ((cp >> 12) & 0x3F)));
+            result.push_back(static_cast<char>(0x80 | ((cp >> 6) & 0x3F)));
+            result.push_back(static_cast<char>(0x80 | (cp & 0x3F)));
+        }
+        else
+        {
+            throw std::runtime_error("Error in WideToUTF8. Invalid Unicode code point");
+        }
+    }
+
+    return result;
+}
+
 // special non-template function for wchar_t*
 //template<>
-std::string wtos(const wchar_t* wstr);
+//std::string wtos(const wchar_t* wstr);
 //std::string wtos(const char* wstr);
 
 template<class WSTRING>
@@ -62,6 +110,7 @@ std::string wtos(const WSTRING& wstr)
     {
         if (wstr.size() == 0) return "";
 
+#ifdef WIN32
         int len = WideCharToMultiByte(CP_UTF8, 0 /*WC_NO_BEST_FIT_CHARS*/, wstr.data(), (int)wstr.length(), nullptr, 0, nullptr, nullptr);
 
         if (len == 0)
@@ -73,15 +122,19 @@ std::string wtos(const WSTRING& wstr)
 
         if (!err)
             throw std::runtime_error(std::format("Error in WideCharToMultiByte 2. Error code: {}", GetLastError()));
-
+            
         return dest;
+#else
+        return WideToUTF8(wstr);
+#endif
     }
 }
 
-typedef char* pchar_t;
+
+//typedef char* pchar_t;
 // special non-template function for char*
 //template<>
-std::wstring stow(const char* str);
+//std::wstring stow(const char* str);
 
 template<typename STRING>
 std::wstring stow(const STRING& str)
