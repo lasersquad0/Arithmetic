@@ -1,4 +1,4 @@
-# ARPack - fast and convenient Arithmetic archiver
+# ARPack - fast and convenient arithmetic archiver
 
 
 ## Functions
@@ -20,16 +20,16 @@ This is a project the implements different compression techniques such as:
 ## How to use
 
 ### Command line application
-Command line application has name `ArithmeticConsole.exe`.
+Command line application has name `ARPack.exe`.
 You do not need any additional software installed to run ARPack archiver
 
-If you run `ArithmeticConsole.exe` without parameters it will show you list of command line parameters it accepts. 
+If you run `ARPack.exe` without parameters it will show you list of command line parameters it accepts. 
 
 ```
-Arithmetic compressor 1.3.0 x64 Copyright(c) 2024 - 2026 Andrey Romanchenko 26 Oct 2026
+ARPack arithmetic compressor 1.3.0 x64 Copyright(c) 2024 - 2026 Andrey Romanchenko 26 Oct 2026
 
 Usage:
-   ArithmeticConsole.exe -command <arg1>...<argN> -option <arg>
+   ARPack.exe -command <arg1>...<argN> -option <arg>
 
 Commands and options:
 -a, --add         <req args>(2)..<tot args>(55) Add files to archive
