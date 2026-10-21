@@ -5,6 +5,7 @@
 #include <filesystem>
 #include <cassert>
 #include <vector>
+
 #include "Parameters.h"
 #include "ARIExceptions.h"
 #include "FileRecord.h"
