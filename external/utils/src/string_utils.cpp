@@ -1,9 +1,8 @@
 
-//#include <windows.h>
-//#include <tchar.h>
 #include <format>
 #include <stdexcept>
 #include <cassert>
+#include <algorithm>
 
 #include "../include/string_utils.h"
 
