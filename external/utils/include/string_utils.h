@@ -152,6 +152,7 @@ std::wstring stow(const STRING& str)
     }
     else
     {
+#ifdef WIN32
         if (str.size() == 0) return L"";
 
         int bufferSize = MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, nullptr, 0); // Get the required buffer size
@@ -167,6 +168,9 @@ std::wstring stow(const STRING& str)
         wstr.resize(bufferSize - 1);
 
         return wstr;
+#else
+        throw std::runtime_error("Implement stow() for Linux");
+#endif
     }
 }
 
