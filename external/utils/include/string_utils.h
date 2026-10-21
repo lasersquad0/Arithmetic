@@ -8,7 +8,9 @@
 // this is to remove defines min, max in windows headers because they conflict with std::min std::max 
 #define NOMINMAX
 
+#ifdef WIN32
 #include <windows.h>
+#endif
 #include <iostream>
 #include <string>
 #include <sstream>
