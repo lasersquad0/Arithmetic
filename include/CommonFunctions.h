@@ -1,6 +1,6 @@
 #pragma once
 
-#include <tchar.h>
+//#include <tchar.h>
 #include <strsafe.h>
 #include <string>
 #include <filesystem>
@@ -32,7 +32,7 @@ enum class ModelType: uint { UNKNOWN, O0, O1, O2, O3, O0FIX, O0SORT, O0PAIR, O3M
 //TODO think how can we report here error in general way for non-console applications
 #define LOG_CHECK_ERROR(_msg) std::cout << (_msg)
 //#define LOG_CHECK_ERROR(_msg) logger.Error(_msg)
-#define MAKE_LOG_TSTR(_msg) string_t(_T(__FILE__)).append(_T(" : ")).append(_msg)
+#define MAKE_LOG_TSTR(_msg) string_t(U(__FILE__)).append(U(" : ")).append(_msg)
 #define MAKE_LOG_STR(_msg) std::string(__FILE__).append(" : ").append(__func__).append(" : ").append(std::to_string(__LINE__)).append(" - ").append(_msg)
 #define HR_CHECK(_hr) {if(FAILED(_hr)) LOG_CHECK_ERROR( MAKE_LOG_STR(std::system_category().message(_hr)));}
 #define BOOL_CHECK(_res) {if(!(_res)) LOG_CHECK_ERROR( MAKE_LOG_STR(std::system_category().message(GetLastError())));}
