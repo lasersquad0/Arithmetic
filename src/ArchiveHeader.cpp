@@ -28,8 +28,8 @@ void ArchiveHeader::ListContent(const string_t& arcFilename, bool verbose)
 
 	if (maxFileName > MAX_FN_COLW) maxFileName = MAX_FN_COLW;
 
-	logger.InfoFmt("{:<{}} {:>18} {:>15} {:>6} {:>10} {:>6} {:>7} {:>7} {:<19} {:>13}", "File name", maxFileName, "File size", "Compressed",
-		"Blocks", "Block size", "Alg", "Model", "Ratio", "Modified", "CRC32");
+	logger.InfoFmt("{:<{}}{:>18}{:>15}{:>8}{:>11}{:>6}{:>7}{:>7}{:>20}{:>13}", 
+		"File name", maxFileName, "File size", "Compressed", "Blocks", "Block size", "Alg", "Model", "Ratio", "Modified", "CRC32");
 
 	for (int i = 0; i < m_files.size(); i++)
 	{
@@ -41,7 +41,7 @@ void ArchiveHeader::ListContent(const string_t& arcFilename, bool verbose)
 		std::string modelName = wtos(Parameters::ModelTypeCode[fr.modelOrder]);
 		std::string fileNameA = wtos(ellipsis(fr.fileName, MAX_FN_COLW));
 
-		logger.InfoFmt("{:<{}} {:>18L} {:>15L} {:>6L} {:>10L} {:>6} {:>6} {:7.2f}  {:>19} {:>13}",
+		logger.InfoFmt("{:<{}}{:>18L}{:>15L}{:>8L}{:>11L}{:>6}{:>7}{:7.2f}{:>20}{:>13}",
 			fileNameA, maxFileName, fr.fileSize, fr.compressedSize, fr.blockCount,
 			fr.blockSize, algName, modelName, ratio, fileModified, fr.CRC32Value);
 	}
