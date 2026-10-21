@@ -35,7 +35,7 @@ std::string wtos(const wchar_t* wstr)
 
 // special non-template function for char*
 //template<>
-std::wstring stow(const char* astr)
+/*std::wstring stow(const char* astr)
 {
     int bufferSize = MultiByteToWideChar(CP_UTF8, 0, astr, -1, nullptr, 0); // Get the required buffer size
     if (bufferSize == 0)
@@ -50,7 +50,7 @@ std::wstring stow(const char* astr)
     wstr.resize(bufferSize - 1);
     return wstr;
 }
-
+*/
 static void Trim(string_t& str) //Note: str will be changed
 {
     // remove any leading and traling spaces and tabs.
