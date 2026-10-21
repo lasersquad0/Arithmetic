@@ -6,11 +6,6 @@
 #include "ICoder.h"
 #include "ARIExceptions.h"
 
-//#define  DEF_RANGECODER_CODEBITS  (24)
-//#define  DEFAULT_BOTTOM    (16)
-
-//#define  TOP       (1<<CODEBITS)
-//#define  BOTTOM    (1<<(CODEBITS - 8))
 
 template<class UINT>
 class RangeCoder: public IBlockCoder<UINT>
