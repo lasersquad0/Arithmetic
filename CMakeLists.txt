@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.27)
+cmake_minimum_required (VERSION 3.22)
 project("ARPack" VERSION 0.0.3 LANGUAGES C CXX)
 
 if(NOT CMAKE_BUILD_TYPE)
