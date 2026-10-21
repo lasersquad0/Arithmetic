@@ -27,6 +27,11 @@ using namespace std;
 // think how to implement multithreading on compress. problem - coder and model have states, difficult to coder and model classes in parallel from diff threads 
 // put IniReader into LogEngine namespace? together with exception class FileException?
 
+//wtos используется:
+// для вызовов logger.Info(var) - они требуют ANSI
+// для выброса исключения. Исключения требуют всегда ANSI
+// Функции работы с файлами типа std::remove() требуют char* -> переписать через std::filesystem?
+
 
 #define OPT_A _T("a")
 #define OPT_B _T("b")
@@ -134,9 +139,8 @@ int _tmain(int argc, _TCHAR* argv[])
 	SetConsoleOutputCP(CP_UTF8);
 
 	logger.Debug("Arithmetic coder start");	
-    //SetImbue(cout);
 
-	logger.InfoFmt("\nArithmetic compressor {}.{}.{} x64 Copyright(c) 2024 - 2026 Andrey Romanchenko {}\n", ARI_VER_MAJOR, ARI_VER_MINOR,ARI_VER_PATCH,ARI_BUILD_DATE);
+	logger.InfoFmt("\nARPack arithmetic compressor {}.{}.{} x64 Copyright(c) 2024 - 2026 Andrey Romanchenko {}\n", ARI_VER_MAJOR, ARI_VER_MINOR,ARI_VER_PATCH,ARI_BUILD_DATE);
 
     Global::APP_NAME = argv[0]; // this statement needs to be before first possible call of PrintUsage().
 
