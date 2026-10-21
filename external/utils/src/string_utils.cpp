@@ -1,6 +1,6 @@
 
 //#include <windows.h>
-#include <tchar.h>
+//#include <tchar.h>
 #include <format>
 #include <stdexcept>
 #include <cassert>
@@ -54,10 +54,10 @@ std::string wtos(const wchar_t* wstr)
 static void Trim(string_t& str) //Note: str will be changed
 {
     // remove any leading and traling spaces and tabs.
-    size_t strBegin = str.find_first_not_of(_T(" \t"));
+    size_t strBegin = str.find_first_not_of(U(" \t"));
     if (strBegin == string_t::npos) return;
 
-    size_t strEnd = str.find_last_not_of(_T(" \t"));
+    size_t strEnd = str.find_last_not_of(U(" \t"));
     assert(strEnd != string_t::npos);
 
     str.erase(strEnd + 1 /*, str.size() - strEnd*/);
