@@ -6,7 +6,6 @@
  * See the COPYING file for the terms of usage and distribution.
  */
 
-//#include <sys/stat.h>
 #include <fcntl.h>
 #include <errno.h>
 
@@ -223,7 +222,6 @@ LOGENGINE_INLINE void TMemoryStream::UnsetBuffer()
 #define mywrite _write
 #define myclose _close
 #define myflush _commit
-//#define mylocking _locking
 
 #else
 
@@ -232,6 +230,7 @@ LOGENGINE_INLINE void TMemoryStream::UnsetBuffer()
 #define mywrite write
 #define myclose close
 #define myflush fsync
+
 #endif
 
 

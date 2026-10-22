@@ -9,12 +9,12 @@
 #ifndef FILESTREAM_H
 #define FILESTREAM_H
 
-#include <string.h> // for strlen() under Linux
+//#include <string.h> // for strlen() under Linux
 #include <sys/stat.h>
 #include <string>
 #include <exception>
 #include <locale>
-//#include <share.h>
+#include <share.h>
 
 #include "Common.h"
 
