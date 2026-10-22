@@ -83,7 +83,7 @@ static void PrintUsage(COptionsList& options)
 static void InitDefaultLogger()
 {
 	std::shared_ptr<LogEngine::Sink> consoleSink(new LogEngine::StdoutSinkST("console_sink"));
-	consoleSink->SetPattern("%time% %msg%");
+	consoleSink->SetPattern("%msg%");
 	std::shared_ptr<LogEngine::Sink> fileSink(new LogEngine::FileSinkST("file_sink", Global::LOGFILE_NAME));
 
 	LogEngine::Logger& logger = LogEngine::GetMultiLogger(Global::LOGGER_NAME, { consoleSink, fileSink });
