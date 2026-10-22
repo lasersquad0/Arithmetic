@@ -1,11 +1,9 @@
 #pragma once
 
-//#include <tchar.h>
-#include <strsafe.h>
 #include <string>
-#include <filesystem>
-#include <vector>
-#include <sstream>
+//#include <filesystem>
+//#include <vector>
+//#include <sstream>
 
 // this is to remove defines min, max in windows headers because they conflict with std::min std::max 
 #define NOMINMAX
@@ -41,12 +39,16 @@ enum class ModelType: uint { UNKNOWN, O0, O1, O2, O3, O0FIX, O0SORT, O0PAIR, O3M
 uint64_t ParseBlockSize(const string_t& s);
 ModelType ParseModelType(string_t s);
 CoderType ParseCoderType(string_t ct);
-void PrintWindowsErrorMessage(const TCHAR* lpszFunction);
-bool SaveLogConfigFile(int resID, const std::string& fileName);
 
 // converts native datetime value into std::string or string_t
 string_t DateTimeToString(time_t t);
 std::string DateTimeToStringA(time_t t);
+
+#ifdef WIN32
+void PrintWindowsErrorMessage(const TCHAR* lpszFunction);
+bool SaveLogConfigFile(int resID, const std::string& fileName);
+#endif
+
 
 //std::string toOEM(const string_t& str);
 

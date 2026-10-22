@@ -1,4 +1,7 @@
 
+#ifdef WIN32
+#include <strsafe.h>
+#endif
 #include <ctime>
 #include <iostream>
 #include <cassert>
@@ -17,7 +20,7 @@
 using namespace std;
 
 
-string_t GetErrorMessageText(ulong lastError, const string_t& errorPlace)
+/*string_t GetErrorMessageText(ulong lastError, const string_t& errorPlace)
 {
 	const uint32_t BUF_SIZE = 2048; // should be enough for all error messages
 	string_t buf, buf2;
@@ -30,7 +33,7 @@ string_t GetErrorMessageText(ulong lastError, const string_t& errorPlace)
 	//return std::format(_T("%s failed with error code %d as follows:\n%s"), errorPlace, lastError, buf);
 	HR_CHECK(StringCchPrintf(buf2.data(), buf2.size(), TEXT("%s failed with error code %d as follows:\n%s"), errorPlace.c_str(), lastError, buf.data()));
 	return buf2;
-}
+}*/
 
 //TODO replace by function GetErrorMessageText above ??
 void PrintWindowsErrorMessage(const TCHAR* lpszFunction)
@@ -216,6 +219,7 @@ void CheckParametersValidity(Parameters& params)
 
 }
 
+#ifdef WIN32
 bool SaveLogConfigFile(int resID, const std::string& fileName)
 {
 	HRSRC resInfo = FindResourceW(nullptr, MAKEINTRESOURCEW(resID/*IDR_RT_RCDATA1*/), L"RT_RCDATA");
@@ -251,6 +255,7 @@ bool SaveLogConfigFile(int resID, const std::string& fileName)
 
 	return true;
 }
+#endif
 
 // converts native datetime value into string_t
 string_t DateTimeToString(time_t t)

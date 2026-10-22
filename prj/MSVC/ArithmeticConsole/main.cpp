@@ -112,6 +112,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	}
 	catch (FileException&)
 	{
+#ifdef WIN32
 		// if ArithmeticLog.lfg is not found, try to find .lfg file in resources of .exe file
 		if (SaveLogConfigFile(IDR_RT_RCDATA2, Global::LFGFILE_NAME))
 		{
@@ -131,6 +132,10 @@ int _tmain(int argc, _TCHAR* argv[])
 			// not able to load ArithmeticLog.lfg from resources - configure logger settings manually (console + file)
 			InitDefaultLogger();
 		}
+#else
+		// if .lfg file is not found, configure logger settings manually (console + file)
+		InitDefaultLogger();
+#endif
 	}
 
 	GET_LOGGER();

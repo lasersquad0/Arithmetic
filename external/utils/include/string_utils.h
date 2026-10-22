@@ -44,7 +44,7 @@ typedef std::ostream ostream_t;
 //void Trim(std::string& str); //Note: str will be changed upon function return
 void TrimAndUpper(string_t& str); //Note: str will be changed upon function return
 
-
+#ifndef WIN32
 static std::string WideToUTF8(const std::wstring& ws)
 {
     std::string result;
@@ -90,6 +90,7 @@ static std::string WideToUTF8(const std::wstring& ws)
 
     return result;
 }
+#endif
 
 // special non-template function for wchar_t*
 //template<>
