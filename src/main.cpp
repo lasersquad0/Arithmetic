@@ -143,7 +143,9 @@ int main(int argc, char* argv[])
 	GET_LOGGER();
 	logger.Imbue(Global::GetLoc()); // first call after logger initialization, set locale into logger
 	cout.imbue(Global::GetLoc());
+#ifdef WIN32
 	SetConsoleOutputCP(CP_UTF8);
+#endif
 
 	logger.Debug("Arithmetic coder start");	
 
