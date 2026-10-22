@@ -6,12 +6,12 @@
 //#include <sstream>
 
 // this is to remove defines min, max in windows headers because they conflict with std::min std::max 
-#define NOMINMAX
+//#define NOMINMAX
 
-#include <windows.h>
+//#include <windows.h>
 #include "utils/include/string_utils.h"
 #include "LogEngine2/LogEngine.h" // for uchar, uint, ulong definitions
-#include "ARIExceptions.h"
+//#include "ARIExceptions.h"
 
 
 #define GET_LOGGER() auto& logger = Global::GetLogger()
