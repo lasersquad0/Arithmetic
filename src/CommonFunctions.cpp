@@ -279,9 +279,15 @@ bool SaveLogConfigFile(int resID, const std::string& fileName)
 std::string DateTimeToStringA(time_t t)
 {
 	struct tm ttm;
-	localtime_s(&ttm, &t);
-	char ss[100];
 
+#ifdef WIN32
+	auto err = localtime_s(&ttm, &t);
+	assert(err == 0);
+#else
+	auto pttm = localtime(&t, &ttm);
+	assert(pttm != nullptr);
+#endif
+	char ss[100];
 	strftime(ss, 100, "%F %T", &ttm);
 	return ss;
 }
