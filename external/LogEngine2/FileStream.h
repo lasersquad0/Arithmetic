@@ -33,7 +33,9 @@ enum class TSeekMode { smFromBegin, smFromEnd, smFromCurrent };
 #endif
  */
 
-// this is my special sharing mode
+#ifdef WIN32
+
+ // this is my special sharing mode
 #define _SH_DEFAULT 0
 
 //TSharingMode is array index here
@@ -41,6 +43,8 @@ static const int SharingModes[] { _SH_DEFAULT, _SH_DENYNO, _SH_DENYRD, _SH_DENYW
 
 //TFileMode is array index here
 static const int DefaultSharingModes[] { _SH_DENYNO, _SH_DENYWR, _SH_DENYWR, _SH_DENYWR };
+
+#endif
 
 #define IO_EXCEPTION_PREFIX "IOException : "
 

@@ -242,22 +242,21 @@ LOGENGINE_INLINE TFileStream::TFileStream(const std::string& FileName, const TFi
 	FSharingMode = sMode;
 	hf = 0;
 
-
-#if defined(WIN32) //&& !defined(__BORLANDC__)
+#if defined(WIN32)
 	errno_t res = 0;
-	int activeMode;
+	int activeShMode;
 
 	if (sMode == TSharingMode::shDefault) 
-		activeMode = DefaultSharingModes[fMode];
+		activeShMode = DefaultSharingModes[fMode];
 	else 
-		activeMode = SharingModes[sMode];
+		activeShMode = SharingModes[sMode];
 
 	switch (fMode)
 	{
-	case TFileMode::fmRead:      res = _sopen_s(&hf, FFileName.c_str(), O_RDONLY | O_BINARY,           activeMode, _S_IREAD | _S_IWRITE); break;
-	case TFileMode::fmWrite:     res = _sopen_s(&hf, FFileName.c_str(), O_WRONLY | O_CREAT | O_BINARY, activeMode, _S_IREAD | _S_IWRITE); break;
-	case TFileMode::fmReadWrite: res = _sopen_s(&hf, FFileName.c_str(), O_RDWR   | O_CREAT | O_BINARY, activeMode, _S_IREAD | _S_IWRITE); break;
-	case TFileMode::fmWriteTrunc:res = _sopen_s(&hf, FFileName.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, activeMode, _S_IREAD | _S_IWRITE); break;
+	case TFileMode::fmRead:      res = _sopen_s(&hf, FFileName.c_str(), O_RDONLY | O_BINARY,           activeShMode, _S_IREAD | _S_IWRITE); break;
+	case TFileMode::fmWrite:     res = _sopen_s(&hf, FFileName.c_str(), O_WRONLY | O_CREAT | O_BINARY, activeShMode, _S_IREAD | _S_IWRITE); break;
+	case TFileMode::fmReadWrite: res = _sopen_s(&hf, FFileName.c_str(), O_RDWR   | O_CREAT | O_BINARY, activeShMode, _S_IREAD | _S_IWRITE); break;
+	case TFileMode::fmWriteTrunc:res = _sopen_s(&hf, FFileName.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, activeShMode, _S_IREAD | _S_IWRITE); break;
 	}
 #else
 	switch (fMode)
