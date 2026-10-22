@@ -14,7 +14,7 @@
 #include <string>
 #include <exception>
 #include <locale>
-#include <share.h>
+//#include <share.h>
 
 #include "Common.h"
 
