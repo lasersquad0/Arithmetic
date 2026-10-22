@@ -80,7 +80,7 @@ int Archiver::CompressFiles(string_t archiveFileName, const vect_string_t& files
 
 		FileRecord& fr = frs[i];
 		ifstream fin;
-		fin.open(fr.origFilename, ios::in | ios::binary);
+		fin.open(std::filesystem::path(fr.origFilename), ios::in | ios::binary);
 		if (fin.fail())
 			throw file_error("Cannot open file '" + wtos(fr.origFilename) + "' for reading.");
 
