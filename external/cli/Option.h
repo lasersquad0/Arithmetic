@@ -10,8 +10,7 @@
 //
 // STDLib/OS includes
 //
-//#include <tchar.h>
-//#include <strsafe.h>
+#include <stdint.h>
 #include <string>
 #include <vector>
 #include <set>
