@@ -30,6 +30,9 @@ protected:
 	{ 
 	}
 public:
+	// explicitly delete copy constructor.
+	BasicModel(BasicModel<UINT>&) = delete;
+	
 	virtual UINT GetWeight(uchar*, uchar) { return 0; }
 
 	IBlockCoder<UINT>& GetCoder(){ return coder; }

@@ -115,8 +115,8 @@ typedef fpaqBitCoder<uint32_t> fpaqBitCoder32;
 typedef fpaqBitCoder<uint64_t> fpaqBitCoder64;
 
 template<class UINT>
-fpaqBitCoder<UINT>::fpaqBitCoder(/*IBlockCoder<UINT>& cr*/) : BasicModel<UINT>(*this), predictor(), x1(0), x2(Top_value),
-x(0), bits_to_follow(0), bytesPassed(0), bptr(128), bout(0), bptrin(1), bin(0)
+fpaqBitCoder<UINT>::fpaqBitCoder(/*IBlockCoder<UINT>& cr*/) : BasicModel<UINT>(*static_cast<IBlockCoder<UINT>*>(this)), predictor(), x1(0), x2(Top_value),
+x(0), bits_to_follow((UINT)0), bytesPassed(0ull), bptr(128u), bout(0u), bptrin(1u), bin(0)
 {
 
 }
