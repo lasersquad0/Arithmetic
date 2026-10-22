@@ -230,7 +230,7 @@ LOGENGINE_INLINE void TMemoryStream::UnsetBuffer()
 #define mylseek lseek
 #define myread read
 #define mywrite write
-#define myclose clos
+#define myclose close
 #define myflush fsync
 #endif
 
