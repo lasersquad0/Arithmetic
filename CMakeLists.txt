@@ -28,7 +28,7 @@ target_include_directories(arpack PRIVATE
 "${CMAKE_SOURCE_DIR}/external/libsais/include"
 )
 
-target_compile_definitions(arpack PRIVATE _UNICODE LOGENGINE_HEADER_ONLY)
+target_compile_definitions(arpack PRIVATE LOGENGINE_HEADER_ONLY)
 
 
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
