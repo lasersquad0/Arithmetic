@@ -1,6 +1,7 @@
 #pragma once
 
-//#if !defined(__BORLANDC__) // C++ Builder does not have overloaded operator new with 4 parameters (4th parameters is Size?)
+#if defined(WIN32) // C++ Builder does not have overloaded operator new with 4 parameters (4th parameters is Size?)
+
 #define _CRTDBG_MAP_ALLOC
 #include <stdlib.h>
 #include <crtdbg.h>
@@ -11,7 +12,8 @@
 #else
 #define DBG_NEW new
 #endif
-//#else
-//#define DBG_NEW new
-//#endif
+
+#else
+#define DBG_NEW new
+#endif
 
