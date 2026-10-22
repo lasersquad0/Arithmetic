@@ -9,9 +9,9 @@
 
 #pragma once
 
-//#include <ctype.h>
+#include <ctype.h>
 #include <time.h>
-#include <tchar.h>
+//#include <tchar.h>
 #include <string>
 #include <chrono>
 #include <mutex>
@@ -141,7 +141,7 @@ bool EqualNCase(const STRING& str1, const STRING& str2)
 
 		//for (; *s1 != '\0' && *s2 != '\0'; s1++, s2++)
 	for (uint i = 0; i < str1.length() && i < str2.length(); i++)
-		if (_totupper((str1[i])) != _totupper((str2[i])))
+		if (toupper((str1[i])) != toupper((str2[i])))
 			return false;
 
 	if (str1.length() == str2.length())
@@ -171,8 +171,8 @@ int CompareNCase(const STRING& str1, const STRING& str2)
 	//#else
 	for (uint i = 0; i < str1.length() && str2.length(); i++)
 	{
-		int upper1 = _totupper((str1[i]));
-		int upper2 = _totupper((str2[i]));
+		int upper1 = toupper((str1[i]));
+		int upper2 = toupper((str2[i]));
 
 		if (upper1 > upper2)
 			return 1;

@@ -17,7 +17,7 @@
 
 using namespace std;
 
-#define ARC_EXT _T(".ar")
+#define ARC_EXT U(".ar")
 
 #define SHOW_PROGRESS_AFTER 1000
 #define SHOWP (fr.fileSize > SHOW_PROGRESS_AFTER)
@@ -465,7 +465,7 @@ int Archiver::UncompressFiles(const string_t& ArchiveFileName, const Parameters&
 	{
 		IModel* model = ModelCoderFactory::GetModelAndCoder(files[i]);
 		//string_t temp = params.OUTPUT_DIR;
-		string_t realFileName = params.OUTPUT_DIR + _T("\\") + convert_string<char_t>(files[i].fileName);
+		string_t realFileName = params.OUTPUT_DIR + U("\\") + convert_string<char_t>(files[i].fileName);
 		ofstream fout;
 		fout.open(realFileName, ios::out | ios::binary/*, _SH_DENYWR*/); // third parameter is not supported by C++ standard
 		if (fout.fail())
@@ -726,7 +726,7 @@ int Archiver::ExtractFile(const string_t& ArchiveFileName, const string_t& FileT
 	}
 
 	ofstream fout;
-	string_t realFileName = params.OUTPUT_DIR + _T("\\") + FileToExtract;
+	string_t realFileName = params.OUTPUT_DIR + U("\\") + FileToExtract;
 
 	if (justTest)
 	{
@@ -928,7 +928,7 @@ void Archiver::RemoveFile(const string_t& ArchiveFileName, const string_t& FileT
 
 	//TODO: add handling of removing last files from archive.
 
-    string_t newArchiveFile = ArchiveFileName + _T(".tmp");
+    string_t newArchiveFile = ArchiveFileName + U(".tmp");
 	ofstream fout;
 	fout.open(newArchiveFile, ios::out | ios::binary/*, _SH_DENYWR*/); // third parameter is not supported by C++ standard
     if (fout.fail())
@@ -999,7 +999,7 @@ void Archiver::RemoveFiles(const string_t& ArchiveFileName, const vect_string_t&
 
     //TODO add handling of removing last file from archive.
 
-    string_t newArchiveFile = ArchiveFileName + _T(".tmp");
+    string_t newArchiveFile = ArchiveFileName + U(".tmp");
 	ofstream fout;
 	fout.open(newArchiveFile, ios::out | ios::binary/*, _SH_DENYWR*/); // third parameter is not supported by C++ standard
     if (fout.fail())

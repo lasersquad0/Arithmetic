@@ -41,7 +41,7 @@ ModelType ParseModelType(string_t s);
 CoderType ParseCoderType(string_t ct);
 
 // converts native datetime value into std::string or string_t
-string_t DateTimeToString(time_t t);
+//string_t DateTimeToString(time_t t);
 std::string DateTimeToStringA(time_t t);
 
 #ifdef WIN32

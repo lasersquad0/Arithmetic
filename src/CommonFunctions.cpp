@@ -2,6 +2,7 @@
 #ifdef WIN32
 #include <strsafe.h>
 #endif
+
 #include <ctime>
 #include <iostream>
 #include <cassert>
@@ -35,35 +36,6 @@ using namespace std;
 	return buf2;
 }*/
 
-//TODO replace by function GetErrorMessageText above ??
-void PrintWindowsErrorMessage(const TCHAR* lpszFunction)
-{
-	LPVOID lpMsgBuf;
-	DWORD err = GetLastError();
-
-	FormatMessage(
-		FORMAT_MESSAGE_ALLOCATE_BUFFER |
-		FORMAT_MESSAGE_FROM_SYSTEM |
-		FORMAT_MESSAGE_IGNORE_INSERTS,
-		NULL,
-		err,
-		MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-		(LPTSTR)&lpMsgBuf,
-		0, NULL);
-
-	//wcout << (TCHAR*)lpMsgBuf << endl;
-
-	LPVOID lpDisplayBuf = (LPVOID)LocalAlloc(LMEM_ZEROINIT, (lstrlen((LPCTSTR)lpMsgBuf) + lstrlen((LPCTSTR)lpszFunction) + 40) * sizeof(TCHAR));
-
-	StringCchPrintf((LPTSTR)lpDisplayBuf, LocalSize(lpDisplayBuf) / sizeof(TCHAR),
-		TEXT("%s failed with error %d: %s"), lpszFunction, err, lpMsgBuf);
-
-	GET_LOGGER();
-	LOG_ERROR(convert_string<char>((LPCTSTR)lpDisplayBuf));
-	//wcout << (TCHAR*)lpDisplayBuf << endl;
-
-	LocalFree(lpDisplayBuf);
-}
 
 static string_t RemoveApo(const string_t& str)
 {
@@ -83,7 +55,7 @@ static string_t RemoveApo(const string_t& str)
 *   num is passed by value intentionally
 * @return An uint32_t value constructed from a string 'num' with factor suffx applied
 */
-static uint64_t ParseNumber(string_t num, const string_t& factorSyms = _T("BKMG"), const std::array<uint64_t, 4ull>& factors = { 1, 1'000, 1'000'000, 1'000'000'000 })
+static uint64_t ParseNumber(string_t num, const string_t& factorSyms = U("BKMG"), const std::array<uint64_t, 4ull>& factors = { 1, 1'000, 1'000'000, 1'000'000'000 })
 {
 	// remove any leading and traling spaces, just in case.
 	TrimAndUpper(num);
@@ -220,13 +192,43 @@ void CheckParametersValidity(Parameters& params)
 }
 
 #ifdef WIN32
+//TODO replace by function GetErrorMessageText above ??
+void PrintWindowsErrorMessage(const char* lpszFunction)
+{
+	LPVOID lpMsgBuf;
+	DWORD err = GetLastError();
+
+	FormatMessage(
+		FORMAT_MESSAGE_ALLOCATE_BUFFER |
+		FORMAT_MESSAGE_FROM_SYSTEM |
+		FORMAT_MESSAGE_IGNORE_INSERTS,
+		NULL,
+		err,
+		MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+		(LPTSTR)&lpMsgBuf,
+		0, NULL);
+
+	//wcout << (TCHAR*)lpMsgBuf << endl;
+
+	LPVOID lpDisplayBuf = (LPVOID)LocalAlloc(LMEM_ZEROINIT, (strlen((LPSTR)lpMsgBuf) + strlen((LPSTR)lpszFunction) + 40) * sizeof(char));
+
+	StringCchPrintfA((LPSTR)lpDisplayBuf, LocalSize(lpDisplayBuf) / sizeof(char),
+		"%s failed with error %d: %s", lpszFunction, err, lpMsgBuf);
+
+	GET_LOGGER();
+	LOG_ERROR((LPSTR)lpDisplayBuf);
+	//wcout << (TCHAR*)lpDisplayBuf << endl;
+
+	LocalFree(lpDisplayBuf);
+}
+
 bool SaveLogConfigFile(int resID, const std::string& fileName)
 {
-	HRSRC resInfo = FindResourceW(nullptr, MAKEINTRESOURCEW(resID/*IDR_RT_RCDATA1*/), L"RT_RCDATA");
+	HRSRC resInfo = FindResourceA(nullptr, MAKEINTRESOURCEA(resID/*IDR_RT_RCDATA1*/), "RT_RCDATA");
 
 	if (resInfo == nullptr)
 	{
-		PrintWindowsErrorMessage(_T("FindResource"));
+		PrintWindowsErrorMessage("FindResource");
 		return false;
 	}
 
@@ -234,7 +236,7 @@ bool SaveLogConfigFile(int resID, const std::string& fileName)
 
 	if (resBytes == nullptr)
 	{
-		PrintWindowsErrorMessage(_T("LoadResource"));
+		PrintWindowsErrorMessage("LoadResource");
 		return false;
 	}
 
@@ -242,7 +244,7 @@ bool SaveLogConfigFile(int resID, const std::string& fileName)
 
 	if (lockBytes == nullptr)
 	{
-		PrintWindowsErrorMessage(_T("LockResource"));
+		PrintWindowsErrorMessage("LockResource");
 		return false;
 	}
 
@@ -258,20 +260,20 @@ bool SaveLogConfigFile(int resID, const std::string& fileName)
 #endif
 
 // converts native datetime value into string_t
-string_t DateTimeToString(time_t t)
+/*string_t DateTimeToString(time_t t)
 {
 	struct tm ttm;
 	localtime_s(&ttm, &t);
 	char_t ss[100];
 
 #if defined(UNICODE) || defined(_UNICODE)
-	wcsftime(ss, 100, _T("%F %T"), &ttm);
+	wcsftime(ss, 100, U("%F %T"), &ttm);
 #else
-	strftime(ss, 100, _T("%F %T"), &ttm);
+	strftime(ss, 100, U("%F %T"), &ttm);
 #endif
 
 	return ss;
-}
+}*/
 
 // converts native datetime value into std::string
 std::string DateTimeToStringA(time_t t)

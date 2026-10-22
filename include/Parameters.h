@@ -42,15 +42,15 @@ class Parameters
 {
 public:
 	uint32_t THREADS = 1;
-	string_t OUTPUT_DIR = _T(".\\");
+	string_t OUTPUT_DIR = U(".\\");
 	uint64_t BLOCK_SIZE = 1 << 16;
 	bool BLOCK_MODE = true;  // using block mode by default, to back to 'stream' mode use -sm cli option
 	bool VERBOSE = false;
 	ModelType MODEL_TYPE = ModelType::O2;
 	CoderType CODER_TYPE = CoderType::ARITHMETIC;
-	static const inline string_t CoderNames[(uint)CoderType::CodersCount] = { _T("NONE"),_T("HUF"),_T("AHUF"),_T("RLE"),_T("ARI"),_T("ARI32"),_T("ARI64"),_T("BITARI"), _T("ARIFPAQ") };
+	static const inline string_t CoderNames[(uint)CoderType::CodersCount] = { U("NONE"),U("HUF"),U("AHUF"),U("RLE"),U("ARI"),U("ARI32"),U("ARI64"),U("BITARI"), U("ARIFPAQ") };
 	static const inline bool IsCoder64bit[(uint)CoderType::CodersCount]   = {   false,      true,      true,     true,     false,      false,      true,        true,         true};
-	static const inline string_t ModelTypeCode[(uint)ModelType::ModelsCount]={ _T("UNKNOWN"),_T("O0"),_T("O1"),_T("O2"),_T("O3"),_T("O0FIX"),_T("O0SORT"),_T("O0PAIR"),_T("O3MIX"),_T("O1FPAQ") };
+	static const inline string_t ModelTypeCode[(uint)ModelType::ModelsCount]={ U("UNKNOWN"),U("O0"),U("O1"),U("O2"),U("O3"),U("O0FIX"),U("O0SORT"),U("O0PAIR"),U("O3MIX"),U("O1FPAQ") };
 
 
 	uint32_t GetThreads() const { return THREADS; }
@@ -86,7 +86,7 @@ public:
 namespace Global
 {
     // this name used in PrintUsage function as for now
-	inline string_t APP_NAME = _T("SOME APP"); // initialized by argv[0] in function main
+	inline string_t APP_NAME = U("SOME APP"); // initialized by argv[0] in function main
 	const inline std::string LOGGER_NAME = "Arithmetic";
 	const inline std::string LOGFILE_NAME = "ArithmeticLog.log";
 	const inline std::string LFGFILE_NAME = "ArithmeticLog.lfg";
