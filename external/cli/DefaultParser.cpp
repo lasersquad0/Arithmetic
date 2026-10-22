@@ -10,6 +10,8 @@
 //
 // STDLib/OS includes
 //
+#include <algorithm>
+
 
 
 bool CDefaultParser::HandleToken(const cli_string &token)
