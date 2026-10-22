@@ -36,7 +36,7 @@ public:
 	int progress(uint64_t prgrs) override
 	{
 		std::cout << "Progress " << prgrs << "%...\r";
-		//std::cout.flush();
+		std::cout.flush(); // without \n Linux console does not actually print anything, need to call flush() for that.
 		return CALLBACK_OK;
 	}
 };
