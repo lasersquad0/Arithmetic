@@ -1,3 +1,5 @@
+
+#include <cassert>
 #include "timer.h"
 
 Timer::Timer() 
@@ -29,7 +31,13 @@ void Timer::print_time(std::chrono::system_clock::time_point time_point, std::ba
 {
 	time_t time = std::chrono::system_clock::to_time_t(time_point);
 	tm time_tm;
-	localtime_s(&time_tm, &time);
+#ifdef WIN32
+	auto err = localtime_s(&time_tm, &time);
+	assert(err == 0);
+#else
+	auto pttm = localtime_r(&time, &time_tm);
+	assert(pttm != nullptr);
+#endif
 	stream << std::put_time(&time_tm, "%d.%m.%Y-%T");
 }
 
