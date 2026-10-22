@@ -3,7 +3,7 @@
 #include <iostream>
 #include <filesystem>
 #include <string>
-#include <direct.h>
+//#include <direct.h>
 
 #include "LogEngine2/LogEngine.h"
 #include "resource.h"
