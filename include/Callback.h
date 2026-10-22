@@ -36,7 +36,7 @@ public:
 	int progress(uint64_t prgrs) override
 	{
 		std::cout << "Progress " << prgrs << "%...\r";
-		std::cout.flush();
+		//std::cout.flush();
 		return CALLBACK_OK;
 	}
 };
