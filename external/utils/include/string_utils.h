@@ -16,6 +16,7 @@
 #include <sstream>
 #include <vector>
 #include <filesystem>
+#include <format>
 
 
 #if defined(UNICODE) || defined(_UNICODE)
