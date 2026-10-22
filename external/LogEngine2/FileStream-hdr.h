@@ -9,7 +9,6 @@
 //#include <sys/stat.h>
 #include <fcntl.h>
 #include <errno.h>
-//#include <string.h>
 
 #ifdef WIN32
 #include <io.h>
@@ -20,7 +19,6 @@
 #endif
 
 #include <cassert>
-//#include "windows.h"
 #include "FileStream.h"
 
 

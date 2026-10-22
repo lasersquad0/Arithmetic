@@ -17,6 +17,7 @@
 #include "Properties.h"
 
 #ifdef WIN32
+#define NOMINMAX // this is to remove defines min, max in windows headers because they conflict with std::min std::max 
 #include <windows.h>
 #else
 #include <sys/utsname.h>
