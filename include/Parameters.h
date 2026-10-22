@@ -86,7 +86,7 @@ public:
 namespace Global
 {
     // this name used in PrintUsage function as for now
-	inline string_t APP_NAME = U("SOME APP"); // initialized by argv[0] in function main
+	inline std::string APP_NAME = "SOME APP"; // initialized by argv[0] in function main
 	const inline std::string LOGGER_NAME = "Arithmetic";
 	const inline std::string LOGFILE_NAME = "ArithmeticLog.log";
 	const inline std::string LFGFILE_NAME = "ArithmeticLog.lfg";

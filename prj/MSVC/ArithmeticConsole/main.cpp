@@ -33,42 +33,42 @@ using namespace std;
 // Функции работы с файлами типа std::remove() требуют char* -> переписать через std::filesystem?
 
 
-#define OPT_A _T("a")
-#define OPT_B _T("b")
-#define OPT_C _T("c")
-#define OPT_D _T("d")
-#define OPT_H _T("h")
-#define OPT_L _T("l")
-#define OPT_M _T("m")
-#define OPT_O _T("o")
-#define OPT_S _T("s")
-#define OPT_T _T("t")
-#define OPT_V _T("v")
-#define OPT_X _T("x")
+#define OPT_A U("a")
+#define OPT_B U("b")
+#define OPT_C U("c")
+#define OPT_D U("d")
+#define OPT_H U("h")
+#define OPT_L U("l")
+#define OPT_M U("m")
+#define OPT_O U("o")
+#define OPT_S U("s")
+#define OPT_T U("t")
+#define OPT_V U("v")
+#define OPT_X U("x")
 
 static void DefineOptions(COptionsList& options)
 {    
     COption aa;
-    aa.ShortName(OPT_A).LongName(_T("add")).Descr(_T("Add files to archive")).Required(false).NumArgs(55).RequiredArgs(2);
+    aa.ShortName(OPT_A).LongName(U("add")).Descr(U("Add files to archive")).Required(false).NumArgs(55).RequiredArgs(2);
     options.AddOption(aa);
 
     COption xx;
-    xx.ShortName(OPT_X).LongName(_T("extract")).Descr(_T("Extract files from archive")).Required(false).NumArgs(55).RequiredArgs(1);
+    xx.ShortName(OPT_X).LongName(U("extract")).Descr(U("Extract files from archive")).Required(false).NumArgs(55).RequiredArgs(1);
     options.AddOption(xx);
 
     COption dd;
-    dd.ShortName(OPT_D).LongName(_T("delete")).Descr(_T("Delete files from archive")).Required(false).NumArgs(55).RequiredArgs(2);
+    dd.ShortName(OPT_D).LongName(U("delete")).Descr(U("Delete files from archive")).Required(false).NumArgs(55).RequiredArgs(2);
     options.AddOption(dd);
 
-    options.AddOption(OPT_B, _T("blocksize"), _T("Set the block size for BWT transformation"), 1); // all numArgs here are marked as required
-    options.AddOption(OPT_L, _T("list"), _T("List content of archive"), 1);
-    options.AddOption(OPT_T, _T("threads"), _T("Use specified number of threads during operation"), 1);
-    options.AddOption(OPT_H, _T("help"), _T("Show help"), 0);
-    options.AddOption(OPT_M, _T("model-type"), _T("Use model of specified order. Valid model types: O0, O1, O2, O3, O0FIX, O0SORT, O0PAIR, O3MIX, O1FPAQ."), 1);
-    options.AddOption(OPT_C, _T("coder-type"), _T("Use specified coder. Valid coders: huf, ahuf, ari, ari32, ari64, bitari, fpaqari."), 1);
-    options.AddOption(OPT_V, _T("verbose"), _T("Print more detailed (verbose) information to screen."), 0);
-    options.AddOption(OPT_S, _T("stream-mode"), _T("Use stream mode (oposite to block mode). No BWT, no MTB in this mode."), 0);
-    options.AddOption(OPT_O, _T("output-dir"), _T("Specifies directory where uncompressed files will be placed. Valid with -x option only."), 1);
+    options.AddOption(OPT_B, U("blocksize"), U("Set the block size for BWT transformation"), 1); // all numArgs here are marked as required
+    options.AddOption(OPT_L, U("list"), U("List content of archive"), 1);
+    options.AddOption(OPT_T, U("threads"), U("Use specified number of threads during operation"), 1);
+    options.AddOption(OPT_H, U("help"), U("Show help"), 0);
+    options.AddOption(OPT_M, U("model-type"), U("Use model of specified order. Valid model types: O0, O1, O2, O3, O0FIX, O0SORT, O0PAIR, O3MIX, O1FPAQ."), 1);
+    options.AddOption(OPT_C, U("coder-type"), U("Use specified coder. Valid coders: huf, ahuf, ari, ari32, ari64, bitari, fpaqari."), 1);
+    options.AddOption(OPT_V, U("verbose"), U("Print more detailed (verbose) information to screen."), 0);
+    options.AddOption(OPT_S, U("stream-mode"), U("Use stream mode (oposite to block mode). No BWT, no MTB in this mode."), 0);
+    options.AddOption(OPT_O, U("output-dir"), U("Specifies directory where uncompressed files will be placed. Valid with -x option only."), 1);
 
 	options.MutuallyExclusive(OPT_A, OPT_X, OPT_D);
 	//options.MutuallyExclusive(OPT_B, OPT_S);
@@ -76,7 +76,7 @@ static void DefineOptions(COptionsList& options)
 
 static void PrintUsage(COptionsList& options)
 {
-	Global::GetLogger().Info(wtos(CHelpFormatter::Format(Global::APP_NAME, &options)));
+	Global::GetLogger().Info(wtos(CHelpFormatter::Format(convert_string<char_t>(Global::APP_NAME), &options)));
 }
 
 // this function is called ONLY when .lfg file cannot be found or error during parsing .lfg file
@@ -97,7 +97,8 @@ static void InitDefaultLogger()
 //TODO implementation of this function is not finished.
 void CheckParametersValidity(Parameters& params);
 
-int _tmain(int argc, _TCHAR* argv[])
+int main(int argc, char* argv[])
+//int _tmain(int argc, _TCHAR* argv[])
 {
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 	_CrtMemState s1, s2, s3;
@@ -162,7 +163,16 @@ int _tmain(int argc, _TCHAR* argv[])
         return 1;
     }
 
-    if (!defaultParser.Parse(&options, &cmd, argv, argc))
+	vector_string_t args;
+	//args.resize(argc - 1);
+
+	for (int i = 1; i < argc; ++i) // i=1: bypass program name (argv[0])
+	{
+		args.push_back(convert_string<char_t>(argv[i]));
+	}
+
+    //if (!defaultParser.Parse(&options, &cmd, argv, argc))
+	if (!defaultParser.Parse(&options, &cmd, args))
     {
         LOG_ERROR(wtos(defaultParser.GetLastError()));
         PrintUsage(options);

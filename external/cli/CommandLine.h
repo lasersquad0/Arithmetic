@@ -80,7 +80,7 @@ public:
      *        not found and when index is out of arguments range
      * @return The option argument value.
      */
-    cli_string GetOptionValue(const cli_string &opt, size_t index = 0, const cli_string &defaultValue = _T(""));
+    cli_string GetOptionValue(const cli_string &opt, size_t index = 0, const cli_string &defaultValue = _U(""));
 
     /**
      * @brief Retrieves all option arguments as std::vector<string>. 
