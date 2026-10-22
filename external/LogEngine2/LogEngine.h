@@ -21,7 +21,7 @@
 #include "Logger.h"
 #include "RotatingFileSink.h"
 #include "IniReader.h"
-#include "version.h"
+#include "Version.h"
 
 LOGENGINE_NS_BEGIN
 
