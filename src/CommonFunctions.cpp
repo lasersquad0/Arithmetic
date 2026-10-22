@@ -284,7 +284,7 @@ std::string DateTimeToStringA(time_t t)
 	auto err = localtime_s(&ttm, &t);
 	assert(err == 0);
 #else
-	auto pttm = localtime(&t, &ttm);
+	auto pttm = localtime_r(&t, &ttm);
 	assert(pttm != nullptr);
 #endif
 	char ss[100];
