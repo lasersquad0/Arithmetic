@@ -47,7 +47,7 @@ public:
 		sout->write((char*)&blockCount, sizeof(uint32_t));
 		sout->write((char*)&blockSize, sizeof(uint32_t));
 
-        assert(fileName.length() < std::numeric_limits<uint16_t>::max());
+        assert(fileName.length() < UINT16_MAX);
 		uint16_t len = (uint16_t)fileName.length();  // length in symbols, not bytes
 		sout->write((char*)&len, sizeof(uint16_t));
 		sout->write((char*)fileName.data(), len * sizeof(wchar_t));  // NOTE! always wchar_t 2 bytes for each symbol
