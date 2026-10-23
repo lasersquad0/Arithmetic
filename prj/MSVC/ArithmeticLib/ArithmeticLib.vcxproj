@@ -181,15 +181,9 @@
     <ClCompile Include="..\..\..\external\libsais\src\libsais64.c" />
     <ClCompile Include="..\..\..\src\ArchiveHeader.cpp" />
     <ClCompile Include="..\..\..\src\Archiver.cpp" />
-    <ClCompile Include="..\..\..\src\BitCoder.cpp" />
     <ClCompile Include="..\..\..\src\CommonFunctions.cpp" />
-    <ClCompile Include="..\..\..\src\Context.cpp" />
     <ClCompile Include="..\..\..\src\fpaq0.cpp" />
-    <ClCompile Include="..\..\..\src\ModelOrder0.cpp" />
-    <ClCompile Include="..\..\..\src\ModelOrder0Sort.cpp" />
     <ClCompile Include="..\..\..\src\MTF.cpp" />
-    <ClCompile Include="..\..\..\src\Parameters.cpp" />
-    <ClCompile Include="..\..\..\src\RangeCoder.cpp" />
     <ClCompile Include="..\..\..\src\thread_pool.cpp" />
     <ClCompile Include="..\..\..\src\timer.cpp" />
   </ItemGroup>
