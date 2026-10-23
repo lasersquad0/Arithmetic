@@ -14,6 +14,7 @@
 #include <sys/locking.h>
 #else
 #include <sys/io.h>
+#include <sys/stat.h>
 #include <unistd.h>
 #endif
 
@@ -394,7 +395,7 @@ LOGENGINE_INLINE void TFileStream::Lock()
 {
 	Seek(0, TSeekMode::smFromBegin);
 #ifdef WIN32
-	int res = _locking(hf, LK_LOCK, std::numeric_limits<uint>::max()); // _locking uses current position only for lock/unlock operations, that is why we need Seek() before _locking
+	int res = _locking(hf, LK_LOCK, INT_MAX); // _locking uses current position only for lock/unlock operations, that is why we need Seek() before _locking
 #else
 	int res = lockf(hf, F_LOCK, 0); // len=0 means that rest of the file is locked (from current position to end of the file)
 #endif
@@ -419,7 +420,7 @@ LOGENGINE_INLINE void TFileStream::Unlock()
 {
 	Seek(0, TSeekMode::smFromBegin);
 #ifdef WIN32
-	int res = _locking(hf, LK_UNLCK, std::numeric_limits<uint>::max());
+	int res = _locking(hf, LK_UNLCK, INT_MAX);
 #else
 	int res = lockf(hf, F_ULOCK, 0);
 #endif
