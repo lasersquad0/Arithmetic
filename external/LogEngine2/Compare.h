@@ -11,7 +11,7 @@
 
 //#include <exception> //unix
 #include <string>
-#include <algorithm>
+//#include <algorithm>
 #include "Common.h"
 
 /// Class to compare other classes by operators ==, <, >
