@@ -59,7 +59,7 @@ PluginParameters ARPackParams;
 #define LOG_ERROR(_) LogEngine::GetLogger(LOGGER_NAME).Error(_)
 
 // Default ini file name where plugin stores its parameters. Path to this ini file is got from PackSetDefaultParams call 
-#define DEF_INIFILENAME _T("wcx_arpacker.ini")
+#define DEF_INIFILENAME U("wcx_arpacker.ini")
 char_t IniFileName[MAX_PATH] = DEF_INIFILENAME;
 
 void InitLogger()
@@ -585,11 +585,11 @@ BOOL CALLBACK DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
                 try
                 {
                     uint64_t v = ParseBlockSize(value);
-                    SendDlgItemMessage(hwndDlg, IDC_STATIC_BLOCKSIZE, WM_SETTEXT, 0, (LPARAM)_T("correct"));
+                    SendDlgItemMessage(hwndDlg, IDC_STATIC_BLOCKSIZE, WM_SETTEXT, 0, (LPARAM)U("correct"));
                 }
                 catch(...)
                 {
-                    SendDlgItemMessage(hwndDlg, IDC_STATIC_BLOCKSIZE, WM_SETTEXT, 0, (LPARAM)_T(" NOT correct"));
+                    SendDlgItemMessage(hwndDlg, IDC_STATIC_BLOCKSIZE, WM_SETTEXT, 0, (LPARAM)U(" NOT correct"));
                 }
             }
             break;
