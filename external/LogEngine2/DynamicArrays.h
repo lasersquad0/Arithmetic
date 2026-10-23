@@ -9,9 +9,10 @@
 #ifndef DYNAMIC_ARRAYS_H
 #define DYNAMIC_ARRAYS_H
 
+#include <string.h> //required for memset
 #include <exception> 
 #include <string>
-//#include <format>
+#include <format>
 #include "Compare.h"
 
 #define valuemin(v1,v2) (((v1)<(v2))?(v1):(v2))
@@ -1172,11 +1173,7 @@ int THArraySorted<T, Cmp>::InternalIndexOfFrom(const T& Value, const uint Start)
 {
 	if (Start >= this->FCount && this->FCount != 0)
 	{
-#if __cplusplus >= 202002L
 		throw THArrayException(std::format("[THArraySorted] Start index {} is out of bounds!", Start));
-#else
-		throw THArrayException(std::string("Error in THArraySorted: Start index ") + std::to_string(Start) + " is out of bounds!");
-#endif
 	}
 
 	if (this->FCount == 0) return this->NPOS; //THArray<T>::NPOS;
