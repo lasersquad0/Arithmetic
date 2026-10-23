@@ -20,12 +20,14 @@
 #if defined(UNICODE) || defined(_UNICODE)
 #define _U(x)      L ## x
 typedef std::wstring cli_string;
+typedef wchar_t cli_char;
 #define to_clistring std::to_wstring
 
 #else
 
 #define _U(x)      x
 typedef std::string cli_string;
+typedef char cli_char;
 #define to_clistring std::to_string
 
 #endif
