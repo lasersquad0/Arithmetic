@@ -52,8 +52,8 @@ char_t* ExtractFileNameW(char_t* path)
 // extracts file dir from path with filename
 string_t ExtractFileDirW(const char_t* FileName)
 {
-    if (FileName == nullptr) return _T("");
-    if (FileName[0] == '\0') return _T("");
+    if (FileName == nullptr) return U("");
+    if (FileName[0] == '\0') return U("");
 
     size_t i = wcslen(FileName);
 
@@ -98,13 +98,13 @@ uint32_t ParseBlockSize(std::string s) // s is by value intentionally
 // function for convert bool Value to string
 string_t BooolToStr(bool Value)
 {
-    return Value ? _T("1") : _T("0");
+    return Value ? U("1") : U("0");
 }
 
 // function to convert string value to the bool ('1','yes','true'=true; all the others=false)
 bool StrToBoool(const string_t& Value)
 {
-    return EqualNCase(Value, string_t(_T("1"))) || EqualNCase(Value, string_t(_T("yes"))) || EqualNCase(Value, string_t(_T("true")));
+    return EqualNCase(Value, string_t(U("1"))) || EqualNCase(Value, string_t(U("yes"))) || EqualNCase(Value, string_t(U("true")));
 }
 
 void StringListFromDeleteList(char* DeleteList, vect_string_t& StringList)

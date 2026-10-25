@@ -254,7 +254,7 @@ bool CDefaultParser::CheckMutuallyExclusive()
     return true;
 }
 
-/*bool CDefaultParser::Parse(COptionsList* options, CCommandLine* cmd, _TCHAR* argv[], int argc)
+bool CDefaultParser::Parse(COptionsList* options, CCommandLine* cmd, cli_char* argv[], int argc)
 {
     vector_string_t args;
     args.resize(argc - 1, _U(""));
@@ -265,7 +265,7 @@ bool CDefaultParser::CheckMutuallyExclusive()
     }
 
     return Parse(options, cmd, args);
-}*/
+}
 
 bool CDefaultParser::Parse(COptionsList *options, CCommandLine *cmd, const vector_string_t& args)
 {

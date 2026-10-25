@@ -12,13 +12,13 @@
 
 constexpr auto LOGGER_NAME = "TCPluginLogger"; //TODO we have Global::LOGGER_NAME may be use it instead of constexpr
 
-#define LOGGER_FILE_NAME _T("ARPackerX.log") // we need _T() here 
+#define LOGGER_FILE_NAME U("ARPackerX.log") // we need _T() here 
 
-#define CONFIG_SECTION _T("ARPacker")
-#define CONFIG_PARAM_BLOCKSIZE _T("BlockSize")
-#define CONFIG_PARAM_MODEL _T("Model")
-#define CONFIG_PARAM_CODER _T("Coder")
-#define CONFIG_PARAM_THREADS _T("Threads")
-#define CONFIG_PARAM_STREAMMODE _T("StreamMode")
-#define CONFIG_PARAM_LOGFILENAME _T("LogFileName")
+#define CONFIG_SECTION U("ARPacker")
+#define CONFIG_PARAM_BLOCKSIZE U("BlockSize")
+#define CONFIG_PARAM_MODEL U("Model")
+#define CONFIG_PARAM_CODER U("Coder")
+#define CONFIG_PARAM_THREADS U("Threads")
+#define CONFIG_PARAM_STREAMMODE U("StreamMode")
+#define CONFIG_PARAM_LOGFILENAME U("LogFileName")
 

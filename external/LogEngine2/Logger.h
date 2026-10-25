@@ -8,10 +8,6 @@
 
 #pragma once
 
-//#if defined(WIN32) && _HAS_CXX20==1 && !defined(__BORLANDC__)
-//#include <format>
-//#endif
-
 #include <stdarg.h>
 #include <string>
 #include <format>
@@ -182,7 +178,6 @@ public:
 		}
 	}
 
-//#if defined(WIN32) && _HAS_CXX20==1 && !defined(__BORLANDC__)
 	template<class ... Args>
 	void CritFmt(const std::format_string<Args...> fmt, Args&& ...args)
 	{

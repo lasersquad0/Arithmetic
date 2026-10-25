@@ -5,14 +5,7 @@
 
 #include <ctime>
 #include <iostream>
-//#include <cassert>
-//#include <sstream>
-//#include <algorithm>
-//#include <locale>
 #include <array>
-//#include <direct.h>
-//#include <io.h>
-//#include <fcntl.h>
 
 #include "utils/include/string_utils.h"
 #include "Parameters.h"

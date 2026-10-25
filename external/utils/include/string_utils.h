@@ -134,11 +134,7 @@ std::string wtos(const WSTRING& wstr)
     }
 }
 
-
-//typedef char* pchar_t;
-// special non-template function for char*
-//template<>
-//std::wstring stow(const char* str);
+std::wstring stow(const char* str);
 
 template<typename STRING>
 std::wstring stow(const STRING& str)

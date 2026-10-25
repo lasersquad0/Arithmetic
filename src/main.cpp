@@ -46,6 +46,8 @@ using namespace std;
 #define OPT_V U("v")
 #define OPT_X U("x")
 
+static void PrintUsage();
+
 static void DefineOptions(COptionsList& options)
 {    
     COption aa;
@@ -74,10 +76,7 @@ static void DefineOptions(COptionsList& options)
 	//options.MutuallyExclusive(OPT_B, OPT_S);
 }
 
-static void PrintUsage(COptionsList& options)
-{
-	Global::GetLogger().Info(wtos(CHelpFormatter::Format(convert_string<char_t>(Global::APP_NAME), &options)));
-}
+
 
 // this function is called ONLY when .lfg file cannot be found or error during parsing .lfg file
 static void InitDefaultLogger()
@@ -149,7 +148,7 @@ int main(int argc, char* argv[])
 
 	logger.Debug("Arithmetic coder start");	
 
-	logger.InfoFmt("\nARPack arithmetic compressor {}.{}.{} x64 Copyright(c) 2024 - 2026 Andrey Romanchenko {}\n", ARI_VER_MAJOR, ARI_VER_MINOR,ARI_VER_PATCH,ARI_BUILD_DATE);
+	logger.InfoFmt("\nARPack arithmetic compressor {}.{}.{} x64 Copyright(c) 2024 - 2026 Andrey Romanchenko {}", ARI_VER_MAJOR, ARI_VER_MINOR,ARI_VER_PATCH,ARI_BUILD_DATE);
 
     Global::APP_NAME = argv[0]; // this statement needs to be before first possible call of PrintUsage().
 
@@ -162,7 +161,7 @@ int main(int argc, char* argv[])
     if (argc < 2)
     {
         //LOG_ERROR("No command line arguments found.");
-        PrintUsage(options);
+        PrintUsage();
         return 1;
     }
 
@@ -178,7 +177,7 @@ int main(int argc, char* argv[])
 	if (!defaultParser.Parse(&options, &cmd, args))
     {
         LOG_ERROR(wtos(defaultParser.GetLastError()));
-        PrintUsage(options);
+        PrintUsage();
         return 1;
     }
 
@@ -225,7 +224,7 @@ int main(int argc, char* argv[])
 
 		if (cmd.HasOption(OPT_H))
 		{
-			PrintUsage(options);
+			PrintUsage();
 		}
 		else if (cmd.HasOption(OPT_L))
 		{
@@ -296,7 +295,7 @@ int main(int argc, char* argv[])
 		{
 
 			LOG_WARN("Incorrect command line parameters.");
-			PrintUsage(options);
+			PrintUsage();
 			return 1;
 		}
 	}
@@ -328,4 +327,37 @@ int main(int argc, char* argv[])
 #endif
 
 	return 0;
+}
+
+
+static void PrintUsage()
+{
+	cout << endl << "Usage: ";
+	cout << Global::APP_NAME << " [-a][-x][-d][-l] <arcfile> <file1> ...<fileN> [option] <optionarg>" << endl << endl;
+
+	cout << "Commands" << endl;
+	cout << "  -a, --add               Add files to archive" << endl;
+	cout << "  -x, --extract           Extract files from archive" << endl;
+	cout << "  -d, --delete            Delete files from archive" << endl;
+	cout << "  -l, --list              List content of archive" << endl;
+	cout << "  -h, --help              Show this help" << endl;
+
+	cout << endl << "Command arguments" << endl;
+	cout << "  <arcfile>               Name of archive file. For -a option arcfile does not need to have .ar extension, it will be added." << endl;
+	cout << "                          For other commands extension is not added automatically." << endl;
+	cout << "  <file1>...<fileN>       List of files (separated by spaces) to be added to, extracted or deleted from archive." << endl;
+	cout << "                          (for commands - a, -x and -d) accordingly." << endl;
+	
+	cout << endl << "Options" << endl;
+	cout << "  -b, --blocksize <size>  Set the block size for BWT transformations. Size can be specified with factor suffix (B, K, M, or G)" << endl;
+	cout << "                          For example '-b 100M' means block size is 100 megabytes." << endl;
+	cout << "  -t, --threads <num>     Use specified number of threads for doing operation." << endl;
+	cout << "  -m, --model <modelname> Use specified model for compressing. Valid model names: O0, O1, O2, O3, O0FIX, O0SORT, O0PAIR, O3MIX, O1FPAQ." << endl;
+	cout << "  -c, --coder <codername> Use specified coder. Valid coder names: huf, ahuf, ari, ari32, ari64, bitari, fpaqari." << endl;
+	cout << "  -s, --stream            Use stream mode (opposite to block mode) for compression. BWT and MTB transformations are not done in this mode." << endl;
+	cout << "  -o, --output-dir <dir>  Specifiy directory where uncompressed files will be placed. Valid with -x option only." << endl;
+	cout << "  -v, --nofile            Print more detailed (verbose) information to screen." << endl;
+
+	//cout << endl << "If you need help on cmd parameters make this call: " << APP_EXE_NAME << " -h" << endl;
+	//Global::GetLogger().Info(wtos(CHelpFormatter::Format(convert_string<char_t>(Global::APP_NAME), &options)));
 }
