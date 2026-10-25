@@ -8,7 +8,7 @@ Web site: https://github.com/lasersquad0/Arithmetic
 Questions and comments: https://github.com/lasersquad0/Arithmetic/discussions or by email
 
 ## Functions
-
+ 
 This is a project the implements different compression techniques such as:
 - Arithmetic encoding. Four arithmetic coder implementations - 32bit, 64 bit, byte-wise, bit-wise. Each of them can be either ordinary or adaptive.
 - Huffman encoding. Two different implementations - ordinary and adaptive.
