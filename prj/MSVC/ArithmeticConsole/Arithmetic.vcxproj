@@ -182,7 +182,7 @@
     <ClCompile Include="..\..\..\src\timer.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="Arithmetic.rc" />
+    <ResourceCompile Include="..\..\..\src\Arithmetic.rc" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\include\ArchiveHeader.h" />
@@ -207,13 +207,13 @@
     <ClInclude Include="..\..\..\include\MTF.h" />
     <ClInclude Include="..\..\..\include\Parameters.h" />
     <ClInclude Include="..\..\..\include\RangeCoder.h" />
+    <ClInclude Include="..\..\..\include\resource.h" />
     <ClInclude Include="..\..\..\include\thread_pool.h" />
     <ClInclude Include="..\..\..\include\timer.h" />
     <ClInclude Include="..\..\..\include\Version.h" />
-    <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\..\ArithmeticLog.lfg" />
+    <None Include="..\..\..\src\APackLog.lfg" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
