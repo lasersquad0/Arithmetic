@@ -217,7 +217,7 @@ void PrintWindowsErrorMessage(const char* lpszFunction)
 
 bool SaveLogConfigFile(int resID, const std::string& fileName)
 {
-	HRSRC resInfo = FindResourceA(nullptr, MAKEINTRESOURCEA(resID/*IDR_RT_RCDATA1*/), "RT_RCDATA");
+	HRSRC resInfo = FindResourceA(nullptr, MAKEINTRESOURCEA(resID), "RT_RCDATA");
 
 	if (resInfo == nullptr)
 	{
