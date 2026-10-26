@@ -1060,7 +1060,6 @@ void Archiver::PrintUncompressionStart(const FileRecord& fr, const Parameters& p
 {
 	GET_LOGGER();
 
-	//logger.info("Using Arithmetic Range compressor.");
 	logger.InfoFmt("{:<{}}: {}", "Extracting to", FIELD_W, wtos(params.OUTPUT_DIR));
 	logger.InfoFmt("{:<{}}: {}", "Compression coder", FIELD_W, wtos(Parameters::CoderNames[fr.alg]));
 	logger.InfoFmt("{:<{}}: {}", "Model type", FIELD_W, wtos(Parameters::ModelTypeCode[fr.modelOrder]));
