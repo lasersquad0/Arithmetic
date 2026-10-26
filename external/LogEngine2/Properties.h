@@ -24,9 +24,9 @@ public:
 	//virtual void load(std::istream& in);
 	//virtual void save(std::ostream& out);
 
-	virtual int   GetInt (const std::string& property, int defaultValue   = 0) const;
-	virtual ulong GetUInt(const std::string& property, ulong defaultValue = 0) const;
-	virtual bool  GetBool(const std::string& property, bool defaultValue = false) const;
+	virtual int  GetInt (const std::string& property, int defaultValue   = 0) const;
+	virtual uint GetUInt(const std::string& property, uint defaultValue = 0) const;
+	virtual bool GetBool(const std::string& property, bool defaultValue = false) const;
 	virtual std::string GetString(const std::string& property, const std::string& defaultValue = "") const;
 
 };
