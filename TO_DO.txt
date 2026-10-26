@@ -3,6 +3,8 @@ TODO
 
 This file contains an imcomplete list of things to be done, not necessarily ordered by importance or urgence.
 
+* O3MIX model produces incorrect file that differs from original file after uncompression
+
 * check BitCoder, it may generate wrong compressed data sometimes
 
 * check memory allocations for buffers in Loadblock, SaveBlock to avoid allocating extra memory
