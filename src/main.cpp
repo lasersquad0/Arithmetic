@@ -88,7 +88,7 @@ static void InitDefaultLogger()
 	LogEngine::Logger& logger = LogEngine::GetMultiLogger(Global::LOGGER_NAME, { consoleSink, fileSink });
 	logger.SetLogLevel(LogEngine::llInfo); // set log level for logger and all its sinks.
 
-	LOG_INFO("ArithmeticLog.lfg is not found, use default logging configuration.");
+	LOG_INFO("ARPackLog.lfg is not found, use default logging configuration.");
 }
 
 #define TRYCATCH(_,__) try {(_);}catch(...){logger.Warn(__);}
@@ -114,7 +114,7 @@ int main(int argc, char* argv[])
 	catch (FileException&)
 	{
 #ifdef WIN32
-		// if ArithmeticLog.lfg is not found, try to find .lfg file in resources of .exe file
+		// if ARPackLog.lfg is not found, try to find .lfg file in resources of .exe file
 		if (SaveLogConfigFile(IDR_RT_RCDATA2, Global::LFGFILE_NAME))
 		{
 			try
@@ -130,11 +130,11 @@ int main(int argc, char* argv[])
 		}
 		else
 		{
-			// not able to load ArithmeticLog.lfg from resources - configure logger settings manually (console + file)
+			// not able to load ARPackLog.lfg from resources - configure logger settings manually (console + file)
 			InitDefaultLogger();
 		}
 #else
-		// if .lfg file is not found, configure logger settings manually (console + file)
+		// if ARPack.lfg file is not found, configure logger settings manually (console + file)
 		InitDefaultLogger();
 #endif
 	}
@@ -142,15 +142,18 @@ int main(int argc, char* argv[])
 	GET_LOGGER();
 	logger.Imbue(Global::GetLoc()); // first call after logger initialization, set locale into logger
 	cout.imbue(Global::GetLoc());
+
 #ifdef WIN32
 	SetConsoleOutputCP(CP_UTF8);
 #endif
 
-	logger.Debug("Arithmetic coder start");	
+    Global::APP_EXE_NAME = argv[0]; // this statement needs to be before first possible call of PrintUsage().
+	Global::APP_NAME = StripFileExt(argv[0]);
+	Global::LOGGER_NAME = Global::APP_NAME;
 
-	logger.InfoFmt("\nARPack arithmetic compressor {}.{}.{} x64 Copyright(c) 2024 - 2026 Andrey Romanchenko {}", ARI_VER_MAJOR, ARI_VER_MINOR,ARI_VER_PATCH,ARI_BUILD_DATE);
+	logger.Debug(Global::APP_NAME + " coder start");
 
-    Global::APP_NAME = argv[0]; // this statement needs to be before first possible call of PrintUsage().
+	logger.InfoFmt("\n{} arithmetic compressor{}.{}.{} x64 Copyright(c) 2024 - 2026 Andrey Romanchenko{}", Global::APP_NAME, ARI_VER_MAJOR, ARI_VER_MINOR, ARI_VER_PATCH, ARI_BUILD_DATE);
 
     CDefaultParser defaultParser;
     CCommandLine cmd;
@@ -318,7 +321,7 @@ int main(int argc, char* argv[])
 		return 1;
 	}
 
-	LOG_DEBUG("Arithmetic coder finished.");
+	LOG_DEBUG(Global::APP_NAME + " coder finished.");
 
 #ifdef WIN32
 	_CrtMemCheckpoint(&s2); // Take a snapshot at the end of main()
@@ -333,7 +336,7 @@ int main(int argc, char* argv[])
 static void PrintUsage()
 {
 	cout << endl << "Usage: ";
-	cout << Global::APP_NAME << " [-a][-x][-d][-l] <arcfile> <file1> ...<fileN> [option] <optionarg>" << endl << endl;
+	cout << Global::APP_EXE_NAME << " [-a][-x][-d][-l] <arcfile> <file1> ...<fileN> [option] <optionarg>" << endl << endl;
 
 	cout << "Commands" << endl;
 	cout << "  -a, --add               Add files to archive" << endl;
