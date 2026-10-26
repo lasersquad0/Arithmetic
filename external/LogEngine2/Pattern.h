@@ -19,14 +19,13 @@
 #ifdef WIN32
 #define NOMINMAX // this is to remove defines min, max in windows headers because they conflict with std::min std::max 
 #include <windows.h>
+#pragma comment(lib, "version.lib") 
 #else
 #include <sys/utsname.h>
 #endif
 
 
 LOGENGINE_NS_BEGIN
-
-#pragma comment(lib, "version.lib") 
 
 #define APPNAME_PROPERTY  "AppName"
 #define APPVERSION_PROPERTY "AppVersion"
@@ -254,7 +253,7 @@ public:
 		std::string result;
 		char buffer[256];
 
-		FILE* pipe = popen("uname -a", "r");
+		FILE* pipe = popen("uname -s -n -r", "r");
 		if (!pipe) return "Linux";
 
 		while (fgets(buffer, sizeof(buffer), pipe) != nullptr)
@@ -262,7 +261,7 @@ public:
 
 		pclose(pipe);
 
-		return result;
+		return DelCRLF(result);
 #endif	
 	}
 };
@@ -302,14 +301,12 @@ public:
 		struct utsname uts;
 		if (uname(&uts) == -1) return "OSVERSION"; 
 
-		// Собираем в порядке, аналогичном выводу uname -a
-		FVersionCache += uts.sysname;   // Linux
-		FVersionCache += " ";
-		FVersionCache += uts.release;   // версия ядра
-		FVersionCache += " ";
-		FVersionCache += uts.version;   // версия системы (может содержать пробелы)
-		// В Linux uname -a также выводит "GNU/Linux", это можно добавить вручную
-		FVersionCache += " GNU/Linux";
+		//FVersionCache += uts.sysname;   // Linux
+		//FVersionCache += " ";
+		FVersionCache += uts.release;   // version of Linux core
+		//FVersionCache += " ";
+		//FVersionCache += uts.version;   // version of Linux system (can contain spaces)
+		//FVersionCache += " GNU/Linux";
 		
 		return FVersionCache;
 #endif
