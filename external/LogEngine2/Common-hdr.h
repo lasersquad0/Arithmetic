@@ -13,6 +13,9 @@
 #include <algorithm>
 #include <sys/timeb.h>
 #include "Common.h"
+#include "Compare.h"
+
+LOGENGINE_NS_BEGIN
 
 // truncates Value to Precision digits after point
 LOGENGINE_INLINE double round(const double Value, const int Precision)
@@ -534,4 +537,5 @@ LOGENGINE_INLINE std::string StrToLower(std::string str) // needs to be passed b
 	return str;
 }
 
+LOGENGINE_NS_END
 
