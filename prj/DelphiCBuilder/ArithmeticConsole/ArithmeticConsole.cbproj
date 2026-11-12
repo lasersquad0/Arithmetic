@@ -39,12 +39,6 @@
         <Cfg_1>true</Cfg_1>
         <Base>true</Base>
     </PropertyGroup>
-    <PropertyGroup Condition="('$(Platform)'=='Win64' and '$(Cfg_1)'=='true') or '$(Cfg_1_Win64)'!=''">
-        <Cfg_1_Win64>true</Cfg_1_Win64>
-        <CfgParent>Cfg_1</CfgParent>
-        <Cfg_1>true</Cfg_1>
-        <Base>true</Base>
-    </PropertyGroup>
     <PropertyGroup Condition="('$(Platform)'=='Win64x' and '$(Cfg_1)'=='true') or '$(Cfg_1_Win64x)'!=''">
         <Cfg_1_Win64x>true</Cfg_1_Win64x>
         <CfgParent>Cfg_1</CfgParent>
@@ -62,12 +56,6 @@
         <Cfg_2>true</Cfg_2>
         <Base>true</Base>
     </PropertyGroup>
-    <PropertyGroup Condition="('$(Platform)'=='Win64x' and '$(Cfg_2)'=='true') or '$(Cfg_2_Win64x)'!=''">
-        <Cfg_2_Win64x>true</Cfg_2_Win64x>
-        <CfgParent>Cfg_2</CfgParent>
-        <Cfg_2>true</Cfg_2>
-        <Base>true</Base>
-    </PropertyGroup>
     <PropertyGroup Condition="'$(Base)'!=''">
         <DCC_CBuilderOutput>JPHNE</DCC_CBuilderOutput>
         <IntermediateOutputDir>.\$(Platform)\$(Config)</IntermediateOutputDir>
@@ -81,7 +69,7 @@
         <Multithreaded>true</Multithreaded>
         <SanitizedProjectName>ArithmeticConsole</SanitizedProjectName>
         <IncludePath>..\..\..\src\;..\..\..\external\utils\src\;..\..\..\external\libsais\src\;..\..\..\external\cli\;..\..\..\external\libsais\include\;..\..\..\include\;..\..\..\external;$(IncludePath)</IncludePath>
-        <_TCHARMapping>wchar_t</_TCHARMapping>
+        <_TCHARMapping>char</_TCHARMapping>
         <VerInfo_Locale>1033</VerInfo_Locale>
         <BCC_UseClassicCompiler>false</BCC_UseClassicCompiler>
         <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
@@ -90,6 +78,14 @@
         <BRCC_CompilerToUse>rc</BRCC_CompilerToUse>
         <BRCC_Verbose>true</BRCC_Verbose>
         <ILINK_LibraryPath>..\..\..\include\;..\..\..\external\cli\;..\..\..\src\;..\..\..\external\utils\src\;..\..\..\external\libsais\src\;$(ILINK_LibraryPath)</ILINK_LibraryPath>
+        <ILINK_LinkwithSQL>false</ILINK_LinkwithSQL>
+        <ILINK_LinkwithIndy>false</ILINK_LinkwithIndy>
+        <ILINK_LinkwithIntebaseTogo>false</ILINK_LinkwithIntebaseTogo>
+        <ILINK_LinkwithMidas>false</ILINK_LinkwithMidas>
+        <ILINK_LinkwithPThread>false</ILINK_LinkwithPThread>
+        <ILINK_LinkwithRegEx>false</ILINK_LinkwithRegEx>
+        <ILINK_LinkwithSQLite>false</ILINK_LinkwithSQLite>
+        <ILINK_LinkwithZLib>false</ILINK_LinkwithZLib>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win32)'!=''">
         <PackageImports>adortl;appanalytics;bcbie;bcbsmp;bindcomp;bindcompdbx;bindcompfmx;bindcompvcl;bindcompvclsmp;bindcompvclwinx;bindengine;CloudService;CustomIPTransport;DataSnapClient;DataSnapCommon;DataSnapConnectors;DatasnapConnectorsFreePascal;DataSnapFireDAC;DataSnapIndy10ServerTransport;DataSnapNativeClient;DataSnapProviderClient;DataSnapServer;DataSnapServerMidas;dbexpress;dbrtl;dbxcds;DbxClientDriver;DbxCommonDriver;DBXDb2Driver;DBXFirebirdDriver;DBXInformixDriver;DBXInterBaseDriver;DBXMSSQLDriver;DBXMySQLDriver;DBXOdbcDriver;DBXOracleDriver;DBXSqliteDriver;DBXSybaseASADriver;DBXSybaseASEDriver;dsnap;dsnapcon;dsnapxml;emsclient;emsclientfiredac;emsedge;emshosting;emsserverresource;FireDAC;FireDACADSDriver;FireDACASADriver;FireDACCommon;FireDACCommonDriver;FireDACCommonODBC;FireDACDb2Driver;FireDACDBXDriver;FireDACDSDriver;FireDACIBDriver;FireDACInfxDriver;FireDACMongoDBDriver;FireDACMSAccDriver;FireDACMSSQLDriver;FireDACMySQLDriver;FireDACODBCDriver;FireDACOracleDriver;FireDACPgDriver;FireDACSqliteDriver;FireDACTDataDriver;fmx;fmxase;fmxdae;fmxFireDAC;fmxobj;IndyCore;IndyIPClient;IndyIPCommon;IndyIPServer;IndyProtocols;IndySystem;inet;inetdb;inetdbxpress;RESTBackendComponents;RESTComponents;rtl;Skia;soapmidas;soaprtl;soapserver;tethering;vcl;vclactnband;vcldb;vcldsnap;vcledge;vclFireDAC;vclie;vclimg;VCLRESTComponents;VclSmp;vcltouch;vclwinx;vclx;xmlrtl;$(PackageImports)</PackageImports>
@@ -101,13 +97,11 @@
         <AppDPIAwarenessMode>none</AppDPIAwarenessMode>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win64)'!=''">
-        <PackageImports>adortl;appanalytics;bcbie;bcbsmp;bindcomp;bindcompdbx;bindcompfmx;bindcompvcl;bindcompvclsmp;bindcompvclwinx;bindengine;CloudService;CustomIPTransport;DataSnapClient;DataSnapCommon;DataSnapConnectors;DatasnapConnectorsFreePascal;DataSnapFireDAC;DataSnapIndy10ServerTransport;DataSnapNativeClient;DataSnapProviderClient;DataSnapServer;DataSnapServerMidas;dbexpress;dbrtl;dbxcds;DbxClientDriver;DbxCommonDriver;DBXDb2Driver;DBXFirebirdDriver;DBXInformixDriver;DBXInterBaseDriver;DBXMSSQLDriver;DBXMySQLDriver;DBXOdbcDriver;DBXOracleDriver;DBXSqliteDriver;DBXSybaseASADriver;DBXSybaseASEDriver;dsnap;dsnapcon;dsnapxml;emsclient;emsclientfiredac;emsedge;emshosting;emsserverresource;FireDAC;FireDACADSDriver;FireDACASADriver;FireDACCommon;FireDACCommonDriver;FireDACCommonODBC;FireDACDb2Driver;FireDACDBXDriver;FireDACDSDriver;FireDACIBDriver;FireDACInfxDriver;FireDACMongoDBDriver;FireDACMSAccDriver;FireDACMSSQLDriver;FireDACMySQLDriver;FireDACODBCDriver;FireDACOracleDriver;FireDACPgDriver;FireDACSqliteDriver;FireDACTDataDriver;fmx;fmxase;fmxdae;fmxFireDAC;fmxobj;IndyCore;IndyIPClient;IndyIPCommon;IndyIPServer;IndyProtocols;IndySystem;inet;inetdb;inetdbxpress;RESTBackendComponents;RESTComponents;rtl;Skia;soapmidas;soaprtl;soapserver;tethering;vcl;vclactnband;vcldb;vcldsnap;vcledge;vclFireDAC;vclie;vclimg;VCLRESTComponents;VclSmp;vcltouch;vclwinx;vclx;xmlrtl;$(PackageImports)</PackageImports>
-        <UWP_CppLogo44>$(BDS)\bin\Artwork\Windows\UWP\cppreg_UwpDefault_44.png</UWP_CppLogo44>
-        <UWP_CppLogo150>$(BDS)\bin\Artwork\Windows\UWP\cppreg_UwpDefault_150.png</UWP_CppLogo150>
         <DCC_Namespace>Winapi;System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;$(DCC_Namespace)</DCC_Namespace>
         <BT_BuildType>Debug</BT_BuildType>
-        <Manifest_File>(None)</Manifest_File>
-        <AppDPIAwarenessMode>none</AppDPIAwarenessMode>
+        <UWP_CppLogo44>$(BDS)\bin\Artwork\Windows\UWP\cppreg_UwpDefault_44.png</UWP_CppLogo44>
+        <UWP_CppLogo150>$(BDS)\bin\Artwork\Windows\UWP\cppreg_UwpDefault_150.png</UWP_CppLogo150>
+        <BCC_PCHName_Clang>Factories.h</BCC_PCHName_Clang>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win64x)'!=''">
         <DCC_Namespace>Winapi;System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;$(DCC_Namespace)</DCC_Namespace>
@@ -115,7 +109,7 @@
         <BCC_EnableBatchCompilation>true</BCC_EnableBatchCompilation>
         <UWP_CppLogo44>$(BDS)\bin\Artwork\Windows\UWP\cppreg_UwpDefault_44.png</UWP_CppLogo44>
         <UWP_CppLogo150>$(BDS)\bin\Artwork\Windows\UWP\cppreg_UwpDefault_150.png</UWP_CppLogo150>
-        <BCC_PCHName_Clang>ModelOrderMixed.h</BCC_PCHName_Clang>
+        <BCC_PCHName_Clang>Factories.h</BCC_PCHName_Clang>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1)'!=''">
         <BCC_OptimizeForSpeed>false</BCC_OptimizeForSpeed>
@@ -143,13 +137,6 @@
         <BCC_UseClassicCompiler>false</BCC_UseClassicCompiler>
         <ILINK_LibraryPath>$(BDSLIB)\$(PLATFORM)$(CC_SUFFIX)\debug;$(ILINK_LibraryPath)</ILINK_LibraryPath>
     </PropertyGroup>
-    <PropertyGroup Condition="'$(Cfg_1_Win64)'!=''">
-        <ILINK_DisableIncrementalLinking>true</ILINK_DisableIncrementalLinking>
-        <ILINK_Verbose>true</ILINK_Verbose>
-        <Debugger_RunParams>-a archive oraociei.dll</Debugger_RunParams>
-        <Debugger_DebugSourcePath>C:\Users\Andrey\Documents\Embarcadero\Studio\Projects\Arithmetic\src;C:\Users\Andrey\source\repos\LogEngine2\include\;$(Debugger_DebugSourcePath)</Debugger_DebugSourcePath>
-        <Debugger_CWD>C:\Users\Andrey\Documents\Embarcadero\Studio\Projects\Arithmetic\prj\DelphiCBuilder\ArithmeticConsole\Win64\Debug</Debugger_CWD>
-    </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1_Win64x)'!=''">
         <Manifest_File>(None)</Manifest_File>
         <AppDPIAwarenessMode>none</AppDPIAwarenessMode>
@@ -160,10 +147,6 @@
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
         <BCC_UseClassicCompiler>false</BCC_UseClassicCompiler>
-    </PropertyGroup>
-    <PropertyGroup Condition="'$(Cfg_2_Win64x)'!=''">
-        <Manifest_File>(None)</Manifest_File>
-        <AppDPIAwarenessMode>none</AppDPIAwarenessMode>
     </PropertyGroup>
     <ItemGroup>
         <CppCompile Include="..\..\..\external\cli\CommandLine.cpp">
@@ -264,42 +247,24 @@
         </None>
         <ResourceCompile Include="Arithmetic.rc">
             <Form>Arithmetic.res</Form>
-            <BuildOrder>42</BuildOrder>
+            <BuildOrder>40</BuildOrder>
         </ResourceCompile>
-        <CppCompile Include="main.cpp">
-            <BuildOrder>37</BuildOrder>
-        </CppCompile>
         <CppCompile Include="..\..\..\src\ArchiveHeader.cpp">
             <BuildOrder>41</BuildOrder>
         </CppCompile>
         <CppCompile Include="..\..\..\src\Archiver.cpp">
             <BuildOrder>41</BuildOrder>
         </CppCompile>
-        <CppCompile Include="..\..\..\src\BitCoder.cpp">
-            <BuildOrder>41</BuildOrder>
-        </CppCompile>
         <CppCompile Include="..\..\..\src\CommonFunctions.cpp">
-            <BuildOrder>41</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="..\..\..\src\Context.cpp">
             <BuildOrder>41</BuildOrder>
         </CppCompile>
         <CppCompile Include="..\..\..\src\fpaq0.cpp">
             <BuildOrder>41</BuildOrder>
         </CppCompile>
-        <CppCompile Include="..\..\..\src\ModelOrder0.cpp">
-            <BuildOrder>41</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="..\..\..\src\ModelOrder0Sort.cpp">
-            <BuildOrder>42</BuildOrder>
+        <CppCompile Include="..\..\..\src\main.cpp">
+            <BuildOrder>40</BuildOrder>
         </CppCompile>
         <CppCompile Include="..\..\..\src\MTF.cpp">
-            <BuildOrder>42</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="..\..\..\src\Parameters.cpp">
-            <BuildOrder>42</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="..\..\..\src\RangeCoder.cpp">
             <BuildOrder>42</BuildOrder>
         </CppCompile>
         <CppCompile Include="..\..\..\src\thread_pool.cpp">
@@ -446,6 +411,12 @@
                 <DeployFile LocalName=".\Win64x\Debug\ArithmeticConsole.exe" Configuration="Debug" Class="ProjectOutput">
                     <Platform Name="Win64x">
                         <RemoteName>ArithmeticConsole.exe</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName=".\Win64x\Debug\ArithmeticConsole.pdb" Configuration="Debug" Class="DebugSymbols">
+                    <Platform Name="Win64x">
+                        <RemoteName>ArithmeticConsole.pdb</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>

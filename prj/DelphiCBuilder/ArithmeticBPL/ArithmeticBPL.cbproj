@@ -5,7 +5,7 @@
         <FrameworkType>None</FrameworkType>
         <MainSource>ArithmeticBPL.cpp</MainSource>
         <Base>True</Base>
-        <Config Condition="'$(Config)'==''">Release</Config>
+        <Config Condition="'$(Config)'==''">Debug</Config>
         <Platform Condition="'$(Platform)'==''">Win64x</Platform>
         <TargetedPlatforms>1048576</TargetedPlatforms>
         <AppType>Package</AppType>
@@ -40,12 +40,6 @@
         <Cfg_1>true</Cfg_1>
         <Base>true</Base>
     </PropertyGroup>
-    <PropertyGroup Condition="('$(Platform)'=='Win64' and '$(Cfg_1)'=='true') or '$(Cfg_1_Win64)'!=''">
-        <Cfg_1_Win64>true</Cfg_1_Win64>
-        <CfgParent>Cfg_1</CfgParent>
-        <Cfg_1>true</Cfg_1>
-        <Base>true</Base>
-    </PropertyGroup>
     <PropertyGroup Condition="('$(Platform)'=='Win64x' and '$(Cfg_1)'=='true') or '$(Cfg_1_Win64x)'!=''">
         <Cfg_1_Win64x>true</Cfg_1_Win64x>
         <CfgParent>Cfg_1</CfgParent>
@@ -59,12 +53,6 @@
     </PropertyGroup>
     <PropertyGroup Condition="('$(Platform)'=='Win32' and '$(Cfg_2)'=='true') or '$(Cfg_2_Win32)'!=''">
         <Cfg_2_Win32>true</Cfg_2_Win32>
-        <CfgParent>Cfg_2</CfgParent>
-        <Cfg_2>true</Cfg_2>
-        <Base>true</Base>
-    </PropertyGroup>
-    <PropertyGroup Condition="('$(Platform)'=='Win64' and '$(Cfg_2)'=='true') or '$(Cfg_2_Win64)'!=''">
-        <Cfg_2_Win64>true</Cfg_2_Win64>
         <CfgParent>Cfg_2</CfgParent>
         <Cfg_2>true</Cfg_2>
         <Base>true</Base>
@@ -133,11 +121,9 @@
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win64)'!=''">
-        <PackageImports>adortl;appanalytics;bcbie;bcbsmp;bindcomp;bindcompdbx;bindcompfmx;bindcompvcl;bindcompvclsmp;bindcompvclwinx;bindengine;CloudService;CustomIPTransport;DataSnapClient;DataSnapCommon;DataSnapConnectors;DatasnapConnectorsFreePascal;DataSnapFireDAC;DataSnapIndy10ServerTransport;DataSnapNativeClient;DataSnapProviderClient;DataSnapServer;DataSnapServerMidas;dbexpress;dbrtl;dbxcds;DbxClientDriver;DbxCommonDriver;DBXDb2Driver;DBXFirebirdDriver;DBXInformixDriver;DBXInterBaseDriver;DBXMSSQLDriver;DBXMySQLDriver;DBXOdbcDriver;DBXOracleDriver;DBXSqliteDriver;DBXSybaseASADriver;DBXSybaseASEDriver;dsnap;dsnapcon;dsnapxml;emsclient;emsclientfiredac;emsedge;emshosting;emsserverresource;FireDAC;FireDACADSDriver;FireDACASADriver;FireDACCommon;FireDACCommonDriver;FireDACCommonODBC;FireDACDb2Driver;FireDACDBXDriver;FireDACDSDriver;FireDACIBDriver;FireDACInfxDriver;FireDACMongoDBDriver;FireDACMSAccDriver;FireDACMSSQLDriver;FireDACMySQLDriver;FireDACODBCDriver;FireDACOracleDriver;FireDACPgDriver;FireDACSqliteDriver;FireDACTDataDriver;fmx;fmxase;fmxdae;fmxFireDAC;fmxobj;IndyCore;IndyIPClient;IndyIPCommon;IndyIPServer;IndyProtocols;IndySystem;inet;inetdb;inetdbxpress;RESTBackendComponents;RESTComponents;rtl;Skia;soapmidas;soaprtl;soapserver;tethering;vcl;vclactnband;vcldb;vcldsnap;vcledge;vclFireDAC;vclie;vclimg;VCLRESTComponents;VclSmp;vcltouch;vclwinx;vclx;xmlrtl;$(PackageImports)</PackageImports>
         <DCC_Namespace>Winapi;System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;$(DCC_Namespace)</DCC_Namespace>
         <BT_BuildType>Debug</BT_BuildType>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
-        <ILINK_LibraryPath>C:\Users\User\source\repos\LogEngine2\lib\;C:\Users\Andrey\source\repos\Arithmetic\prj\DelphiCBuilder\ArithmeticBPL\;C:\Users\Andrey\Documents\Embarcadero\Studio\Projects\Arithmetic\prj\DelphiCBuilder\ArithmeticBPL\;C:\Users\IEUser\Documents\Embarcadero\Studio\Projects\ConsolePrj\;$(ILINK_LibraryPath)</ILINK_LibraryPath>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win64x)'!=''">
         <DCC_Namespace>Winapi;System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;$(DCC_Namespace)</DCC_Namespace>
@@ -174,12 +160,8 @@
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <VerInfo_Locale>1033</VerInfo_Locale>
     </PropertyGroup>
-    <PropertyGroup Condition="'$(Cfg_1_Win64)'!=''">
-        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
-        <Debugger_HostApplication>C:\Users\Andrey\source\repos\Arithmetic\prj\DelphiCBuilder\ArithmeticBPL\Win64\Debug\ArithmeticGUI.exe</Debugger_HostApplication>
-        <Debugger_CWD>C:\Users\Andrey\Documents\Embarcadero\Studio\Projects\Arithmetic\prj\DelphiCBuilder\ArithmeticBPL\Win64\Debug</Debugger_CWD>
-    </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1_Win64x)'!=''">
+        <Defines>WIN32;$(Defines)</Defines>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2)'!=''">
@@ -190,10 +172,8 @@
     <PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
         <BCC_UseClassicCompiler>false</BCC_UseClassicCompiler>
     </PropertyGroup>
-    <PropertyGroup Condition="'$(Cfg_2_Win64)'!=''">
-        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
-    </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2_Win64x)'!=''">
+        <Defines>WIN32;$(Defines)</Defines>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
     </PropertyGroup>
     <ItemGroup>
@@ -293,13 +273,7 @@
         <DelphiCompile Include="..\..\..\src\ArchiverInterface.pas">
             <BuildOrder>38</BuildOrder>
         </DelphiCompile>
-        <CppCompile Include="..\..\..\src\BitCoder.cpp">
-            <BuildOrder>42</BuildOrder>
-        </CppCompile>
         <CppCompile Include="..\..\..\src\CommonFunctions.cpp">
-            <BuildOrder>42</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="..\..\..\src\Context.cpp">
             <BuildOrder>42</BuildOrder>
         </CppCompile>
         <CppCompile Include="..\..\..\src\fpaq0.cpp">
@@ -308,24 +282,12 @@
         <DelphiCompile Include="..\..\..\src\ICallback.pas">
             <BuildOrder>41</BuildOrder>
         </DelphiCompile>
-        <CppCompile Include="..\..\..\src\ModelOrder0.cpp">
-            <BuildOrder>42</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="..\..\..\src\ModelOrder0Sort.cpp">
-            <BuildOrder>43</BuildOrder>
-        </CppCompile>
         <CppCompile Include="..\..\..\src\MTF.cpp">
-            <BuildOrder>43</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="..\..\..\src\Parameters.cpp">
             <BuildOrder>43</BuildOrder>
         </CppCompile>
         <DelphiCompile Include="..\..\..\src\ParametersInterface.pas">
             <BuildOrder>39</BuildOrder>
         </DelphiCompile>
-        <CppCompile Include="..\..\..\src\RangeCoder.cpp">
-            <BuildOrder>43</BuildOrder>
-        </CppCompile>
         <CppCompile Include="..\..\..\src\thread_pool.cpp">
             <BuildOrder>43</BuildOrder>
         </CppCompile>
@@ -469,6 +431,12 @@
                     </Platform>
                 </DeployFile>
                 <DeployFile LocalName="..\..\..\..\..\..\..\..\Public\Documents\Embarcadero\Studio\23.0\BPL\ArithmeticBPL.bpl" Configuration="Debug" Class="ProjectOutput"/>
+                <DeployFile LocalName=".\Win32\Release\ArithmeticBPL.bpl" Configuration="Release" Class="ProjectOutput">
+                    <Platform Name="Win32">
+                        <RemoteName>ArithmeticBPL.bpl</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
                 <DeployFile LocalName=".\Win64\Debug\ArithmeticBPL.bpl" Configuration="Debug" Class="ProjectOutput"/>
                 <DeployFile LocalName=".\Win64x\Debug\ArithmeticBPL.bpl" Configuration="Debug" Class="ProjectOutput">
                     <Platform Name="Win64x">
@@ -476,9 +444,9 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName=".\Win64x\Debug\ArithmeticBPL.pdb" Configuration="Debug" Class="DebugSymbols">
+                <DeployFile LocalName=".\Win64x\Release\ArithmeticBPL.bpl" Configuration="Release" Class="ProjectOutput">
                     <Platform Name="Win64x">
-                        <RemoteName>ArithmeticBPL.pdb</RemoteName>
+                        <RemoteName>ArithmeticBPL.bpl</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
