@@ -50,7 +50,7 @@ std::wstring stow(const char* astr)
 }
 #endif
 
-static void Trim(string_t& str) //Note: str will be changed
+void Trim(string_t& str) //Note: str will be changed
 {
     // remove any leading and traling spaces and tabs.
     size_t strBegin = str.find_first_not_of(U(" \t"));
@@ -74,5 +74,96 @@ void TrimAndUpper(string_t& str) //Note: str will be changed
 
     // to uppercase
     transform(str.begin(), str.end(), str.begin(), ::mytoupper);
+}
+
+
+// extracts filename from path with filename
+std::string ExtractFileName(const std::string& FileName)
+{
+	size_t i = FileName.length();
+	if (i == 0) return "";
+
+	do
+	{
+		i--;
+		if ((FileName[i] == '\\') || (FileName[i] == '/'))
+		{
+			i++;
+			break;
+		}
+	} while (i > 0);
+
+	return FileName.substr(i);
+}
+
+// extracts file dir from path with filename
+std::string ExtractFileDir(const std::string& FileName)
+{
+	size_t i = FileName.length();
+	if (i == 0) return "";
+
+	do
+	{
+		i--;
+		if ((FileName[i] == '\\') || (FileName[i] == '/'))
+		{
+			i++;
+			break;
+		}
+	} while (i > 0);
+
+	return FileName.substr(0, i);
+}
+
+std::string ExtractFileExt(const std::string& FileName)
+{
+	size_t i = FileName.length();
+	if (i == 0) return "";
+
+	bool f = false;
+	do
+	{
+		i--;
+		if (FileName[i] == '.')
+		{
+			f = true; // we found a dot
+			break;
+		}
+
+		if (FileName[i] == '\\' || FileName[i] == '/') // stop is folder delimiter found
+			break;
+
+	} while (i > 0);
+
+	if (f)
+		return FileName.substr(i);
+	else
+		return "";
+}
+
+std::string StripFileExt(const std::string& FileName)
+{
+	size_t i = FileName.length();
+	if (i == 0) return "";
+
+	bool f = false;
+	do
+	{
+		i--;
+		if (FileName[i] == '.')
+		{
+			f = true; // we found a dot
+			break;
+		}
+
+		if (FileName[i] == '\\' || FileName[i] == '/') // stop is folder delimiter found
+			break;
+
+	} while (i > 0);
+
+	if (f)
+		return FileName.substr(0, i);
+	else
+		return FileName;
 }
 
