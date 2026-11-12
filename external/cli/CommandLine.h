@@ -62,12 +62,20 @@ public:
     inline const vector_option_pt &GetOptions() { return m_Options; }
 
     /**
+    * @brief Gets pointer to an option by its name.
+    *
+    * @param opt The option name (short or long).
+    * @return pointer to COption on success, nullptr otherwise.
+    */
+    COption* GetOption(const cli_string& opt) const;
+
+    /**
      * @brief Check if a given option has been parsed.
      *
      * @param opt The option name (short or long).
      * @return true on success, false otherwise.
      */
-    bool HasOption(const cli_string &opt);
+    bool HasOption(const cli_string &opt) const;
 
     /**
      * @brief Retrieves one of the option arguments. If the option is not found
