@@ -30,7 +30,7 @@ using namespace std;
 //wtos используется:
 // для вызовов logger.Info(var) - они требуют ANSI
 // для выброса исключения. Исключения требуют всегда ANSI
-// Функции работы с файлами типа std::remove() требуют char* -> переписать через std::filesystem?
+// Функции работы с файлами типа std::remove() требуют char* -> уже переписал через std::filesystem
 
 
 #define OPT_A U("a")
@@ -111,7 +111,7 @@ int main(int argc, char* argv[])
 		LogEngine::InitFromFile(Global::LFGFILE_NAME); // throws an exception if file is not found
 
 	}
-	catch (FileException&)
+	catch (LogEngine::FileException&)
 	{
 #ifdef WIN32
 		// if ARPackLog.lfg is not found, try to find .lfg file in resources of .exe file
@@ -122,7 +122,7 @@ int main(int argc, char* argv[])
 				// try to load .lfg again 
 				LogEngine::InitFromFile(Global::LFGFILE_NAME); // throws an exception if file is not found
 			}
-			catch (FileException&)
+			catch (LogEngine::FileException&)
 			{
 				// if .lfg file cannot be loaded again - use default logger settings
 				InitDefaultLogger();
