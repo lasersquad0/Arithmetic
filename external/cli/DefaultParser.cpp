@@ -257,7 +257,7 @@ bool CDefaultParser::CheckMutuallyExclusive()
 bool CDefaultParser::Parse(COptionsList* options, CCommandLine* cmd, cli_char* argv[], int argc)
 {
     vector_string_t args;
-    args.resize(argc - 1, _U(""));
+    args.resize((size_t)(argc - 1), _U(""));
 
     for (int i = 1; i < argc; ++i) // i=1: bypass program name (argv[0])
     {
