@@ -13,6 +13,7 @@
 #include "Common.h"
 #include "DynamicArrays.h"
 
+LOGENGINE_NS_BEGIN
 
 #define FIO_EXCEPTION_PREFIX "Ini file exception : "
 
@@ -218,3 +219,5 @@ public:
 	}
 
 };
+
+LOGENGINE_NS_END
