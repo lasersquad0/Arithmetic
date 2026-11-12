@@ -5,12 +5,12 @@
 
 #pragma once
 
+#ifdef WIN32
 // this is to remove defines min, max in windows headers because they conflict with std::min std::max 
 #define NOMINMAX
-
-#ifdef WIN32
 #include <windows.h>
 #endif
+
 #include <iostream>
 #include <string>
 #include <sstream>
@@ -42,8 +42,17 @@ typedef std::ostream ostream_t;
 #endif
 
 
-//void Trim(std::string& str); //Note: str will be changed upon function return
+void Trim(string_t& str); //Note: str will be changed upon function return
 void TrimAndUpper(string_t& str); //Note: str will be changed upon function return
+
+//TODO shall we use string_t as a parameter of 4 functions below?
+// extracts filename from path with filename
+std::string ExtractFileName(const std::string& FileName);
+// extracts file dir from path with filename
+std::string ExtractFileDir(const std::string& FileName);
+std::string ExtractFileExt(const std::string& FileName);
+// removed an extension from file name
+std::string StripFileExt(const std::string& FileName);
 
 #ifndef WIN32
 static std::string WideToUTF8(const std::wstring& ws)
@@ -245,6 +254,7 @@ inline std::string MillisecToStr(uint64_t ms)
 * @details Group separator is defined by MyGroupSeparator class
 * @param IntType Any integral type (int, long, int64_t, bool, char, wchar_t, short, etc)
 */
+/*
 template<typename STRING, typename IntType>
 STRING toStringSep(IntType v)
 {
@@ -260,7 +270,7 @@ STRING toStringSep(IntType v)
         std::string do_grouping() const override { return "\3"; } // group by 3
     };
 
-    using stream_type = std::basic_stringstream<typename STRING::value_type, typename STRING::traits_type/*, std::allocator<typename STRING::value_type>*/>;
+    using stream_type = std::basic_stringstream<typename STRING::value_type, typename STRING::traits_type>;
     stream_type ss;
     ss.imbue(std::locale(ss.getloc(), new MyGroupSeparator()));
     ss << v;  // printing to string stream with formating
@@ -272,12 +282,13 @@ string_t toStringSep(IntType v)
 {
     return toStringSep<string_t, IntType>(v);
 }
-
+*/
 /** 
 * @brief Converts any integer like type into a std::string with group separator applied.
 * @details Group separator is defined by MyGroupSeparator class
 * @param IntType Any integral type (int, long, int64_t, bool, char, wchar_t, short, etc)
 */
+/*
 template<typename IntType>
 std::string toStringSepA(IntType v)
 {
@@ -295,12 +306,13 @@ std::string toStringSepA(IntType v)
     ss << v;  // printing to string stream with formating
     return ss.str();
 }
-
+*/
 /**
 * @brief Converts any integer like type into a std::wstring with group separator applied.
 * @details Group separator is defined by MyGroupSeparator class
 * @param IntType Any integral type (int, long, int64_t, bool, char, wchar_t, short, etc)
 */
+/*
 template<typename IntType>
 std::wstring toStringSepW(IntType v)
 {
@@ -318,7 +330,7 @@ std::wstring toStringSepW(IntType v)
     ss << v;  // printing to string stream with formating
     return ss.str();
 }
-
+*/
 // split string into array of strings using Delim as delimiter
 template<class STRING>
 void StringToArray(const STRING& str, std::vector<STRING>& arr, const typename STRING::value_type Delim = '\n')
