@@ -11,8 +11,76 @@
 
 //#include <exception> //unix
 #include <string>
-//#include <algorithm>
-#include "Common.h"
+//#include "Common.h"
+
+
+// compares two strings case insensitive
+template <typename STRING>
+bool EqualNCase(const STRING& str1, const STRING& str2)
+{
+	// make sure that STRING is one of instantiations of std::string
+	static_assert(std::is_base_of<std::basic_string<typename STRING::value_type, typename STRING::traits_type>, STRING>::value);
+
+	if (str1.length() == 0 && str2.length() == 0)
+		return true;
+	if ((str1.length() == 0) && (str2.length() > 0))
+		return false;
+	if ((str1.length() > 0) && (str2.length() == 0))
+		return false;
+
+	//#ifdef HAVE_STRCASECMP
+	//	return strcasecmp(s1, s2) == 0;
+	//#else
+
+		//for (; *s1 != '\0' && *s2 != '\0'; s1++, s2++)
+	for (size_t i = 0; i < str1.length() && i < str2.length(); i++)
+		if (toupper((str1[i])) != toupper((str2[i])))
+			return false;
+
+	if (str1.length() == str2.length())
+		return true;
+	else
+		return false;
+	//#endif
+}
+
+template<class STRING>
+int CompareNCase(const STRING& str1, const STRING& str2)
+{
+	// make sure that STRING is one of instantiations of std::string
+	static_assert(std::is_base_of<std::basic_string<typename STRING::value_type, typename STRING::traits_type>, STRING>::value);
+
+	if ((str1.length() == 0) && (str2.length() == 0)) // two empty strings are equal
+		return 0;
+
+	if ((str1.length() == 0)) //empty string is less any non empty 
+		return -1;
+
+	if (str2.length() == 0) // non-empty string is larger any empty one
+		return 1;
+
+	//#ifdef HAVE_STRCASECMP
+	//	return strcasecmp(s1, s2);
+	//#else
+	for (size_t i = 0; i < str1.length() && str2.length(); i++)
+	{
+		int upper1 = toupper((str1[i]));
+		int upper2 = toupper((str2[i]));
+
+		if (upper1 > upper2)
+			return 1;
+		else if (upper1 < upper2)
+			return -1;
+	}
+
+	if (str1.length() > str2.length())
+		return 1;
+	else if (str1.length() < str2.length())
+		return -1;
+	else
+		return 0;
+	//#endif
+}
 
 /// Class to compare other classes by operators ==, <, >
 // Actually it uses only two operators for comparing: == and >. It means that comparing classes need to implement only two compare operators. 
