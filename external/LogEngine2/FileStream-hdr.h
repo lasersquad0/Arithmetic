@@ -8,13 +8,13 @@
 
 #include <fcntl.h>
 #include <errno.h>
+#include <sys/stat.h>
 
 #ifdef WIN32
 #include <io.h>
 #include <sys/locking.h>
 #else
 #include <sys/io.h>
-#include <sys/stat.h>
 #include <unistd.h>
 #endif
 
