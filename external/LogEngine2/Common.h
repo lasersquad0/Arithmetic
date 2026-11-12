@@ -45,6 +45,8 @@ typedef unsigned long long ullong;
 #define BUILD_ENDL(_) ((_) += LFChar)
 #endif
 
+LOGENGINE_NS_BEGIN
+
 typedef std::lock_guard<std::recursive_mutex> mutexguard;
 typedef std::chrono::time_point<std::chrono::system_clock> tm_point;
 
@@ -120,73 +122,6 @@ std::string TrimLeft(const std::string& str);
 // removes any trailing space and tab symbols from string
 std::string TrimRight(const std::string& str);
 
-// compares two strings case insensitive
-template <typename STRING>
-bool EqualNCase(const STRING& str1, const STRING& str2)
-{
-	// make sure that STRING is one of instantiations of std::string
-	static_assert(std::is_base_of<std::basic_string<typename STRING::value_type, typename STRING::traits_type>, STRING>::value);
-
-	if (str1.length() == 0 && str2.length() == 0)
-		return true;
-	if ((str1.length() == 0) && (str2.length() > 0))
-		return false;
-	if ((str1.length() > 0) && (str2.length() == 0))
-		return false;
-
-	//#ifdef HAVE_STRCASECMP
-	//	return strcasecmp(s1, s2) == 0;
-	//#else
-
-		//for (; *s1 != '\0' && *s2 != '\0'; s1++, s2++)
-	for (uint i = 0; i < str1.length() && i < str2.length(); i++)
-		if (toupper((str1[i])) != toupper((str2[i])))
-			return false;
-
-	if (str1.length() == str2.length())
-		return true;
-	else
-		return false;
-	//#endif
-}
-
-template<class STRING>
-int CompareNCase(const STRING& str1, const STRING& str2)
-{
-	// make sure that STRING is one of instantiations of std::string
-	static_assert(std::is_base_of<std::basic_string<typename STRING::value_type, typename STRING::traits_type>, STRING>::value);
-
-	if ((str1.length() == 0) && (str2.length() == 0)) // two empty strings are equal
-		return 0;
-
-	if ((str1.length() == 0)) //empty string is less any non empty 
-		return -1;
-
-	if (str2.length() == 0) // non-empty string is larger any empty one
-		return 1;
-
-	//#ifdef HAVE_STRCASECMP
-	//	return strcasecmp(s1, s2);
-	//#else
-	for (uint i = 0; i < str1.length() && str2.length(); i++)
-	{
-		int upper1 = toupper((str1[i]));
-		int upper2 = toupper((str2[i]));
-
-		if (upper1 > upper2)
-			return 1;
-		else if (upper1 < upper2)
-			return -1;
-	}
-
-	if (str1.length() > str2.length())
-		return 1;
-	else if (str1.length() < str2.length())
-		return -1;
-	else
-		return 0;
-	//#endif
-}
 
 // checks if string contains unsigned integer or not
 bool isUInt(std::string& value);
@@ -198,7 +133,10 @@ std::string StrToLower(std::string str);
 
 std::string DisplaySystemVersion();
 
+LOGENGINE_NS_END
 
 #ifdef LOGENGINE_HEADER_ONLY
 #include "Common-hdr.h"
 #endif
+
+
