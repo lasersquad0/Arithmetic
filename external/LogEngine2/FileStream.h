@@ -1,7 +1,7 @@
 /*
  * FileStream.h
  *
- * Copyright 2025, LogEngine2 Project. All rights reserved.
+ * Copyright 2026, LogEngine2 Project. All rights reserved.
  *
  * See the COPYING file for the terms of usage and distribution.
  */
@@ -157,19 +157,20 @@ public:
 	}
 
 	// reading string char-by-char until EndLineChar ('\n') reached.
+	// characters sequence may contain \r\n as end of string, then delete \r if it goes before \n 
 	template<typename R>
 	R ReadString()
 	{
 		// check if class R is instantiation or descendant of std::basic_string
 		static_assert(std::is_base_of<std::basic_string<typename R::value_type, typename R::traits_type>, R>::value);
 
-		R value;
+		R value{};
 		do
 		{
 			int c = ReadChar<R>();
 			if (c == EndLineChar)
 			{
-				if (value[value.size() - 1] == CRChar) value.resize(value.size() - 1); // if '\r' has been read right BEFORE '\n' delete it
+				if (value.size() > 0 && value[value.size() - 1] == CRChar) value.resize(value.size() - 1); // if '\r' has been read right BEFORE '\n' delete it
 				return value;
 			};
 			if (c == -1) return value; // end of file reached
@@ -250,6 +251,16 @@ public:
 
 	std::string GetFileName() const { return FFileName; }
 
+};
+
+// helper class to safe unlock file if an excpetion thrown between Lock and Unlock calls.
+// works very similar to std::lock_guard for mutexes
+class FileLockerGuard
+{
+	TFileStream& FF;
+public:
+	FileLockerGuard(TFileStream& f) :FF(f) { f.Lock(); }
+	~FileLockerGuard() { FF.Unlock(); }
 };
 
 LOGENGINE_NS_END
