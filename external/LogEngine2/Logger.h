@@ -1,7 +1,7 @@
 /*
  * Logger.h
  *
- * Copyright 2025, LogEngine2 Project. All rights reserved.
+ * Copyright 2026, LogEngine2 Project. All rights reserved.
  *
  * See the COPYING file for the terms of usage and distribution.
  */
@@ -451,17 +451,28 @@ public:
 	static int ThreadProc(Logger* logger, LoggerQueue* queue)
 	{
 		LogEvent* current_msg;
-		do
+		while (true)
 		{
-			current_msg = queue->WaitForElement();
-			if (current_msg)
+			try
 			{
+				current_msg = queue->WaitForElement();
+				if (current_msg == nullptr) break; // nullptr as msg means that we need to stop this thread
+
 				LogEvent* event = current_msg;
 				logger->internalLog(*event);
 				delete event;
 			}
-
-		} while (current_msg); // nullptr as msg means that we need to stop this thread
+			catch (std::exception& e)
+			{
+				LogEvent ev(logger, std::format("Exception has caught by async logging thread: {}", e.what()), llError, GetThreadID(), GetCurrDateTime());
+				logger->internalLog(ev);
+			}
+			catch (...)
+			{
+				LogEvent ev(logger, "UNKNOWN exception has caught by async logging thread.", llError, GetThreadID(), GetCurrDateTime());
+				logger->internalLog(ev);
+			}
+		}
 
 		return 0;
 	}
