@@ -1,7 +1,7 @@
 /*
- * FileStream.cpp
+ * FileStream-hdr.h
  *
- * Copyright 2025, LogEngine2 Project. All rights reserved.
+ * Copyright 2026, LogEngine2 Project. All rights reserved.
  *
  * See the COPYING file for the terms of usage and distribution.
  */
@@ -86,7 +86,7 @@ LOGENGINE_INLINE std::string TStream::ReadPString()
 	size_t i;
 	*this >> i;    // reading string size
 	res.resize(i); // allocating space in string
-	Read(res.data(), i); // res.length());
+	Read(res.data(), i);
 	return res;
 }
 
@@ -115,7 +115,7 @@ LOGENGINE_INLINE int TMemoryStream::Read(void* Buffer, size_t Size)
 	if (Buffer == nullptr) return -1;
 	if (Size == 0) return -1;
 
-	FEOF = Size >= FSize - FRPos;
+	FEOF = Size >= FSize - FRPos; //TODO may be Size > FSize - FRPos to be more compatible with File Streams ?
 
 	if (FRPos + Size > FSize) Size = FSize - FRPos;
 	if (Size == 0) return 0; // we've have read everything (EOF reached)
@@ -191,6 +191,7 @@ LOGENGINE_INLINE TMemoryStream::pos_type TMemoryStream::SeekW(const off_t Offset
 	throw IOException("Invalid TMemoryStream::SeekW() mode.");
 }
 
+// Size has to be is in bytes! (not in chars)
 LOGENGINE_INLINE void TMemoryStream::SetBuffer(uint8_t* Buffer, size_t Size)
 {
 	ResetPos();
@@ -208,7 +209,7 @@ LOGENGINE_INLINE void TMemoryStream::UnsetBuffer()
 	// otherwise reset all positions and allocate buffer of default size
 	ResetPos();
 	FNeedFree = true;
-	FMemory = new uint8_t[DEFAULT_BUF_SIZE];
+	FMemory = static_cast<uint8_t*>(malloc(DEFAULT_BUF_SIZE)); //new uint8_t[DEFAULT_BUF_SIZE];
 	FSize = DEFAULT_BUF_SIZE;
 }
 
@@ -390,7 +391,8 @@ LOGENGINE_INLINE void TFileStream::Flush() const
 }
 
 // SIDE EFFECT: Lock looses current file position, moves it to the beginning of the file
-// Lock() refuses access to the file for other PROCESSES. Other THREADs in the same process still can write to the locked areas.
+// Lock() refuses access to the file for other PROCESSES. 
+// Other THREADs in the same process still can write to the locked areas.
 LOGENGINE_INLINE void TFileStream::Lock()
 {
 	Seek(0, TSeekMode::smFromBegin);
