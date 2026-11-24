@@ -35,8 +35,10 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 # Set minimal C++ version to C++20
 target_compile_features(${ARPACK} PRIVATE cxx_std_20)
 
-#set(CMAKE_C_COMPILER gcc-13)
-#set(CMAKE_CXX_COMPILER g++-13)
+if(NOT MSVC)
+    set(CMAKE_C_COMPILER gcc-13)
+    set(CMAKE_CXX_COMPILER g++-13)
+endif()
 
 # Add libraries include path.
 target_include_directories(${ARPACK} PRIVATE 
