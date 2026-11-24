@@ -28,8 +28,8 @@ using namespace std;
 // Do we really need to support string_t everywhere and compilation switch between Unicode and ANSI? No switching to ANSI does not compile. Need review.
 
 
-#define OPT_A _T("a")
-#define OPT_B _T("b")
+#define OPT_A U("a")
+#define OPT_B U("b")
 #define OPT_C _T("c")
 #define OPT_D _T("d")
 #define OPT_H _T("h")
@@ -44,7 +44,7 @@ using namespace std;
 static void DefineOptions(COptionsList& options)
 {    
     COption aa;
-    aa.ShortName(OPT_A).LongName(_T("add")).Descr(_T("Add files to archive")).Required(false).NumArgs(55).RequiredArgs(2);
+    aa.ShortName(OPT_A).LongName(U("add")).Descr(U("Add files to archive")).Required(false).NumArgs(55).RequiredArgs(2);
     options.AddOption(aa);
 
     COption xx;
