@@ -1,7 +1,7 @@
 /*
  * FileSink.h
  *
- * Copyright 2025, LogEngine2 Project. All rights reserved.
+ * Copyright 2026, LogEngine2 Project. All rights reserved.
  *
  * See the COPYING file for the terms of usage and distribution.
  */
@@ -67,10 +67,12 @@ protected:
 	void sendMsg(const LogEvent& e) override
 	{
 		std::string str = this->FormatString(e); // FormatString adds '\n' to the end of string
-		this->FStream->Lock();
+		
+		FileLockerGuard guard(*this->FStream);
+		
 		this->FStream->Seek(0, TSeekMode::smFromEnd); // Because Lock changes current file position, we have to call Seek after Lock() to move position back to the end of log file.
 		this->FBytesWritten += static_cast<ullong>(this->FStream->WriteLn(str));
-		this->FStream->Unlock();
+		//this->FStream->Unlock();
 	}
 public:
 	FileLockSink(const std::string& name, const std::string& fileName) : FileSink<Mutex>(name)
