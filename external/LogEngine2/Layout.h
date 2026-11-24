@@ -1,7 +1,7 @@
 /*
- * Logger.h
+ * Layout.h
  *
- * Copyright 2024, LogEngine Project. All rights reserved.
+ * Copyright 2026, LogEngine Project. All rights reserved.
  *
  * See the COPYING file for the terms of usage and distribution.
  */

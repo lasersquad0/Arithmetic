@@ -1,7 +1,7 @@
 /*
  * SynchronizedQueue.h
  *
- * Copyright 2025, LogEngine2 Project. All rights reserved.
+ * Copyright 2026, LogEngine2 Project. All rights reserved.
  *
  * See the COPYING file for the terms of usage and distribution.
  */
@@ -27,7 +27,7 @@ public:
 
     T WaitForElement() // T=LogEvent*
     {
-        std::unique_lock<std::mutex> lock(mtx);
+        std::unique_lock<std::mutex> lock(mtx); // we need unique_lock here because cv uses it. lock_guard does not work with cv.
         while (this->Count() == 0)
             cv.wait(lock);
 

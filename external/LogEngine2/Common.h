@@ -2,7 +2,7 @@
 /*
  * Common.h
  *
- * Copyright 2025, LogEngine2 Project. All rights reserved.
+ * Copyright 2026, LogEngine2 Project. All rights reserved.
  *
  * See the COPYING file for the terms of usage and distribution.
  */
@@ -129,6 +129,7 @@ bool isUInt(std::string& value);
 uint GetThreadID();
 uint GetThreadID(const std::thread::id& id);
 
+// parameter needs to be passed by value
 std::string StrToLower(std::string str);
 
 std::string DisplaySystemVersion();

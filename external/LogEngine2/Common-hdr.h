@@ -1,7 +1,7 @@
 /*
- * Common.cpp
+ * Common-hdr.h
  *
- * Copyright 2025, LogEngine2 Project. All rights reserved.
+ * Copyright 2026, LogEngine2 Project. All rights reserved.
  *
  * See the COPYING file for the terms of usage and distribution.
  */
@@ -302,6 +302,20 @@ LOGENGINE_INLINE std::string StringReplace(const std::string& S, const std::stri
 	return Result;
 }
 
+// remove any leading and traling \n and \r
+LOGENGINE_INLINE std::string DelCRLF(const std::string& str)
+{
+	size_t strBegin = str.find_first_not_of("\r\n");
+	if (strBegin == std::string::npos) return "";
+
+	size_t strEnd = str.find_last_not_of("\r\n"); // strEnd != npos always here
+
+	//if(strEnd != std::string::npos)
+	//	str.erase(strEnd + 1 /*, s.size() - strEnd*/);
+
+	return str.substr(strBegin, strEnd - strBegin + 1);
+}
+
 #define DATETIME_BUF 100
 
 LOGENGINE_INLINE tm_point GetCurrTimePoint()
@@ -400,20 +414,6 @@ LOGENGINE_INLINE std::string FormatCurrDateTime(const std::string& FormatStr)
 	std::strftime(ss, DATETIME_BUF, FormatStr.c_str(), &t);
 
 	return ss;
-}
-
-// remove any leading and traling \n and \r
-LOGENGINE_INLINE std::string DelCRLF(const std::string& str)
-{
-	size_t strBegin = str.find_first_not_of("\r\n");
-	if (strBegin == std::string::npos) return "";
-	
-	size_t strEnd = str.find_last_not_of("\r\n"); // strEnd != npos always here
-	
-	//if(strEnd != std::string::npos)
-	//	str.erase(strEnd + 1 /*, s.size() - strEnd*/);
-	
-	return str.substr(strBegin, strEnd - strBegin + 1);
 }
 
 // remove any leading and traling spaces, tabs, \n and \r.
